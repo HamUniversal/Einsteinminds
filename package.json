@@ -1,0 +1,27 @@
+{
+  "name": "einsteinminds",
+  "version": "5.0.0",
+  "description": "One intelligent gateway to the world's knowledge. A global learning intelligence platform.",
+  "private": false,
+  "scripts": {
+    "start": "npx serve public",
+    "dev": "npx serve public",
+    "deploy": "netlify deploy --prod --dir=public",
+    "deploy:preview": "netlify deploy --dir=public"
+  },
+  "keywords": [
+    "education",
+    "edtech",
+    "ai",
+    "learning",
+    "accessibility",
+    "coppa",
+    "open-education"
+  ],
+  "author": "Einsteinminds Project",
+  "license": "MIT",
+  "devDependencies": {
+    "netlify-cli": "^17.0.0",
+    "serve": "^14.0.0"
+  }
+}

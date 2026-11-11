@@ -1,0 +1,45 @@
+name: Deploy Preview
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify index.html exists
+        run: |
+          if [ ! -f public/index.html ]; then
+            echo "::error::public/index.html not found"
+            exit 1
+          fi
+          echo "✓ public/index.html found"
+
+      - name: Basic HTML sanity check
+        run: |
+          grep -q "<!DOCTYPE html>" public/index.html && echo "✓ Valid doctype"
+          grep -q "</html>" public/index.html && echo "✓ Closing html tag present"
+
+      - name: Check required accessibility landmarks
+        run: |
+          grep -q "role=\"alertdialog\"" public/index.html && echo "✓ Crisis dialog present"
+          grep -q "aria-label" public/index.html && echo "✓ ARIA labels present"
+
+  deploy-preview:
+    needs: validate
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: './public'
+          production-deploy: false
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
