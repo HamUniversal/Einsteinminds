@@ -24,12 +24,11 @@ netlify deploy --prod
 
 ## GitHub Pages (Alternative)
 
-1. Move `public/index.html` to repo root
-2. Settings → Pages → Deploy from branch → `main` / `root`
+1. Settings → Pages → Deploy from branch → `main` / `root`
 
 ## Vercel / Cloudflare Pages
 
-Both work — set the publish/output directory to `public`.
+Both work — set the publish/output directory to the repository root (`.`).
 
 ## Environment Variables
 

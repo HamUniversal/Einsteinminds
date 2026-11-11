@@ -49,11 +49,11 @@ resources through an AI companion built on **epistemic humility** and
 \```bash
 git clone https://github.com/YOUR_USERNAME/einsteinminds.git
 cd einsteinminds
-npx serve public
-# or simply open public/index.html in a browser
+python3 -m http.server 8000
 \```
 
-No build step required — Einsteinminds is a zero-dependency single-file app.
+Open http://localhost:8000 in your browser. You can also open `index.html`
+directly. No build step or npm dependencies are required.
 
 ---
 
@@ -87,9 +87,8 @@ one full district license for an under-resourced school at zero cost.
 ## 📂 Project Structure
 
 \```
-public/index.html      The complete application (single file, zero deps)
+index.html             The complete application (single file, zero deps)
 docs/                  Deployment & architecture guides
-.github/workflows/     CI/CD for Netlify preview deploys
 \```
 
 ---

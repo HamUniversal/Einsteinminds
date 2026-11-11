@@ -18,14 +18,14 @@ Before contributing, confirm your change:
 \```bash
 git clone https://github.com/YOUR_USERNAME/einsteinminds.git
 cd einsteinminds
-npx serve public
+python3 -m http.server 8000
 \```
 
-Open http://localhost:3000 in your browser.
+Open http://localhost:8000 in your browser. No npm dependencies are required.
 
 ## Project Architecture
 
-Einsteinminds is a **zero-dependency single-file application** (`public/index.html`).
+Einsteinminds is a **zero-dependency single-file application** (`index.html`).
 This is intentional — it maximizes global accessibility and minimizes supply-chain risk.
 
 ### Key modules (all in one file, clearly sectioned)
