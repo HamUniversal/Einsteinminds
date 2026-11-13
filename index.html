@@ -1588,6 +1588,9 @@ const CATS=[
 IC.box='<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>';
 CATS.push({id:'making',ic:'box',c:'#FF6B35',n:'Design, Making & Innovation',d:'Engineering design, prototyping, physical computing and the craft of building real things',count:76420,subs:['Engineering Design Process','Prototyping and 3D Printing','Product and Industrial Design','Design Thinking and Innovation','Electronics and Physical Computing','Craft, Textiles and Fabrication'],p:[['Tinkercad','https://www.tinkercad.com','3D design, circuits and coding for makers','#1E88E5'],['Adafruit','https://www.adafruit.com','Physical computing and electronics guides','#1B5E20'],['SparkFun','https://www.sparkfun.com','Electronics tutorials and parts','#C62828'],['GrabCAD','https://grabcad.com','Community CAD and model library','#0277BD'],['IDEO U','https://www.ideou.com','Design thinking courses','#424242'],['LEGO Education','https://www.lego.com/en-us/education','Hands-on STEM building','#D0102A'],['Hackster.io','https://www.hackster.io','Electronics and IoT project guides','#F44336'],['Engineering is Elementary','https://www.eie.org','K-8 design and engineering','#388E3C'],['Prusa Academy','https://help.prusa3d.com','3D-printing education','#E65100'],['Onshape Education','https://www.onshape.com','Cloud parametric CAD','#1565C0'],['Autodesk Fusion EDU','https://www.autodesk.com/education','Professional CAD/CAM for schools','#0288D1'],['MakerEd','https://makered.org','Maker-education community','#8E24AA']]});
 D.en.cat_making='Design, Making & Innovation';Onboard.sparkList.push('making');
+IC.box='<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>';
+CATS.push({id:'making',ic:'box',c:'#FF6B35',n:'Design, Making & Innovation',d:'Engineering design, prototyping, physical computing and the craft of building real things',count:76420,subs:['Engineering Design Process','Prototyping and 3D Printing','Product and Industrial Design','Design Thinking and Innovation','Electronics and Physical Computing','Craft, Textiles and Fabrication'],p:[['Tinkercad','https://www.tinkercad.com','3D design, circuits and coding for makers','#1E88E5'],['Adafruit','https://www.adafruit.com','Physical computing and electronics guides','#1B5E20'],['SparkFun','https://www.sparkfun.com','Electronics tutorials and parts','#C62828'],['GrabCAD','https://grabcad.com','Community CAD and model library','#0277BD'],['IDEO U','https://www.ideou.com','Design thinking courses','#424242'],['LEGO Education','https://www.lego.com/en-us/education','Hands-on STEM building','#D0102A'],['Hackster.io','https://www.hackster.io','Electronics and IoT project guides','#F44336'],['Engineering is Elementary','https://www.eie.org','K-8 design and engineering','#388E3C'],['Prusa Academy','https://help.prusa3d.com','3D-printing education','#E65100'],['Onshape Education','https://www.onshape.com','Cloud parametric CAD','#1565C0'],['Autodesk Fusion EDU','https://www.autodesk.com/education','Professional CAD/CAM for schools','#0288D1'],['MakerEd','https://makered.org','Maker-education community','#8E24AA']]});
+D.en.cat_making='Design, Making & Innovation';Onboard.sparkList.push('making');
 const catById=id=>CATS.find(c=>c.id===id);
 const categoryLabel=c=>c?T(`cat_${c.id}`):'';
 const goalCategory=g=>CATS.find(c=>c.id===g.s||c.subs.includes(g.s))||CATS[0];
@@ -2146,6 +2149,22 @@ document.addEventListener('pointerdown',e=>{const b=e.target.closest('.btn,.chip
   sp.className='rip';sp.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX-r.left-s/2}px;top:${e.clientY-r.top-s/2}px`;
   if(getComputedStyle(b).position==='static')b.style.position='relative';b.appendChild(sp);setTimeout(()=>sp.remove(),640)});
 
+  Object.assign(D.en,{
+h_sub:"One calm gateway to curated learning. Ask, explore, build — with honest labels on everything.",
+ag_desc:"A demonstration coach. Hints and examples on request — no live model or source lookup behind it yet.",
+e_sub:"Sixteen doors into curated knowledge. Open any one to see the providers listed inside.",
+l_sub:"Set a goal, see your next step, and follow a plan that bends when life does.",
+p_sub:"The things you made, the feedback you acted on, and how each revision changed — yours to keep and export. Items stay labelled self-submitted until a real review exists.",
+a_sub:"Low-stakes practice that points to your next step — never a verdict on you.",
+w_sub:"Optional, private, and never judgmental. Support for the whole person behind the learner.",
+st_sub:"Technology that serves your focus, not harvests it.",
+ed_sub:"Plan, differentiate and assess with a co-pilot preview — static samples, no live model connected.",
+pa_sub:"Guide, don't surveil. Progress and themes — never transcripts.",
+i_sub:"Enterprise tooling for schools and systems — shown here as an interface preview.",
+s_sub:"Appearance, language, privacy, consent and accessibility — plainly under your control.",
+pl_pro_d:"Adaptive plans, progress history, and richer practice — the loop, turned up. Preview only; billing not connected.",
+pl_pro_f4:"Portfolio export & revision history"
+});
 /* ═══ BOOT ═══ */
 document.addEventListener('DOMContentLoaded',()=>{
   Theme.init();Settings.init();Auth.init();I18n.apply();renderNotifs();
