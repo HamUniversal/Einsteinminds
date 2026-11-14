@@ -106,3 +106,4 @@ MIT © Einsteinminds Project. See [LICENSE](LICENSE).
 
 *Built for the learner whose family has limited resources. Built for the
 teacher overwhelmed by administration. Built for human potential.*
+   automation test
