@@ -1751,7 +1751,7 @@ if(!session)throw new Error('no session');
 const res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,resources})});
 const out=await res.json();
 if(res.ok&&out&&out.reply){const html=esc(out.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
-return `<p>${html}</p><p class="bs muted">${out.demo?T('ag_demo'):T('ag_live_note')}</p>`}
+return `<p>${html}</p><p class="bs muted">${out.demo?T('ag_demo')+(out.reason?` · diagnostic: ${out.reason}`:''):T('ag_live_note')}</p>`}
 }catch(e){}
 return `<p><b>${T('loop_coach_'+this.intent)}</b></p><p>${T('loop_coach_'+this.intent+'_d')}</p><p class="bs muted">${T('ag_demo')}</p>`}};
 /* ═══ EDUCATOR ═══ */
