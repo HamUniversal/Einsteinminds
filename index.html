@@ -1785,8 +1785,19 @@ const Agent={mode:'general',intent:'hint',tools:new Set(),
     const t=document.createElement('div');t.className='msg';
     t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div></div>`;
     $('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
-    setTimeout(()=>{t.remove();this.push(this.respond(q))},900+Math.random()*700)},
-  respond(){return `<p><b>${T('loop_coach_'+this.intent)}</b></p><p>${T('loop_coach_'+this.intent+'_d')}</p><p class="bs muted">${T('ag_demo')}</p>`}};
+    setTimeout(async()=>{t.remove();this.push(await this.respond(q))},900+Math.random()*700);
+  async respond(q){
+const resources=(()=>{try{const words=q.toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>3);
+return RESOURCE_INDEX.map(r=>({r,s:words.reduce((n,w)=>n+((r.title+' '+r.desc+' '+r.sub).toLowerCase().includes(w)?1:0),0)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,6).map(x=>({title:x.r.title,url:x.r.url}))}catch(e){return[]}})();
+try{
+const{data:{session}}=await supabaseClient.auth.getSession();
+if(!session)throw new Error('no session');
+const res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,resources})});
+const out=await res.json();
+if(res.ok&&out&&out.reply){const html=esc(out.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
+return `<p>${html}</p><p class="bs muted">${out.demo?T('ag_demo'):T('ag_live_note')}</p>`}
+}catch(e){}
+return `<p><b>${T('loop_coach_'+this.intent)}</b></p><p>${T('loop_coach_'+this.intent+'_d')}</p><p class="bs muted">${T('ag_demo')}</p>`}};
 
 /* ═══ EDUCATOR ═══ */
 const TA_CHIPS=[['ta_ell','ell'],['ta_scaf','scaf'],['ta_adv','adv'],['ta_vis','vis'],['ta_rub','rub'],['ta_ass','ass'],['ta_par','par'],['ta_iep','iep'],['ta_ppt','ppt'],['ta_lab','lab'],['ta_hw','hw'],['ta_pd','pd']];
@@ -2269,5 +2280,11 @@ var mn=document.getElementById('moreN');if(mn)mn.textContent=mn.textContent.spli
 fixCounts();
 }catch(err){console.error('Einsteinminds upgrade patch skipped:',err)}})();
 </script>
+<script>Object.assign(D.en,{
+ag_live_note:"Live model reply for signed-in adult staging accounts. Check important claims against the cited providers.",
+ag_desc:"A learning coach with a live model endpoint for signed-in adult staging; labelled scripted demo whenever the model is unreachable.",
+ag_online:"Live coach endpoint connected · demo fallback labelled",
+proto_notice:"Prototype demo: Supabase Auth and the coach endpoint are configured for adult-only staging tests. Payments, educator checks and parental-consent verification are not connected; crisis support is not emergency monitoring."
+});</script>
 </body>
 </html>
