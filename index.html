@@ -2122,7 +2122,7 @@ pl_pro_f4:"Portfolio export & revision history"
 });
 /* ═══ BOOT ═══ */
 document.addEventListener('DOMContentLoaded',()=>{
-Theme.init();Settings.init();Auth.init();I18n.apply();renderNotifs();
+Theme.init();Settings.init();window.addEventListener('load',()=>Auth.init(),{once:true});I18n.apply();renderNotifs();
 $$('.mdl-x').forEach(button=>button.setAttribute('aria-label',T('c_close')));
 Nav.render();Home.render();Explore.render();Lib.render();Learn.render();Portfolio.render();Well.render();Screen.render();Edu.render();Parent.render();Inst.render();Assess.render();Agent.renderChrome();
 $('#sbToggle').onclick=()=>Nav.toggleMin();
