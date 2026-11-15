@@ -8,6 +8,7 @@ const required = [
   'assets/resource-network-core.js',
   'assets/einsteinminds-resource-network.js',
   'assets/resource-network.css',
+  'assets/auth-route-guard.js',
   '.htaccess',
   '.github/workflows/validate.yml',
   'README.md'
@@ -25,6 +26,8 @@ const checks = [
   [html.includes('/assets/resource-network-core.js'), 'index.html loads the resource core'],
   [html.includes('/assets/einsteinminds-resource-network.js'), 'index.html loads the resource network UI'],
   [html.includes('/assets/resource-network.css'), 'index.html loads the resource network stylesheet'],
+  [html.includes('/assets/auth-route-guard.js'), 'index.html loads the protected-route guard'],
+  [fs.readFileSync(path.join(root, 'assets/auth-route-guard.js'), 'utf8').includes('privateRoutes'), 'protected-route guard defines private routes'],
   [!html.includes('MASTER UPGRADE PATCH v9.0'), 'legacy synthetic 2.4M patch removed'],
   [!html.includes('MASTER PATCH v9.2'), 'legacy v9.2 fake catalogue patch removed'],
   [!html.includes('id="iabFrame"'), 'legacy in-app iframe removed'],
