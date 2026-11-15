@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, upgrade/resource-network-v1]
+    branches: [main, upgrade/resource-network-v1, upgrade/resource-network-v2]
   workflow_dispatch:
 
 permissions:
