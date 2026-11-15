@@ -1716,14 +1716,14 @@ const Explore={render(){$('#taxGrid').innerHTML=CATS.map((c,i)=>`<div class="tax
 /* ═══ AGENT ═══ */
 const MODES=['general','research','explain','create','analyze','code','translate','math','write','teach','debate','summarize'];
 const TOOLS=[['tl_web','globe','blue'],['tl_img','image','purple'],['tl_code','code','green'],['tl_doc','file','orange'],['tl_viz','chart','pink'],['tl_voice','volume','teal']];
-const Agent={mode:'general',intent:'hint',tools:new Set(),
+const Agent={mode:'general',intent:'hint',tools:new Set(),history:[],
 renderChrome(){$('#agCaps').innerHTML=MODES.map(m=>`<button class="chip ${this.mode===m?'on':''}" onclick="Agent.setMode('${m}')">${T('m_'+m)}</button>`).join('');
 const intents=['hint','alternate','example','check'];
 $('#agTools').innerHTML=intents.map(name=>`<button class="tool intent ${this.intent===name?'on':''}" onclick="Agent.setIntent('${name}',this)">${T('loop_coach_'+name)}</button>`).join('')+
 TOOLS.map(([k,ic,c])=>`<button class="tool ${this.tools.has(k)?'on':''}" data-c="${c}" onclick="Agent.tool('${k}',this)">${svg(ic)}${T(k)}</button>`).join('');
 if(!$('#agMsgs').children.length)this.welcome()},
 welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>${T('ag_w1')}</p><p>${T('ag_w2')}</p><p class="bs muted">${T('ag_w3')}</p></div></div>`},
-clear(){$('#agMsgs').innerHTML='';this.welcome();Toast.show(T('c_clear'),'ok')},
+clear(){this.history=[];$('#agMsgs').innerHTML='';this.welcome();Toast.show(T('c_clear'),'ok')},
 setMode(m){this.mode=m;this.renderChrome();Toast.show(T('m_'+m),'ok')},
 setIntent(name,el){this.intent=name;$$('#agTools .intent').forEach(button=>button.classList.toggle('on',button===el))},
 tool(k,el){this.tools.has(k)?this.tools.delete(k):this.tools.add(k);el.classList.toggle('on');Toast.show('Tool selection preview only; no service is connected.','warn')},
@@ -1741,20 +1741,21 @@ this.push(esc(q),true);ta.value='';ta.style.height='auto';
 const t=document.createElement('div');t.className='msg';
 t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div></div>`;
 $('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
-setTimeout(async()=>{t.remove();this.push(await this.respond(q))},900+Math.random()*700);
+const history=this.history.slice(-12);this.history.push({role:'user',content:q});
+setTimeout(async()=>{t.remove();this.push(await this.respond(q,history))},900+Math.random()*700);
 },
-async respond(q){
-const resources=(()=>{try{const words=q.toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>3);
-return RESOURCE_INDEX.map(r=>({r,s:words.reduce((n,w)=>n+((r.title+' '+r.desc+' '+r.sub).toLowerCase().includes(w)?1:0),0)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,6).map(x=>({title:x.r.title,url:x.r.url}))}catch(e){return[]}})();
+async respond(q,history=[]){
+const liveItems=window.EinsteinmindsResourceNetwork?.state?.items||[];
+const resources=liveItems.slice(0,6).map(r=>({title:r.name||r.title,url:r.canonical_url||r.url})).filter(r=>r.title&&r.url);
 try{
 const{data:{session}}=await supabaseClient.auth.getSession();
 if(!session)throw new Error('no session');
-const res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,resources})});
+const res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resources})});
 const out=await res.json();
-if(res.ok&&out&&out.reply){const html=esc(out.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
-return `<p>${html}</p><p class="bs muted">${out.demo?T('ag_demo')+(out.reason?` · diagnostic: ${out.reason}`:''):T('ag_live_note')}</p>`}
-}catch(e){}
-return `<p><b>${T('loop_coach_'+this.intent)}</b></p><p>${T('loop_coach_'+this.intent+'_d')}</p><p class="bs muted">${T('ag_demo')}</p>`}};
+if(res.ok&&out&&out.reply){this.history.push({role:'assistant',content:out.reply});const response=esc(out.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
+return `<p>${response}</p><p class="bs muted">${out.demo?T('ag_demo')+(out.reason?` · diagnostic: ${out.reason}`:''):T('ag_live_note')+(out.model?` · ${esc(out.model)}`:'')}</p>`}
+const reason=out?.error||`HTTP ${res.status}`;return `<p>Einstein could not complete this response. ${esc(reason)} Please try again.</p><p class="bs muted">No scripted answer was substituted.</p>`
+}catch(e){return `<p>Einstein could not reach the AI service: ${esc(e.message||String(e))}. Please try again.</p>`}};
 /* ═══ EDUCATOR ═══ */
 const TA_CHIPS=[['ta_ell','ell'],['ta_scaf','scaf'],['ta_adv','adv'],['ta_vis','vis'],['ta_rub','rub'],['ta_ass','ass'],['ta_par','par'],['ta_iep','iep'],['ta_ppt','ppt'],['ta_lab','lab'],['ta_hw','hw'],['ta_pd','pd']];
 const Edu={render(){
