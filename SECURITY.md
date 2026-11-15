@@ -31,7 +31,7 @@ using the channel above.
 - **Data minimization** — we collect only what a feature requires
 - **Client-side persistence** via localStorage (no hidden server storage)
 - **COPPA 2026** Verifiable Parental Consent before unlocking AI features for under-13s
-- **Content Security Policy** and security headers enforced via `netlify.toml`
+- Security headers are configured in the Hostinger `.htaccess` file; a Content Security Policy has not yet been enabled.
 
 ## Responsible Disclosure
 
