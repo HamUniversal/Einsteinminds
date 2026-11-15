@@ -1211,7 +1211,7 @@ au_signin:"Sign in",
 au_signup:"Create staging account",
 us_in:"Staging sign in",
 ag_desc:"Demonstration assistant. Responses are examples; no AI model or source search is connected.",
-ag_online:"AI learning partner connected",
+ag_online:"AI response service · availability checked per request",
 ag_w1:"Welcome to the Einsteinminds prototype.",
 ag_w2:"This interface previews possible learning tools. It cannot answer questions using a live AI model.",
 ag_w3:"Demo responses are not generated, checked, or supported by verified sources. Do not rely on them for factual or consequential decisions.",
@@ -1247,7 +1247,7 @@ s_priv:"Local demo settings",s_pers:"AI personalization preference (demo)",
 s_pers_d:"This preference is stored in this browser; no AI service is connected.",
 s_share:"Institution sharing preference (demo)",
 s_share_d:"This preference is stored locally; no data is shared with an institution.",
-ag_online:"AI learning partner connected",
+ag_online:"AI response service · availability checked per request",
 h_sub:"Explore a sample learning interface. Ask Einstein is a scripted demo.",
 h_badge:"unique provider listings · external sites not independently reviewed",
 h_recsub:"Sample recommendations; not personalized.",
@@ -1734,7 +1734,7 @@ if(Crisis.check(q)){Crisis.open();ta.value='';return}
 if(!Auth.signedIn){Auth.open('in');Toast.show('Sign in with an adult-only staging account to continue.','warn');return}
 if(Auth.childLocked()){VPC.open();Toast.show(T('vpc_t'),'warn');return}
 if(!Usage.allowed()){this.push(`<p><b>${T('t_limit')}</b></p><p class="bs muted" style="margin-top:8px">${T('pl_pro')} — ${T('us_unlim')}, Code Interpreter, Data Viz, Virtual Labs.</p><div style="margin-top:12px"><button class="btn btn-p btn-sm" onclick="M.open('pricingModal')">${T('us_up')}</button></div>`);return}
-this.busy=true;const sendButton=$('#agSend');if(sendButton)sendButton.disabled=true;
+this.busy=true;const sendButton=$('.ag-send');if(sendButton)sendButton.disabled=true;
 this.push(esc(q),true);ta.value='';ta.style.height='auto';
 const t=document.createElement('div');t.className='msg';t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div><p class="bs muted">Einstein is thinking…</p></div>`;$('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
 const prior=this.history.slice(-14);this.history.push({role:'user',content:q});
