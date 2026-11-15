@@ -31,6 +31,7 @@ jobs:
         run: |
           node --check assets/resource-network-core.js
           node --check assets/einsteinminds-resource-network.js
+          node --check assets/auth-route-guard.js
           node --check scripts/apply-update.mjs
           node --check scripts/validate-release.mjs
       - name: Run tests
