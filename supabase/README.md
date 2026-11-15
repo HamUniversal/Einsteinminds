@@ -8,26 +8,26 @@ The connected project already contains the resource-network schema, RLS policies
 
 `profiles`, `resource_categories`, `resources`, `resource_category_links`, `resource_sources`, `resource_verification_evidence`, `resource_outbound_events`.
 
-RLS is enabled for the observed tables. Public reads are scoped to published resources and active categories. Catalogue writes are reserved for roles in `app_metadata` (`admin` / `catalogue_editor`). Outbound event insertion is constrained to a published resource and its stored official domain.
+RLS is enabled for all seven public tables. Anonymous users can read the public catalogue and insert only minimal outbound events; they cannot read profiles or write catalogue tables. Authenticated users can read their own profile and manage only that row. Catalogue writes are limited by RLS to JWT `app_metadata.role` values `admin` or `catalogue_editor`; user-editable `user_metadata` is not used for authorization. Outbound event insertion is constrained to a published resource and its stored official domain. These rules were exercised in rollback-only SQL role simulations.
 
 ## Active Edge Functions
 
 - `agent` v10 — authenticated AI learning assistant; honest scripted fallback if no model provider is configured.
-- `resource-search` v3 — catalogue search, category statistics, and learning-stage filtering.
-- `resource-outbound` v2 — UUID-to-stored-URL resolution, official-host check, minimal event logging, and safe UTM tags.
-- `provider-introduction` v1 — original official-page metadata retrieval and caching.
+- `resource-search` v4 — catalogue search, category statistics, and learning-stage filtering.
+- `resource-outbound` v3 — UUID-to-stored-URL resolution, official-host check, minimal event logging, and safe UTM tags.
+- `provider-introduction` v2 — original official-page metadata retrieval and caching.
 
-The frontend patch uses these existing deployed functions and does not redeploy or modify them. It also does not apply a database migration.
+The frontend uses these existing deployed functions; this authentication hardening did not redeploy or modify any Edge Function.
 
 ## GitHub source-of-truth work still required
 
-The Supabase project has these four migration entries:
+The Supabase project has these six migration entries:
 
 - `20261115022622_resource_network_v1`
 - `20261115022922_resource_policy_performance_hardening`
 - `20261115023213_resource_category_counts_rpc`
-- `20261115025852_resource_category_admin_and_count_fix`
+- `20261115025852_resource_category_admin_and_count_fix`\n- `20261115180822_auth_least_privilege_grants`\n- `20261115180838_grant_authenticated_evidence_review`
 
-Their SQL source files and the exact currently deployed source for all four Edge Functions have not yet been exported into this repository. Export those exact deployed files from Supabase before changing backend behavior. Do not write guessed replacement migrations or deploy a newly reconstructed function over a working production function.
+The two authentication hardening migrations are included in this repository. The original four migration SQL files and exact deployed source for all four Edge Functions still need to be exported into GitHub before it can be the complete reproducible source of truth for the backend. Do not deploy reconstructed Edge Functions over the live versions.
 
-Never place `SUPABASE_SERVICE_ROLE_KEY` or any Supabase secret key in client code. The browser uses only the project URL and publishable key; Edge Functions keep server-side keys in Supabase-managed secrets.
+Supabase Auth currently has one confirmed user and one profile. No `admin` or `catalogue_editor` app-metadata roles are assigned, so catalogue administration remains intentionally unavailable until a trusted administrator explicitly provisions a role. The security advisor reports leaked-password protection disabled; enable it in Supabase Authentication password settings (Pro plan or above).\n\nNever place `SUPABASE_SERVICE_ROLE_KEY` or any Supabase secret key in client code. The browser uses only the project URL and publishable key; Edge Functions keep server-side keys in Supabase-managed secrets.
