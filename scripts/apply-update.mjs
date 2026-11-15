@@ -20,33 +20,62 @@ for (const required of [indexPath, corePath, appPath, cssPath, hostingerReadmePa
 }
 
 let html = fs.readFileSync(indexPath, 'utf8');
-const legacyMarker = '<!-- ═══ MASTER UPGRADE PATCH v9.0';
-const bodyEnd = html.toLowerCase().lastIndexOf('</body>');
-if (bodyEnd < 0) fail('index.html has no closing </body> tag.');
+const bodyClose = html.toLowerCase().lastIndexOf('</body>');
+const headClose = html.toLowerCase().indexOf('</head>');
+if (bodyClose < 0) fail('index.html has no closing </body> tag.');
+if (headClose < 0) fail('index.html has no closing </head> tag.');
 
-const replacement = `\n<!-- Einsteinminds Resource Network: Supabase-backed catalogue; no synthetic provider generation. -->\n<script src="/assets/resource-network-core.js"></script>\n<script src="/assets/einsteinminds-resource-network.js"></script>\n`;
-const legacyStart = html.indexOf(legacyMarker);
-if (legacyStart >= 0) {
-  html = html.slice(0, legacyStart) + replacement + html.slice(bodyEnd);
-} else if (!html.includes('/assets/einsteinminds-resource-network.js')) {
-  const currentBodyEnd = html.toLowerCase().lastIndexOf('</body>');
-  html = html.slice(0, currentBodyEnd) + replacement + html.slice(currentBodyEnd);
-} else {
-  console.log('Resource Network script is already referenced; legacy block not found.');
+const legacyMarkers = [
+  '<!-- ═══ MASTER UPGRADE PATCH v9.0',
+  '<!-- ═══ MASTER PATCH v9.2'
+];
+const legacyPositions = legacyMarkers.map((marker) => html.indexOf(marker)).filter((index) => index >= 0);
+if (legacyPositions.length) {
+  // The legacy patches were appended after the original app. Remove that entire
+  // appended tail so styles, iframe markup, synthetic data and scripts are removed together.
+  const firstLegacyPatch = Math.min(...legacyPositions);
+  if (firstLegacyPatch > bodyClose) fail('Legacy patch marker occurs after the closing body tag.');
+  html = html.slice(0, firstLegacyPatch) + html.slice(bodyClose);
 }
 
-if (!html.includes('/assets/resource-network.css')) {
-  const headEnd = html.toLowerCase().indexOf('</head>');
-  if (headEnd < 0) fail('index.html has no closing </head> tag.');
-  html = html.slice(0, headEnd) + '\n<link rel="stylesheet" href="/assets/resource-network.css">\n' + html.slice(headEnd);
+const assetRefs = [
+  '/assets/resource-network-core.js',
+  '/assets/einsteinminds-resource-network.js',
+  '/assets/resource-network.css'
+];
+for (const ref of assetRefs) {
+  const occurrences = html.split(ref).length - 1;
+  if (occurrences > 1) fail(`Duplicate asset reference detected: ${ref}`);
+}
+
+if (!html.includes(assetRefs[2])) {
+  const currentHeadClose = html.toLowerCase().indexOf('</head>');
+  html = html.slice(0, currentHeadClose) +
+    '\n<link rel="stylesheet" href="/assets/resource-network.css">\n' +
+    html.slice(currentHeadClose);
+}
+if (!html.includes(assetRefs[0]) || !html.includes(assetRefs[1])) {
+  const currentBodyClose = html.toLowerCase().lastIndexOf('</body>');
+  const scripts = '\n<!-- Einsteinminds Resource Network: live Supabase catalogue; no synthetic provider generation. -->\n' +
+    '<script src="/assets/resource-network-core.js"></script>\n' +
+    '<script src="/assets/einsteinminds-resource-network.js"></script>\n';
+  html = html.slice(0, currentBodyClose) + scripts + html.slice(currentBodyClose);
+}
+
+const forbidden = [
+  ['legacy v9.0 marker', 'MASTER UPGRADE PATCH v9.0'],
+  ['legacy v9.2 marker', 'MASTER PATCH v9.2'],
+  ['in-app browser iframe', 'id="iabFrame"'],
+  ['legacy browser overlay', 'id="inAppBrowser"'],
+  ['synthetic resource generator', 'VirtualDB']
+];
+for (const [label, token] of forbidden) {
+  if (html.includes(token)) fail(`Legacy content remains after cleanup: ${label}`);
 }
 
 fs.writeFileSync(indexPath, html, 'utf8');
-
-// Replace the legacy Netlify-oriented project README with the correct stack guide.
 fs.copyFileSync(hostingerReadmePath, path.join(root, 'README.md'));
 
-// Remove obsolete Netlify configuration and malformed legacy workflow locations.
 for (const relative of ['netlify.toml', 'Qwen_yaml_20261111_zaqkq6e4u.yaml', 'docs:DEPLOYMENT.md']) {
   const target = path.join(root, relative);
   if (fs.existsSync(target)) fs.rmSync(target, { force: true });
@@ -54,13 +83,16 @@ for (const relative of ['netlify.toml', 'Qwen_yaml_20261111_zaqkq6e4u.yaml', 'do
 const malformedWorkflow = path.join(root, '.github', 'workflows', '.github');
 if (fs.existsSync(malformedWorkflow)) fs.rmSync(malformedWorkflow, { recursive: true, force: true });
 
-// Replace false deployment/security references without rewriting unrelated policy text.
 const securityPath = path.join(root, 'SECURITY.md');
 if (fs.existsSync(securityPath)) {
-  const security = fs.readFileSync(securityPath, 'utf8').replace(/\*\*Content Security Policy\*\* and security headers enforced via `netlify\.toml`/g, 'Security headers are configured in the Hostinger `.htaccess` file; a Content Security Policy has not yet been enabled.');
+  const security = fs.readFileSync(securityPath, 'utf8').replace(
+    /\*\*Content Security Policy\*\* and security headers enforced via `netlify\.toml`/g,
+    'Security headers are configured in the Hostinger `.htaccess` file; a Content Security Policy has not yet been enabled.'
+  );
   fs.writeFileSync(securityPath, security, 'utf8');
 }
 
 console.log('Einsteinminds Resource Network update applied.');
+console.log('Both appended legacy patches and their iframe/synthetic code were removed.');
 console.log('README.md now documents GitHub + Supabase + Hostinger only.');
-console.log('Next: run `node scripts/validate-release.mjs` and inspect the diff before committing to GitHub.');
+console.log('Next: run tests and release validation, then inspect the full diff before merging.');
