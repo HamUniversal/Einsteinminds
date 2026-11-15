@@ -8,6 +8,7 @@ const assetsDir = path.join(root, 'assets');
 const corePath = path.join(assetsDir, 'resource-network-core.js');
 const appPath = path.join(assetsDir, 'einsteinminds-resource-network.js');
 const cssPath = path.join(assetsDir, 'resource-network.css');
+const guardPath = path.join(assetsDir, 'auth-route-guard.js');
 const hostingerReadmePath = path.join(root, 'README-HOSTINGER.md');
 
 function fail(message) {
@@ -15,7 +16,7 @@ function fail(message) {
   process.exit(1);
 }
 
-for (const required of [indexPath, corePath, appPath, cssPath, hostingerReadmePath]) {
+for (const required of [indexPath, corePath, appPath, cssPath, guardPath, hostingerReadmePath]) {
   if (!fs.existsSync(required)) fail(`Required file not found: ${path.relative(root, required)}`);
 }
 
@@ -60,6 +61,12 @@ if (!html.includes(assetRefs[0]) || !html.includes(assetRefs[1])) {
     '<script src="/assets/resource-network-core.js"></script>\n' +
     '<script src="/assets/einsteinminds-resource-network.js"></script>\n';
   html = html.slice(0, currentBodyClose) + scripts + html.slice(currentBodyClose);
+}
+
+const guardRef = '/assets/auth-route-guard.js';
+if (!html.includes(guardRef)) {
+  const currentBodyClose = html.toLowerCase().lastIndexOf('</body>');
+  html = html.slice(0, currentBodyClose) + `<script src="${guardRef}"></script>\n` + html.slice(currentBodyClose);
 }
 
 const forbidden = [
