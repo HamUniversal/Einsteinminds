@@ -1,109 +1,126 @@
-# 🧠 Einsteinminds
+# Einsteinminds — GitHub + Supabase + Hostinger
 
-> **Reinventing Education for the Future**
-> One intelligent gateway to the world's knowledge. 2.4M+ verified resources. 15 knowledge domains. 180+ curated platforms. 14 languages.
+**Reinventing Education for the Future**
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/YOUR_USERNAME/einsteinminds)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![AI Ethics](https://img.shields.io/badge/AI%20Ethics-Verified%20Sources-green.svg)]()
+This project uses GitHub as the source repository, Supabase for authentication and the live resource catalogue, and Hostinger for `einsteinminds.com` hosting. There is no Netlify deployment path.
 
-Einsteinminds is a global learning intelligence platform that connects learners,
-educators, parents, and institutions to the world's best verified educational
-resources through an AI companion built on **epistemic humility** and
-**safeguarding-first design**.
+## Architecture
 
----
+- **GitHub:** canonical application source and review history.
+- **Supabase:** project `fxxjainrhtdezyzbqynn` (`Einsteinminds`, `us-west-2`); Auth, 24 knowledge domains, resource records, search, provider metadata and controlled outbound links.
+- **Hostinger:** production hosting for `einsteinminds.com`; connect the repository using Hostinger's native GitHub integration from hPanel.
+- **GitHub Actions:** validates syntax, tests and release contents. It does not deploy production.
 
-## ✨ Core Principles
+## Live catalogue facts — checked 15 November 2026
 
-- 🔍 **Verified sources only** — every factual claim is grounded in a cited resource
-- 🛡️ **Safeguarding first** — crisis detection, Red Line protocol, VPC for children
-- 🌍 **Global & multilingual** — 14 languages, RTL support, offline-aware
-- ⚖️ **Equity Engine** — free core for all; the Robin Hood Clause funds under-resourced schools
-- 🚫 **No ads. No data sales. No dark patterns. Ever.**
+| Measure | Supabase value |
+|---|---:|
+| Knowledge domains | 24 |
+| Published provider listings | 227 |
+| Category assignments | 231 |
+| Source/provenance records | 229 |
+| Verification-evidence records | 0 |
+| Resources with learning-stage assignment | 0 |
+| Editorially reviewed resources | 0 |
 
----
+The interface must not call the current directory "verified", "top-ranked", "approved" or "recommended". Listings are labelled as not independently reviewed unless later evidence records support a stronger status.
 
-## 🚀 Features
+The previous appended v9 patches generated a synthetic 2.4-million-resource catalogue, fabricated titles and ratings, and Google search destinations. The update removes that generator and returns the displayed catalogue total to the actual Supabase count.
 
-| Area | Capabilities |
-|------|-------------|
-| **Ask Einstein** | 12 reasoning modes: Research, Explain, Create, Analyze, Code, Translate, Math, Write, Teach, Debate, Summarize |
-| **Resource Library** | 2.4M+ indexed resources across 15 domains with 15-point trust scoring |
-| **Educator Studio** | AI lesson planning, differentiation, rubrics, IEP/504 alignment |
-| **Parent Dashboard** | Themes-not-transcripts, digital wellbeing, family agreements |
-| **Wellbeing** | Guided breathing, journaling, mood tracking, crisis support |
-| **Screen Time** | Category-aware timers, daily limits, healthy alternatives |
-| **Institutions** | Multi-tenant dashboards for districts, universities, ministries |
+## Learning-level filter
 
----
+The interface supports:
 
-## 🏗️ Quick Start
+1. Pre-K / Early Years
+2. Kindergarten
+3. Elementary / Primary
+4. Middle School
+5. High School / Upper Secondary
+6. Vocational / Technical
+7. Undergraduate
+8. Graduate / Postgraduate
+9. Doctoral / Research
+10. Professional / Continuing
+11. Entrepreneur / Founder
+12. Lifelong Learning
 
-### Option 1 — Deploy to Netlify (recommended)
-1. Fork this repository
-2. Click **Deploy to Netlify** above
-3. Your site is live
+The Supabase `learning_stages` field currently has no reviewed mappings. Therefore, specific stage filters correctly return no results until provider-specific evidence is reviewed and stored. The interface does not infer learner age suitability from a provider name, topic, or marketing claim. "All learning levels" and "Not yet classified" remain available.
 
-### Option 2 — Run locally
-\```bash
-git clone https://github.com/YOUR_USERNAME/einsteinminds.git
-cd einsteinminds
-python3 -m http.server 8000
-\```
+## Existing Supabase functions
 
-Open http://localhost:8000 in your browser. You can also open `index.html`
-directly. No build step or npm dependencies are required.
+The live Supabase project already contains these active Edge Functions:
 
----
+| Function | Version | Role |
+|---|---:|---|
+| `agent` | 10 | Authenticated learning assistant; reports a scripted fallback when no model is configured |
+| `resource-search` | 3 | Public published-resource search, category counts and stage filters |
+| `resource-outbound` | 2 | Resolves a catalogue UUID, validates its stored HTTPS host, records a minimal click event and applies safe UTM tags |
+| `provider-introduction` | 1 | Retrieves and caches metadata from the provider's official page |
 
-## 🔐 Compliance
+The update calls these functions; it does not redeploy or replace them and does not require a database migration. The deployed function source and the four existing migration files still need to be exported into GitHub before GitHub can become the complete reproducible source of truth for the backend. See `supabase/README.md`.
 
-Built to align with:
-- **COPPA 2026** — Verifiable Parental Consent for under-13 accounts
-- **FERPA** — School Official exception for institutional deployments
-- **GDPR / UK Children's Code** — data minimization, right to erasure
-- **EU AI Act** — human oversight, transparency, no biometric inference
+## Apply the code update
 
-See [SECURITY.md](SECURITY.md) and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+1. Create a new branch in `HamUniversal/Einsteinminds` from the current `main` branch. Do not edit production `main` directly.
+2. Extract this update bundle into the repository root, preserving the folder structure.
+3. Run the updater from the repository root:
 
----
+   ```bash
+   node scripts/apply-update.mjs
+   ```
 
-## 💠 The Equity Engine (Monetization)
+   It removes the appended legacy v9.0/v9.2 patch blocks, inserts the new UI scripts and stylesheet into `index.html`, replaces the old Netlify-oriented `README.md`, removes stale Netlify deployment files and the malformed nested workflow, and updates the `SECURITY.md` deployment reference if present.
 
-| Tier | Price | What you get |
-|------|-------|--------------|
-| **Guest** | $0 | 5 AI prompts/day, full library access |
-| **Free** | $0 | 20 prompts/day, portfolio, goals |
-| **Pro** | $8/mo or $60/yr | Unlimited reasoning, Virtual Labs, credentials |
-| **Educator** | $0 forever | Full Teaching Studio (verified educators) |
-| **Institutional** | $4.50/student/yr | SSO, LMS, RLS, legal indemnification |
+4. Run the checks:
 
-**🏹 Robin Hood Clause:** For every 10 institutional licenses sold, we fund
-one full district license for an under-resourced school at zero cost.
+   ```bash
+   node --check assets/resource-network-core.js
+   node --check assets/einsteinminds-resource-network.js
+   node --test tests/*.test.cjs
+   node scripts/validate-release.mjs
+   ```
 
----
+5. Review the complete Git diff and open a pull request. Merge only after the preview/build and the live Supabase requests have been checked.
 
-## 📂 Project Structure
+## Connect Hostinger to GitHub
 
-\```
-index.html             The complete application (single file, zero deps)
-docs/                  Deployment & architecture guides
-\```
+For a custom HTML website on an eligible Hostinger Web or Cloud hosting plan:
 
----
+1. Open Hostinger hPanel → **Websites** → `einsteinminds.com` → **Manage site**.
+2. Open **Advanced → Git**.
+3. Choose **Connect with GitHub** and authorize Hostinger for `HamUniversal/Einsteinminds`.
+4. Select the reviewed deployment branch (normally `main` after the pull request is merged).
+5. Set the deployment root to the repository root containing `index.html`, `assets/`, and `.htaccess`.
+6. Confirm the target website and deployment directory. Back up the existing website files first; changing the connected repository can overwrite files in the target directory.
+7. For the first release, keep automatic deployment paused. After the GitHub validation workflow passes and the pull request is merged, use Hostinger's **Redeploy** action and confirm the deployment history shows the intended commit.
+8. Enable automatic deployment only after `main` is protected by pull-request review and required passing GitHub checks; otherwise Hostinger may deploy a push before the validation workflow finishes.
 
-## 🤝 Contributing
+Hostinger supports this Git integration for custom PHP/HTML websites on eligible Web and Cloud hosting plans. Node.js websites use a separate GitHub deployment flow. Hostinger AI Builder websites do not support this integration. Check the website type shown in hPanel before connecting. Official instructions: [Deploy a website from GitHub in Hostinger](https://www.hostinger.com/support/1583302-how-to-deploy-a-git-repository-in-hostinger/).
 
-We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) and
-our [Code of Conduct](CODE_OF_CONDUCT.md) before opening a PR.
+**Production safety:** do not connect Hostinger to the update branch while it is still under review unless that branch is deliberately being used as a staging website/root. The production website should follow the approved branch only.
 
-## 📜 License
+## Browser-side Supabase configuration
 
-MIT © Einsteinminds Project. See [LICENSE](LICENSE).
+The existing browser application uses the Supabase project URL and a publishable key. A publishable key is intended for browser use. Never put a Supabase secret key or `service_role` key in `index.html`, static JavaScript, GitHub, or Hostinger public files.
 
----
+The interface calls:
 
-*Built for the learner whose family has limited resources. Built for the
-teacher overwhelmed by administration. Built for human potential.*
-   automation test
+- `/functions/v1/resource-search`
+- `/functions/v1/resource-outbound`
+- `/functions/v1/provider-introduction`
+
+No new Hostinger environment variable is required for this static frontend. Server-side Edge Functions continue to read their secrets from Supabase-managed function secrets.
+
+## Rollback
+
+Keep a backup of the current Hostinger files before the first deployment. For rollback, redeploy the last known-good commit in Hostinger's Git deployment history, or revert the GitHub commit and redeploy the selected branch. The update does not change Supabase tables or data, so UI rollback does not require a database rollback.
+
+## Safeguards
+
+- External providers open in a new tab only after an explicit confirmation.
+- The browser passes a catalogue resource UUID, never an arbitrary URL, to the outbound gateway.
+- The gateway resolves the destination from the stored record and checks the stored official host.
+- UTM parameters contain no learner name, email, private search phrase or other personal learner data.
+- Provider-page metadata is labelled as metadata supplied by the provider, not as Einsteinminds editorial review.
+- Learning-stage mappings are not guessed.
+- No synthetic catalogue entries, ratings, reviews or resource counts are generated.
