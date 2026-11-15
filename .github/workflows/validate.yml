@@ -1,0 +1,37 @@
+name: Validate Einsteinminds
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, upgrade/resource-network-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: einsteinminds-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check assets/resource-network-core.js
+          node --check assets/einsteinminds-resource-network.js
+          node --check assets/auth-route-guard.js
+          node --check scripts/apply-update.mjs
+          node --check scripts/validate-release.mjs
+      - name: Run tests
+        run: node --test tests/*.test.cjs
+      - name: Validate release contents
+        run: node scripts/validate-release.mjs
