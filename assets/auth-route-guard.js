@@ -1,6 +1,5 @@
 /* Einsteinminds protected-route guard.
- * This runs after the application script has declared Auth, Nav and Gate,
- * but before DOMContentLoaded initializes Supabase Auth.
+ * Runs after index.html declares Auth, Nav and Gate, before DOMContentLoaded.
  */
 (() => {
   if (Auth.__routeGuardInstalled) return;
@@ -8,15 +7,8 @@
   Auth.ready = false;
 
   const privateRoutes = new Set([
-    'mylearning',
-    'portfolio',
-    'assessments',
-    'wellbeing',
-    'screentime',
-    'educator',
-    'parent',
-    'institutions',
-    'settings'
+    'mylearning', 'portfolio', 'assessments', 'wellbeing',
+    'screentime', 'educator', 'parent', 'institutions', 'settings'
   ]);
 
   const originalInit = Auth.init.bind(Auth);
@@ -40,12 +32,7 @@
         Toast.show('Checking your secure account session. Please try again in a moment.', 'warn');
         return;
       }
-      if (!Auth.backendReady) {
-        Auth.open('in');
-        Toast.show('Account services are unavailable. Please try again later.', 'warn');
-        return;
-      }
-      if (!Auth.signedIn) {
+      if (!Auth.backendReady || !Auth.signedIn) {
         Auth.open('in');
         Toast.show('Please sign in to access this area.', 'warn');
         return;
