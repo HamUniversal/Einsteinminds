@@ -4,6 +4,9 @@ on:
     branches:
       - upgrade/resource-network-v2
     paths:
+      - 'index.html'
+      - 'assets/**'
+      - '.htaccess'
       - '.github/workflows/package-hostinger.yml'
   workflow_dispatch:
 permissions:
