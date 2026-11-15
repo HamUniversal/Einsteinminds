@@ -1358,8 +1358,7 @@ async init(){
 LS.del('session');LS.del('accounts');
 this.renderUserArea();
 if(!supabaseClient){Toast.show('Supabase authentication could not initialize. Check the network and reload.','bad');return}
-const{error:schemaError}=await supabaseClient.from('profiles').select('id').limit(0);
-if(schemaError){this.renderUserArea();Toast.show(`Staging profile schema is not ready: ${schemaError.message}. Apply the Supabase migration, then reload.`,'bad');return}
+// Do not probe the private profiles table while the browser is still anonymous.
 this.backendReady=true;this.renderUserArea();
 supabaseClient.auth.onAuthStateChange((event,session)=>{
 if(event==='INITIAL_SESSION'||event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED'){
