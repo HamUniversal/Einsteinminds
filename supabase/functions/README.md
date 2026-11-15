@@ -6,7 +6,7 @@ This directory records the source currently deployed to the Einsteinminds Supaba
 
 | Function | Deployed version at export | JWT verification | Required secrets/config |
 |---|---:|---|---|
-| `agent` | 10 | enabled | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `LLM_API_KEY`; optional `LLM_BASE_URL`, `LLM_MODEL` |
+| `agent` | 10 | enabled | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GROQ_API_KEY` (preferred) or legacy `LLM_API_KEY`; optional `LLM_BASE_URL`, `LLM_MODEL` |
 | `resource-search` | 5 | disabled; public catalogue read only | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
 | `resource-outbound` | 3 | disabled; validates published resource IDs and resolves destinations from the database | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
 | `provider-introduction` | 2 | disabled; public metadata refresh for published resource IDs | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
@@ -18,7 +18,7 @@ Supabase supplies the project URL and public/anon key in the Edge Function runti
 - Review each function and its authorization/CORS behavior before deploying.
 - Keep `agent` JWT verification enabled.
 - The three public functions deliberately perform limited public catalogue operations. Do not add account or administrative operations to them without explicit authentication and authorization checks.
-- The AI function returns a clearly labelled scripted fallback when the LLM secret/provider is unavailable; a successful HTTP response does not prove a live model answered.
+- The AI function accepts `GROQ_API_KEY` (preferred) or the legacy `LLM_API_KEY`. Default provider URL is Groq's OpenAI-compatible endpoint. It supports up to 12 prior user/assistant messages and a selected learning mode. It returns a clearly labelled scripted fallback when the key/provider is unavailable; a successful HTTP response does not prove a live model answered. Never place the Groq key in browser code or Git.
 - Verify logs and real responses after each deployment. Do not use a real child account for staging tests.
 
 ## Reproducibility gap
