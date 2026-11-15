@@ -1211,7 +1211,7 @@ au_signin:"Sign in",
 au_signup:"Create staging account",
 us_in:"Staging sign in",
 ag_desc:"Demonstration assistant. Responses are examples; no AI model or source search is connected.",
-ag_online:"Demo mode — no AI or source service connected",
+ag_online:"AI learning partner connected",
 ag_w1:"Welcome to the Einsteinminds prototype.",
 ag_w2:"This interface previews possible learning tools. It cannot answer questions using a live AI model.",
 ag_w3:"Demo responses are not generated, checked, or supported by verified sources. Do not rely on them for factual or consequential decisions.",
@@ -1247,14 +1247,14 @@ s_priv:"Local demo settings",s_pers:"AI personalization preference (demo)",
 s_pers_d:"This preference is stored in this browser; no AI service is connected.",
 s_share:"Institution sharing preference (demo)",
 s_share_d:"This preference is stored locally; no data is shared with an institution.",
-ag_online:"Demo mode — no AI or source service connected",
+ag_online:"AI learning partner connected",
 h_sub:"Explore a sample learning interface. Ask Einstein is a scripted demo.",
 h_badge:"unique provider listings · external sites not independently reviewed",
 h_recsub:"Sample recommendations; not personalized.",
 c_searchph:"Search education providers…",
 c_open:"Visit provider",
 c_ress:"provider listings",
-ag_ph:"Enter a prompt to see a scripted demo response…",
+ag_ph:"Ask Einstein anything. Your conversation context is remembered… ",
 e_plats_d:"External links; provider names and descriptions are shown as supplied. Content and suitability have not been independently reviewed.",
 p_sub:"Sample portfolio items; no educator verification or credentials are provided.",
 ed_sub:"Static lesson-plan preview; no AI co-pilot is connected.",
@@ -1716,46 +1716,49 @@ const Explore={render(){$('#taxGrid').innerHTML=CATS.map((c,i)=>`<div class="tax
 /* ═══ AGENT ═══ */
 const MODES=['general','research','explain','create','analyze','code','translate','math','write','teach','debate','summarize'];
 const TOOLS=[['tl_web','globe','blue'],['tl_img','image','purple'],['tl_code','code','green'],['tl_doc','file','orange'],['tl_viz','chart','pink'],['tl_voice','volume','teal']];
-const Agent={mode:'general',intent:'hint',tools:new Set(),history:[],
+const Agent={mode:'general',intent:'hint',tools:new Set(),history:[],busy:false,
 renderChrome(){$('#agCaps').innerHTML=MODES.map(m=>`<button class="chip ${this.mode===m?'on':''}" onclick="Agent.setMode('${m}')">${T('m_'+m)}</button>`).join('');
 const intents=['hint','alternate','example','check'];
 $('#agTools').innerHTML=intents.map(name=>`<button class="tool intent ${this.intent===name?'on':''}" onclick="Agent.setIntent('${name}',this)">${T('loop_coach_'+name)}</button>`).join('')+
 TOOLS.map(([k,ic,c])=>`<button class="tool ${this.tools.has(k)?'on':''}" data-c="${c}" onclick="Agent.tool('${k}',this)">${svg(ic)}${T(k)}</button>`).join('');
 if(!$('#agMsgs').children.length)this.welcome()},
-welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>${T('ag_w1')}</p><p>${T('ag_w2')}</p><p class="bs muted">${T('ag_w3')}</p></div></div>`},
-clear(){this.history=[];$('#agMsgs').innerHTML='';this.welcome();Toast.show(T('c_clear'),'ok')},
+welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>Welcome. I'm Einstein, your AI learning partner.</p><p>Ask me to explain an idea, work through a problem, explore a topic, create something, or challenge your reasoning. I'll remember the conversation while we work.</p><p class="bs muted">AI-generated responses are not a substitute for professional advice. Live web search and the other optional tools are not enabled yet.</p></div></div>`},
+clear(){if(this.busy)return;this.history=[];$('#agMsgs').innerHTML='';this.welcome();Toast.show(T('c_clear'),'ok')},
 setMode(m){this.mode=m;this.renderChrome();Toast.show(T('m_'+m),'ok')},
 setIntent(name,el){this.intent=name;$$('#agTools .intent').forEach(button=>button.classList.toggle('on',button===el))},
-tool(k,el){this.tools.has(k)?this.tools.delete(k):this.tools.add(k);el.classList.toggle('on');Toast.show('Tool selection preview only; no service is connected.','warn')},
+tool(k,el){this.tools.has(k)?this.tools.delete(k):this.tools.add(k);el.classList.toggle('on');Toast.show('This tool is not connected yet. Einstein will not pretend to use it.','warn')},
 fromHome(){const v=$('#homeAsk').value.trim();Nav.go('agent');if(v){$('#agIn').value=v;$('#homeAsk').value='';this.send()}},
-push(html,me){const d=document.createElement('div');d.className='msg'+(me?' me':'');
-d.innerHTML=`<div class="msg-av">${me?'You':'E'}</div><div class="msg-b">${html}</div>`;
-$('#agMsgs').appendChild(d);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;return d},
-send(){const ta=$('#agIn'),q=ta.value.trim();if(!q)return;
+push(html,me){const d=document.createElement('div');d.className='msg'+(me?' me':'');d.innerHTML=`<div class="msg-av">${me?'You':'E'}</div><div class="msg-b">${html}</div>`;$('#agMsgs').appendChild(d);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;return d},
+async send(){const ta=$('#agIn'),q=ta.value.trim();if(!q||this.busy)return;
 if(Crisis.check(q)){Crisis.open();ta.value='';return}
 if(!Auth.signedIn){Auth.open('in');Toast.show('Sign in with an adult-only staging account to continue.','warn');return}
 if(Auth.childLocked()){VPC.open();Toast.show(T('vpc_t'),'warn');return}
 if(!Usage.allowed()){this.push(`<p><b>${T('t_limit')}</b></p><p class="bs muted" style="margin-top:8px">${T('pl_pro')} — ${T('us_unlim')}, Code Interpreter, Data Viz, Virtual Labs.</p><div style="margin-top:12px"><button class="btn btn-p btn-sm" onclick="M.open('pricingModal')">${T('us_up')}</button></div>`);return}
-Usage.inc();recordEvent('coaching_prompt',{intent:this.intent});
+this.busy=true;const sendButton=$('#agSend');if(sendButton)sendButton.disabled=true;
 this.push(esc(q),true);ta.value='';ta.style.height='auto';
-const t=document.createElement('div');t.className='msg';
-t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div></div>`;
-$('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
-const history=this.history.slice(-12);this.history.push({role:'user',content:q});
-setTimeout(async()=>{t.remove();this.push(await this.respond(q,history))},900+Math.random()*700);
+const t=document.createElement('div');t.className='msg';t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div><p class="bs muted">Einstein is thinking…</p></div>`;$('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
+const prior=this.history.slice(-14);this.history.push({role:'user',content:q});
+try{
+const result=await this.respond(q,prior);t.remove();
+if(result.success){this.history.push({role:'assistant',content:result.reply});Usage.inc();recordEvent('coaching_prompt',{intent:this.intent,mode:this.mode,provider:'groq'});const formatted=esc(result.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');this.push(`<p>${formatted}</p><p class="bs muted">${T('ag_live_note')}${result.model?' · '+esc(result.model):''}</p>`);}
+else{this.history.pop();this.push(`<p>${esc(result.error||'Einstein could not complete this response.')}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted. Please try again.</p>`);}
+}catch(error){this.history.pop();t.remove();this.push(`<p>Einstein could not complete this response. ${esc(error?.message||String(error))}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted.</p>`);}
+finally{this.busy=false;if(sendButton)sendButton.disabled=false;ta.focus();}
 },
 async respond(q,history=[]){
 const liveItems=window.EinsteinmindsResourceNetwork?.state?.items||[];
-const resources=liveItems.slice(0,6).map(r=>({title:r.name||r.title,url:r.canonical_url||r.url})).filter(r=>r.title&&r.url);
+const resources=liveItems.slice(0,8).map(r=>({title:r.name||r.title,url:r.canonical_url||r.url,description:r.directory_description||''})).filter(r=>r.title&&r.url);
 try{
-const{data:{session}}=await supabaseClient.auth.getSession();
-if(!session)throw new Error('no session');
-const res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resources})});
-const out=await res.json();
-if(res.ok&&out&&out.reply){this.history.push({role:'assistant',content:out.reply});const response=esc(out.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
-return `<p>${response}</p><p class="bs muted">${out.demo?T('ag_demo')+(out.reason?` · diagnostic: ${out.reason}`:''):T('ag_live_note')+(out.model?` · ${esc(out.model)}`:'')}</p>`}
-const reason=out?.error||`HTTP ${res.status}`;return `<p>Einstein could not complete this response. ${esc(reason)} Please try again.</p><p class="bs muted">No scripted answer was substituted.</p>`
-}catch(e){return `<p>Einstein could not reach the AI service: ${esc(e.message||String(e))}. Please try again.</p>`}};
+const {data:{session}}=await supabaseClient.auth.getSession();
+if(!session)return {success:false,error:'Your session has expired. Please sign in again.'};
+const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),45000);
+let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resources}),signal:controller.signal});}finally{clearTimeout(timeout);}
+const out=await res.json().catch(()=>({}));
+if(!res.ok||!out?.reply){return {success:false,error:out?.error||`AI service returned HTTP ${res.status}.`};}
+if(out.demo===true||out.provider!=='groq'){return {success:false,error:'The AI provider did not confirm a genuine model response. Please try again later.'};}
+return {success:true,reply:out.reply,model:out.model||'Groq'};
+}catch(error){return {success:false,error:error?.name==='AbortError'?'Einstein is taking longer than expected. Please try again.':(error?.message||'The AI service could not be reached.')};}
+}};
 /* ═══ EDUCATOR ═══ */
 const TA_CHIPS=[['ta_ell','ell'],['ta_scaf','scaf'],['ta_adv','adv'],['ta_vis','vis'],['ta_rub','rub'],['ta_ass','ass'],['ta_par','par'],['ta_iep','iep'],['ta_ppt','ppt'],['ta_lab','lab'],['ta_hw','hw'],['ta_pd','pd']];
 const Edu={render(){
