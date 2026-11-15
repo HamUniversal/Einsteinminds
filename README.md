@@ -1,109 +1,33 @@
-# 🧠 Einsteinminds
+# Supabase — Einsteinminds
 
-> **Reinventing Education for the Future**
-> One intelligent gateway to the world's knowledge. 2.4M+ verified resources. 15 knowledge domains. 180+ curated platforms. 14 languages.
+Project ref: `fxxjainrhtdezyzbqynn` (`Einsteinminds`, `us-west-2`).
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/YOUR_USERNAME/einsteinminds)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![AI Ethics](https://img.shields.io/badge/AI%20Ethics-Verified%20Sources-green.svg)]()
+The connected project already contains the resource-network schema, RLS policies, 24 active knowledge domains, 227 published provider records, 231 resource/category mappings and 229 provenance/source records. Verification evidence and reviewed learning-stage assignments are empty at the time of audit.
 
-Einsteinminds is a global learning intelligence platform that connects learners,
-educators, parents, and institutions to the world's best verified educational
-resources through an AI companion built on **epistemic humility** and
-**safeguarding-first design**.
+## Existing tables
 
----
+`profiles`, `resource_categories`, `resources`, `resource_category_links`, `resource_sources`, `resource_verification_evidence`, `resource_outbound_events`.
 
-## ✨ Core Principles
+RLS is enabled for the observed tables. Public reads are scoped to published resources and active categories. Catalogue writes are reserved for roles in `app_metadata` (`admin` / `catalogue_editor`). Outbound event insertion is constrained to a published resource and its stored official domain.
 
-- 🔍 **Verified sources only** — every factual claim is grounded in a cited resource
-- 🛡️ **Safeguarding first** — crisis detection, Red Line protocol, VPC for children
-- 🌍 **Global & multilingual** — 14 languages, RTL support, offline-aware
-- ⚖️ **Equity Engine** — free core for all; the Robin Hood Clause funds under-resourced schools
-- 🚫 **No ads. No data sales. No dark patterns. Ever.**
+## Active Edge Functions
 
----
+- `agent` v10 — authenticated AI learning assistant; honest scripted fallback if no model provider is configured.
+- `resource-search` v3 — catalogue search, category statistics, and learning-stage filtering.
+- `resource-outbound` v2 — UUID-to-stored-URL resolution, official-host check, minimal event logging, and safe UTM tags.
+- `provider-introduction` v1 — original official-page metadata retrieval and caching.
 
-## 🚀 Features
+The frontend patch uses these existing deployed functions and does not redeploy or modify them. It also does not apply a database migration.
 
-| Area | Capabilities |
-|------|-------------|
-| **Ask Einstein** | 12 reasoning modes: Research, Explain, Create, Analyze, Code, Translate, Math, Write, Teach, Debate, Summarize |
-| **Resource Library** | 2.4M+ indexed resources across 15 domains with 15-point trust scoring |
-| **Educator Studio** | AI lesson planning, differentiation, rubrics, IEP/504 alignment |
-| **Parent Dashboard** | Themes-not-transcripts, digital wellbeing, family agreements |
-| **Wellbeing** | Guided breathing, journaling, mood tracking, crisis support |
-| **Screen Time** | Category-aware timers, daily limits, healthy alternatives |
-| **Institutions** | Multi-tenant dashboards for districts, universities, ministries |
+## GitHub source-of-truth work still required
 
----
+The Supabase project has these four migration entries:
 
-## 🏗️ Quick Start
+- `20261115022622_resource_network_v1`
+- `20261115022922_resource_policy_performance_hardening`
+- `20261115023213_resource_category_counts_rpc`
+- `20261115025852_resource_category_admin_and_count_fix`
 
-### Option 1 — Deploy to Netlify (recommended)
-1. Fork this repository
-2. Click **Deploy to Netlify** above
-3. Your site is live
+Their SQL source files and the exact currently deployed source for all four Edge Functions have not yet been exported into this repository. Export those exact deployed files from Supabase before changing backend behavior. Do not write guessed replacement migrations or deploy a newly reconstructed function over a working production function.
 
-### Option 2 — Run locally
-\```bash
-git clone https://github.com/YOUR_USERNAME/einsteinminds.git
-cd einsteinminds
-python3 -m http.server 8000
-\```
-
-Open http://localhost:8000 in your browser. You can also open `index.html`
-directly. No build step or npm dependencies are required.
-
----
-
-## 🔐 Compliance
-
-Built to align with:
-- **COPPA 2026** — Verifiable Parental Consent for under-13 accounts
-- **FERPA** — School Official exception for institutional deployments
-- **GDPR / UK Children's Code** — data minimization, right to erasure
-- **EU AI Act** — human oversight, transparency, no biometric inference
-
-See [SECURITY.md](SECURITY.md) and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
-
----
-
-## 💠 The Equity Engine (Monetization)
-
-| Tier | Price | What you get |
-|------|-------|--------------|
-| **Guest** | $0 | 5 AI prompts/day, full library access |
-| **Free** | $0 | 20 prompts/day, portfolio, goals |
-| **Pro** | $8/mo or $60/yr | Unlimited reasoning, Virtual Labs, credentials |
-| **Educator** | $0 forever | Full Teaching Studio (verified educators) |
-| **Institutional** | $4.50/student/yr | SSO, LMS, RLS, legal indemnification |
-
-**🏹 Robin Hood Clause:** For every 10 institutional licenses sold, we fund
-one full district license for an under-resourced school at zero cost.
-
----
-
-## 📂 Project Structure
-
-\```
-index.html             The complete application (single file, zero deps)
-docs/                  Deployment & architecture guides
-\```
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) and
-our [Code of Conduct](CODE_OF_CONDUCT.md) before opening a PR.
-
-## 📜 License
-
-MIT © Einsteinminds Project. See [LICENSE](LICENSE).
-
----
-
-*Built for the learner whose family has limited resources. Built for the
-teacher overwhelmed by administration. Built for human potential.*
-   automation test
+Never place `SUPABASE_SERVICE_ROLE_KEY` or any Supabase secret key in client code. The browser uses only the project URL and publishable key; Edge Functions keep server-side keys in Supabase-managed secrets.
