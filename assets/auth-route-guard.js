@@ -7,7 +7,7 @@
   Auth.ready = false;
 
   const privateRoutes = new Set([
-    'mylearning', 'portfolio', 'assessments', 'wellbeing',
+    'agent', 'mylearning', 'portfolio', 'assessments', 'wellbeing',
     'screentime', 'educator', 'parent', 'institutions', 'settings'
   ]);
 
