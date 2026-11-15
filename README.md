@@ -23,7 +23,7 @@ This project uses GitHub as the source repository, Supabase for authentication a
 | Resources with learning-stage assignment | 0 |
 | Editorially reviewed resources | 0 |
 
-The interface must not call the current directory "verified", "top-ranked", "approved" or "recommended". Listings are labelled as not independently reviewed unless later evidence records support a stronger status.
+Authentication audit (16 November 2026): one confirmed Supabase user and one profile exist. Profile access is owner-scoped; catalogue writes require trusted `app_metadata.role` values (`admin` / `catalogue_editor`). No such roles are currently assigned. Anonymous profile reads and catalogue writes are denied by grants and RLS. The Supabase security advisor flags leaked-password protection as disabled; enable it in Auth password settings.\n\nThe interface must not call the current directory "verified", "top-ranked", "approved" or "recommended". Listings are labelled as not independently reviewed unless later evidence records support a stronger status.
 
 The previous appended v9 patches generated a synthetic 2.4-million-resource catalogue, fabricated titles and ratings, and Google search destinations. The update removes that generator and returns the displayed catalogue total to the actual Supabase count.
 
@@ -53,11 +53,11 @@ The live Supabase project already contains these active Edge Functions:
 | Function | Version | Role |
 |---|---:|---|
 | `agent` | 10 | Authenticated learning assistant; reports a scripted fallback when no model is configured |
-| `resource-search` | 3 | Public published-resource search, category counts and stage filters |
-| `resource-outbound` | 2 | Resolves a catalogue UUID, validates its stored HTTPS host, records a minimal click event and applies safe UTM tags |
-| `provider-introduction` | 1 | Retrieves and caches metadata from the provider's official page |
+| `resource-search` | 4 | Public published-resource search, category counts and stage filters |
+| `resource-outbound` | 3 | Resolves a catalogue UUID, validates its stored HTTPS host, records a minimal click event and applies safe UTM tags |
+| `provider-introduction` | 2 | Retrieves and caches metadata from the provider's official page |
 
-The update calls these functions; it does not redeploy or replace them and does not require a database migration. The deployed function source and the four existing migration files still need to be exported into GitHub before GitHub can become the complete reproducible source of truth for the backend. See `supabase/README.md`.
+The resource-network update uses the deployed functions without replacing them. The authentication hardening added two applied migrations for least-privilege Data API grants and authenticated evidence review. The original four migration SQL files and exact deployed function sources still need to be exported into GitHub before the repository is a fully reproducible backend source of truth. See `supabase/README.md`.
 
 ## Apply the code update
 
