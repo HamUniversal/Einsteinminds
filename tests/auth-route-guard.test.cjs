@@ -66,3 +66,16 @@ test('Gate.require refuses gated actions while auth is initializing', () => {
   assert.equal(h.Gate.require('save'), true);
   assert.deepEqual(h.calls.gate, ['save']);
 });
+
+test('all account-only navigation routes are protected', () => {
+  const expected = [
+    'agent', 'mylearning', 'portfolio', 'assessments', 'wellbeing',
+    'screentime', 'educator', 'parent', 'institutions', 'settings'
+  ];
+  for (const route of expected) {
+    assert.match(guardSource, new RegExp("'" + route + "'"));
+  }
+  for (const route of ['home', 'explore', 'resources']) {
+    assert.doesNotMatch(guardSource, new RegExp("'" + route + "'"));
+  }
+});
