@@ -36,3 +36,9 @@ test('user-facing account role is not taken from editable user metadata', () => 
   assert.match(authSource, /role:'Adult test account'/);
   assert.doesNotMatch(authSource, /role:authUser\.user_metadata/);
 });
+
+test('route guard loads before the deferred Auth.init callback can run', () => {
+  assert.match(html, /window\.addEventListener\('load',\(\)=>Auth\.init\(\),\{once:true\}\)/);
+  assert.match(html, /<script src="\/assets\/auth-route-guard\.js"><\/script>/);
+  assert.doesNotMatch(html, /(?<!addEventListener\('load',\(\)=>)Auth\.init\(\);/);
+});
