@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 
 const html = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf8');
 
@@ -70,4 +71,15 @@ test('sign out clears the local Supabase session and app user state', () => {
   const authSource = html.slice(authStart, authEnd);
   assert.match(authSource, /auth\.signOut\(\{scope:'local'\}\)/);
   assert.match(authSource, /Agent\.onAuthSession\(null\)/);
+});
+
+test('all inline application scripts parse before release', () => {
+  const inlineScripts = [...html.matchAll(/<script\\b(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/gi)];
+  assert.ok(inlineScripts.length > 0, 'at least one inline application script is present');
+  for (const [index, match] of inlineScripts.entries()) {
+    assert.doesNotThrow(
+      () => new vm.Script(match[1], { filename: `index.html:inline-script-${index + 1}` }),
+      `inline script ${index + 1} must parse without syntax errors`
+    );
+  }
 });
