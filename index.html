@@ -1744,9 +1744,9 @@ if(!userId){this.history=[];this.welcome();return;}
 if(this.restoredFor===userId&&this.storageKey)return;
 this.restoredFor=userId;this.storageKey=`einsteinminds_ask_history:${userId}`;
 const saved=JSON.parse(sessionStorage.getItem(this.storageKey)||'[]');
-this.history=Array.isArray(saved)?saved.slice(-14).filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string').map(m=>({role:m.role,content:m.content.slice(0,2500)})):[];
+this.history=Array.isArray(saved)?saved.slice(-14).map(m=>this.normalizeSavedMessage(m)).filter(Boolean):[];
 $('#agMsgs').innerHTML='';
-if(this.history.length)this.history.forEach(m=>this.push(esc(m.content),m.role==='user'));else this.welcome();
+if(this.history.length)this.history.forEach(m=>this.push(m.role==='user'?esc(m.content):this.renderAssistant(m),m.role==='user'));else this.welcome();
 }catch(error){console.warn('Conversation restore unavailable',String(error).slice(0,100));this.welcome();}
 })();
 try{await this.restorePromise;}finally{this.restorePromise=null;}
@@ -1757,6 +1757,66 @@ setMode(m){this.mode=m;this.renderChrome();Toast.show(T('m_'+m),'ok')},
 setIntent(name,el){this.intent=name;$$('#agTools .intent').forEach(button=>button.classList.toggle('on',button===el))},
 tool(k,el){if(k==='tl_web'){this.tools.has(k)?this.tools.delete(k):this.tools.add(k);el.classList.toggle('on');Toast.show(this.tools.has(k)?'Einstein Minds resource search is enabled for your next question.':'Resource search is off.','ok');return}Toast.show('This tool is not connected yet. Einstein will not pretend to use it.','warn')},
 fromHome(){const v=$('#homeAsk').value.trim();Nav.go('agent');if(v){$('#agIn').value=v;$('#homeAsk').value='';this.send()}},
+normalizeSavedMessage(message){
+if(!message||!['user','assistant'].includes(message.role)||typeof message.content!=='string')return null;
+const normalized={role:message.role,content:message.content.slice(0,12000)};
+if(message.role==='assistant'){
+normalized.resources=Array.isArray(message.resources)?message.resources.slice(0,8).map(resource=>{
+if(!resource||typeof resource.title!=='string'||typeof resource.url!=='string')return null;
+try{const url=new URL(resource.url);if(url.protocol!=='https:'||url.username||url.password)return null;
+return {title:resource.title.slice(0,240),url:url.href,description:String(resource.description||'').slice(0,700),match_note:String(resource.match_note||'').slice(0,400)};
+}catch{return null}
+}).filter(Boolean):[];
+normalized.resourceSearchUsed=message.resourceSearchUsed===true;
+normalized.resourceSearchStatus=String(message.resourceSearchStatus||'not_requested').slice(0,40);
+normalized.model=String(message.model||'').slice(0,80);
+}
+return normalized;
+},
+renderMarkdown(source){
+const lines=String(source||'').replace(/\r\n?/g,'\n').split('\n');
+const inline=value=>{
+const links=[];
+let text=String(value).replace(/\[([^\]]{1,240})\]\((https?:\/\/[^\s)]+)\)/g,(whole,label,rawUrl)=>{
+try{const url=new URL(rawUrl);if(!['https:','http:'].includes(url.protocol)||url.username||url.password)return whole;
+const token='\u0000LINK'+links.length+'\u0000';links.push('<a href="'+esc(url.href)+'" target="_blank" rel="noopener noreferrer" style="color:var(--info);text-decoration:underline;text-underline-offset:2px">'+esc(label)+'</a>');return token;
+}catch{return whole}
+});
+text=esc(text).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/\x60([^\x60]+)\x60/g,'<code>$1</code>');
+text=text.replace(/https?:\/\/[^\s<]+/g,raw=>{
+const clean=raw.replace(/[.,!?;:]+$/,'');const tail=raw.slice(clean.length);
+try{const url=new URL(clean);if(!['https:','http:'].includes(url.protocol)||url.username||url.password)return raw;
+return '<a href="'+esc(url.href)+'" target="_blank" rel="noopener noreferrer" style="color:var(--info);text-decoration:underline;text-underline-offset:2px">'+clean+'</a>'+tail;
+}catch{return raw}
+});
+return text.replace(/\u0000LINK(\d+)\u0000/g,(_,index)=>links[Number(index)]||'');
+};
+const out=[];let paragraph=[],listType=null,listItems=[],code=[];
+const flushParagraph=()=>{if(paragraph.length){out.push('<p>'+paragraph.map(inline).join('<br>')+'</p>');paragraph=[]}};
+const flushList=()=>{if(listItems.length){out.push('<'+listType+'>'+listItems.map(item=>'<li>'+inline(item)+'</li>').join('')+'</'+listType+'>');listItems=[];listType=null}};
+let inCode=false;
+for(const line of lines){
+if(/^\s*\x60\x60\x60/.test(line)){flushParagraph();flushList();if(inCode){out.push('<pre><code>'+esc(code.join('\n'))+'</code></pre>');code=[];inCode=false}else inCode=true;continue}
+if(inCode){code.push(line);continue}
+const bullet=line.match(/^\s*[-*+]\s+(.+)$/),ordered=line.match(/^\s*\d+[.)]\s+(.+)$/);
+if(bullet||ordered){flushParagraph();const next=bullet?'ul':'ol';if(listType&&listType!==next)flushList();listType=next;listItems.push((bullet||ordered)[1]);continue}
+flushList();
+const heading=line.match(/^\s*(#{1,3})\s+(.+)$/);
+if(heading){flushParagraph();const level=heading[1].length;out.push('<h'+level+'>'+inline(heading[2])+'</h'+level+'>');continue}
+if(/^\s*---+\s*$/.test(line)){flushParagraph();out.push('<hr>');continue}
+if(!line.trim()){flushParagraph();continue}
+paragraph.push(line);
+}
+flushParagraph();flushList();if(inCode)out.push('<pre><code>'+esc(code.join('\n'))+'</code></pre>');
+return out.join('');
+},
+renderAssistant(message){
+const body=this.renderMarkdown(message.content);
+const resources=Array.isArray(message.resources)?message.resources:[];
+const sourceCards=resources.map(resource=>'<a href="'+esc(resource.url)+'" target="_blank" rel="noopener noreferrer" class="ag-source-link"><strong>'+esc(resource.title)+' ↗</strong>'+(resource.description?'<span>'+esc(resource.description)+'</span>':'')+(resource.match_note?'<small>'+esc(resource.match_note)+'</small>':'')+'</a>').join('');
+const sourceSection=message.resourceSearchUsed?(sourceCards?'<div class="ag-sources"><div class="bs muted" style="font-weight:700;margin:12px 0 6px">Einstein Minds directory results · external sites are not independently endorsed</div><div class="ag-source-list">'+sourceCards+'</div></div>':'<div class="ag-sources"><p class="bs muted">The Einstein Minds directory did not return relevant resources for this search. No unrelated listings were substituted.</p></div>'):message.resourceSearchStatus==='unavailable'?'<div class="ag-sources"><p class="bs muted">The Einstein Minds directory search was unavailable for this request.</p></div>':'';
+return body+sourceSection+'<p class="bs muted">'+esc(T('ag_live_note'))+(message.model?' · '+esc(message.model):'')+'</p>';
+},
 push(html,me){const d=document.createElement('div');d.className='msg'+(me?' me':'');d.innerHTML=`<div class="msg-av">${me?'You':'E'}</div><div class="msg-b">${html}</div>`;$('#agMsgs').appendChild(d);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;return d},
 async send(){const ta=$('#agIn'),q=ta.value.trim();if(!q||this.busy)return;
 if(Crisis.check(q)){Crisis.open();ta.value='';return}
@@ -1767,12 +1827,10 @@ if(!Usage.allowed()){this.push(`<p><b>${T('t_limit')}</b></p><p class="bs muted"
 this.busy=true;const sendButton=$('.ag-send');if(sendButton)sendButton.disabled=true;
 this.push(esc(q),true);ta.value='';ta.style.height='auto';
 const t=document.createElement('div');t.className='msg';t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div><p class="bs muted">Einstein is thinking…</p></div>`;$('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
-const prior=this.history.slice(-14);this.history.push({role:'user',content:q});
+const prior=this.history.slice(-14).map(({role,content})=>({role,content}));this.history.push({role:'user',content:q});
 try{
 const result=await this.respond(q,prior);t.remove();
-if(result.success){this.history.push({role:'assistant',content:result.reply});await this.persist();Usage.inc();recordEvent('coaching_prompt',{intent:this.intent,mode:this.mode,provider:'groq'});const formatted=esc(result.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');const sourceCards=(result.resources||[]).map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="ag-source-link"><strong>${esc(r.title)} ↗</strong>${r.description?`<span>${esc(r.description)}</span>`:''}${r.match_note?`<small>${esc(r.match_note)}</small>`:''}</a>`).join('');
-const sourceSection=result.resourceSearchUsed?(sourceCards?`<div class="ag-sources"><div class="bs muted" style="font-weight:700;margin:12px 0 6px">Einstein Minds directory results · external sites are not independently endorsed</div><div class="ag-source-list">${sourceCards}</div></div>`:`<div class="ag-sources"><p class="bs muted">The Einstein Minds directory did not return relevant resources for this search. No unrelated listings were substituted.</p></div>`):result.resourceSearchStatus==='unavailable'?`<div class="ag-sources"><p class="bs muted">The Einstein Minds directory search was unavailable for this request.</p></div>`:'';
-this.push(`<p>${formatted}</p>${sourceSection}<p class="bs muted">${T('ag_live_note')}${result.model?' · '+esc(result.model):''}</p>`);}
+if(result.success){const assistantMessage={role:'assistant',content:result.reply,resources:result.resources||[],resourceSearchUsed:result.resourceSearchUsed===true,resourceSearchStatus:result.resourceSearchStatus||'not_requested',model:result.model||''};this.history.push(assistantMessage);await this.persist();Usage.inc();recordEvent('coaching_prompt',{intent:this.intent,mode:this.mode,provider:'groq'});this.push(this.renderAssistant(assistantMessage));}
 else{this.history.pop();this.push(`<p>${esc(result.error||'Einstein could not complete this response.')}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted. Please try again.</p>`);}
 }catch(error){this.history.pop();t.remove();this.push(`<p>Einstein could not complete this response. ${esc(error?.message||String(error))}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted.</p>`);}
 finally{this.busy=false;if(sendButton)sendButton.disabled=false;ta.focus();}
