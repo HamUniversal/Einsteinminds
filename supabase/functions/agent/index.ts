@@ -20,7 +20,7 @@ MODES: general=balanced; research=evidence-aware exploration without claiming li
 
 const modes = new Set(["general","research","explain","create","analyze","code","translate","math","write","teach","debate","summarize"]);
 const intents = new Set(["hint","alternate","example","check","breakdown","full"]);
-const preferredModels = ["openai/gpt-oss-120b","llama-3.3-70b-versatile","meta-llama/llama-4-scout-17b-16e-instruct","qwen/qwen3-32b","llama-3.1-8b-instant"];
+const preferredModels = ["openai/gpt-oss-120b","openai/gpt-oss-20b"];
 let modelCache: { id: string; at: number } | null = null;
 
 const text = (v: unknown, n: number) => typeof v === "string" ? v.replace(/\u0000/g, "").slice(0,n).trim() : "";
@@ -51,7 +51,7 @@ async function chooseModel(base:string,key:string,configured:string) {
       if(selected){modelCache={id:selected,at:Date.now()};return selected;}
     }
   } catch(e) { console.warn("Groq model discovery unavailable",String(e).slice(0,120)); }
-  const fallback="llama-3.3-70b-versatile";
+  const fallback="openai/gpt-oss-120b";
   modelCache={id:fallback,at:Date.now()};
   return fallback;
 }
