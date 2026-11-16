@@ -2,7 +2,7 @@ name: Package Hostinger upload
 on:
   push:
     branches:
-      - feature/ask-einstein-groq-agent
+      - upgrade/resource-network-v2
     paths:
       - 'index.html'
       - 'assets/**'
@@ -19,7 +19,7 @@ jobs:
       - name: Checkout reviewed branch
         uses: actions/checkout@v4
         with:
-          ref: feature/ask-einstein-groq-agent
+          ref: upgrade/resource-network-v2
       - name: Build clean Hostinger static-site package
         shell: bash
         run: |
