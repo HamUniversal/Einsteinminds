@@ -15,7 +15,7 @@ test('updater removes both appended legacy patches and iframe, installs assets, 
       fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.copyFileSync(path.join(packageRoot, relative), target);
     }
-    const original = '<!doctype html><html><head></head><body><main>original app</main></body></html>';
+    const original = fs.readFileSync(path.join(packageRoot, 'index.html'), 'utf8');
     const patch9 = '<!-- ═══ MASTER UPGRADE PATCH v9.0 --><style>.legacy{}</style><div id="inAppBrowser"><iframe id="iabFrame"></iframe></div><script>const VirtualDB = {};</script>';
     const patch92 = '<!-- ═══ MASTER PATCH v9.2 --><style>.legacy2{}</style><div id="inAppBrowser"><iframe id="iabFrame"></iframe></div><script>const fakeCount = 2400000;</script>';
     fs.writeFileSync(path.join(fixture, 'index.html'), original.replace('</body>', patch9 + patch92 + '</body>'));
