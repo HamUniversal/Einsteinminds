@@ -2,7 +2,6 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const path = require('node:path');
-
 const html = readFileSync(path.join(__dirname, '../index.html'), 'utf8');
 
 test('conversation restoration renders assistant messages through the rich renderer', () => {
@@ -25,8 +24,9 @@ test('restored resource destinations are restricted to safe HTTPS URLs', () => {
 });
 
 test('assistant Markdown restores links, emphasis, headings and lists safely', () => {
-  assert.match(html, /replace\(\/\\\[\\\(\\\[\^\\\]\\\]\{1,240\}\\\)\\\(https\?:/);
-  assert.match(html, /replace\(\/\\\*\\\*\(\.\+\?\)\\\*\\\*\/g,'<strong>\$1<\/strong>'\)/);
+  assert.match(html, /const safeLink=/);
+  assert.match(html, /text=text\.replace\(\/https\?:/);
+  assert.match(html, /replace\(\/\*\*\(.+?\)\*\*\/g,'<strong>/);
   assert.match(html, /const bullet=line\.match/);
   assert.match(html, /const heading=line\.match/);
   assert.match(html, /target="_blank" rel="noopener noreferrer"/);
