@@ -594,7 +594,7 @@ html[dir=rtl] .sb.open{transform:none}
 .toasts{left:var(--s4);right:var(--s4);max-width:none}.mdl{max-height:92vh;max-height:min(92vh,92dvh)}.stats{grid-template-columns:repeat(2,1fr)}
 .age-row{grid-template-columns:1fr}}
 @media print{.sb,.hdr,.ag-in,.more,.toasts{display:none!important}.main{margin-inline-start:0}.page{max-width:100%}}
-.ag-sources{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}.ag-source-list{display:flex;flex-wrap:wrap;gap:7px}.ag-source-link{display:inline-flex;align-items:center;padding:6px 9px;border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:12px;text-decoration:none;background:var(--surface)}.ag-source-link:hover{border-color:var(--ink-2);text-decoration:underline}</style>
+.ag-sources{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}.ag-source-list{display:flex;flex-wrap:wrap;gap:7px}.ag-source-link{display:flex;flex-direction:column;gap:3px;min-width:180px;max-width:320px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:12px;text-decoration:none;background:var(--surface)}.ag-source-link span{font-size:11px;color:var(--ink-2);line-height:1.4}.ag-source-link small{font-size:10px;color:var(--ink-3);line-height:1.35}.ag-source-link:hover{border-color:var(--ink-2);text-decoration:underline}</style>
 
 <link rel="stylesheet" href="/assets/resource-network.css">
 </head>
@@ -852,7 +852,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="pop pop-wide" id="notifPop"><div class="pop-h" data-i18n="c_notif">Notifications</div><div id="notifList"></div></div></div>
 </div>
 </header>
-<div class="proto-banner" role="note" data-i18n="proto_notice">Prototype demo: Supabase Auth is configured for adult-only staging tests. Use fictional data only; AI, payments, educator checks and parental-consent verification are not connected.</div>
+<div class="proto-banner" role="note" data-i18n="proto_notice">Staging environment: Ask Einstein AI and the Einstein Minds provider directory are connected for adult testing. Open-web search, optional tools, payments, educator verification and parental-consent verification are not connected. Use fictional learner data; do not enter sensitive information.</div>
 <div class="page">
 <!-- HOME -->
 <section class="view on" id="v-home">
@@ -1375,10 +1375,12 @@ childLocked(){return !!this.user&&this.user.ageBand==='child'},
 async applySession(session){
 const update=++this._sessionUpdate;
 if(!session){
+Agent.onAuthSession(null);
 if(this.user||activeUserScope){this.user=null;LS.activateUser(null);resetGuestState();Usage.load();for(const key of Object.keys(guestArtifacts))guestArtifacts[key]=[]}
 this.renderUserArea();Nav.render();Home.render();return
 }
 const authUser=session.user;
+Agent.onAuthSession(authUser.id);
 let profilePromise=this._profileLoads.get(authUser.id);
 if(!profilePromise){
 profilePromise=(async()=>{
@@ -1716,14 +1718,35 @@ const Explore={render(){$('#taxGrid').innerHTML=CATS.map((c,i)=>`<div class="tax
 /* ═══ AGENT ═══ */
 const MODES=['general','research','explain','create','analyze','code','translate','math','write','teach','debate','summarize'];
 const TOOLS=[['tl_web','globe','blue'],['tl_img','image','purple'],['tl_code','code','green'],['tl_doc','file','orange'],['tl_viz','chart','pink'],['tl_voice','volume','teal']];
-const Agent={mode:'general',intent:'hint',tools:new Set(),history:[],busy:false,
+const Agent={mode:'general',intent:'hint',tools:new Set(),history:[],busy:false,restorePromise:null,activeUserId:null,
 renderChrome(){$('#agCaps').innerHTML=MODES.map(m=>`<button class="chip ${this.mode===m?'on':''}" onclick="Agent.setMode('${m}')">${T('m_'+m)}</button>`).join('');
 const intents=['hint','alternate','example','check'];
 $('#agTools').innerHTML=intents.map(name=>`<button class="tool intent ${this.intent===name?'on':''}" onclick="Agent.setIntent('${name}',this)">${T('loop_coach_'+name)}</button>`).join('')+
 TOOLS.map(([k,ic,c])=>`<button class="tool ${this.tools.has(k)?'on':''}" data-c="${c}" onclick="Agent.tool('${k}',this)">${svg(ic)}${T(k)}</button>`).join('');
 if(!$('#agMsgs').children.length)this.welcome();this.restore()},
-welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>Welcome. I'm Einstein, your AI learning partner.</p><p>Ask me to explain an idea, work through a problem, explore a topic, create something, or challenge your reasoning. I'll remember the conversation while we work.</p><p class="bs muted">The Einstein Minds directory can be searched. Open-web search and optional tools are not connected yet. This tab can remember your recent conversation until you close it.</p></div></div>`},
-async restore(){try{const {data:{session}}=await supabaseClient.auth.getSession();if(!session)return;if(this.restoredFor===session.user.id)return;this.restoredFor=session.user.id;this.storageKey=`einsteinminds_ask_history:${session.user.id}`;this.history=[];$('#agMsgs').innerHTML='';const saved=JSON.parse(sessionStorage.getItem(this.storageKey)||'[]');if(!Array.isArray(saved)){this.welcome();return;}this.history=saved.slice(-14).filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string').map(m=>({role:m.role,content:m.content.slice(0,2500)}));if(this.history.length)this.history.forEach(m=>this.push(esc(m.content),m.role==='user'));else this.welcome();}catch(error){console.warn('Conversation restore unavailable',String(error).slice(0,100));}},
+welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>Welcome. I'm Einstein, your AI learning partner.</p><p>Ask me to explain an idea, work through a problem, explore a topic, create something, or challenge your reasoning. I'll remember the conversation while we work.</p><p class="bs muted">The Einstein Minds directory can be searched. Open-web search and optional tools are not connected yet. Recent conversation history is saved in this browser tab for this signed-in account.</p></div></div>`},
+onAuthSession(userId){
+if(this.activeUserId!==userId){this.history=[];this.storageKey=null;this.restoredFor=null;if($('#agMsgs'))$('#agMsgs').innerHTML='';}
+this.activeUserId=userId||null;
+},
+async restore(){
+if(this.restorePromise)return this.restorePromise;
+this.restorePromise=(async()=>{
+try{
+const {data:{session}}=await supabaseClient.auth.getSession();
+const userId=session?.user?.id||null;
+this.onAuthSession(userId);
+if(!userId){this.history=[];this.welcome();return;}
+if(this.restoredFor===userId&&this.storageKey)return;
+this.restoredFor=userId;this.storageKey=`einsteinminds_ask_history:${userId}`;
+const saved=JSON.parse(sessionStorage.getItem(this.storageKey)||'[]');
+this.history=Array.isArray(saved)?saved.slice(-14).filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string').map(m=>({role:m.role,content:m.content.slice(0,2500)})):[];
+$('#agMsgs').innerHTML='';
+if(this.history.length)this.history.forEach(m=>this.push(esc(m.content),m.role==='user'));else this.welcome();
+}catch(error){console.warn('Conversation restore unavailable',String(error).slice(0,100));this.welcome();}
+})();
+try{await this.restorePromise;}finally{this.restorePromise=null;}
+},
 async persist(){try{if(!this.storageKey)await this.restore();if(this.storageKey)sessionStorage.setItem(this.storageKey,JSON.stringify(this.history.slice(-14)));}catch(error){console.warn('Conversation save unavailable',String(error).slice(0,100));}},
 clear(){if(this.busy)return;this.history=[];try{if(this.storageKey)sessionStorage.removeItem(this.storageKey)}catch{}$('#agMsgs').innerHTML='';this.welcome();Toast.show(T('c_clear'),'ok')},
 setMode(m){this.mode=m;this.renderChrome();Toast.show(T('m_'+m),'ok')},
@@ -1740,10 +1763,12 @@ if(!Usage.allowed()){this.push(`<p><b>${T('t_limit')}</b></p><p class="bs muted"
 this.busy=true;const sendButton=$('.ag-send');if(sendButton)sendButton.disabled=true;
 this.push(esc(q),true);ta.value='';ta.style.height='auto';
 const t=document.createElement('div');t.className='msg';t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div><p class="bs muted">Einstein is thinking…</p></div>`;$('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
-const prior=this.history.slice(-14);this.history.push({role:'user',content:q});
+const prior=this.history.slice(-14);this.history.push({role:'user',content:q});await this.persist();
 try{
 const result=await this.respond(q,prior);t.remove();
-if(result.success){this.history.push({role:'assistant',content:result.reply});await this.persist();Usage.inc();recordEvent('coaching_prompt',{intent:this.intent,mode:this.mode,provider:'groq'});const formatted=esc(result.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');const sourceCards=(result.resources||[]).map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="ag-source-link">${esc(r.title)} ↗</a>`).join('');this.push(`<p>${formatted}</p>${sourceCards?`<div class="ag-sources"><div class="bs muted" style="font-weight:700;margin:12px 0 6px">Einstein Minds resources searched</div><div class="ag-source-list">${sourceCards}</div></div>`:''}<p class="bs muted">${T('ag_live_note')}${result.model?' · '+esc(result.model):''}</p>`);}
+if(result.success){this.history.push({role:'assistant',content:result.reply});await this.persist();Usage.inc();recordEvent('coaching_prompt',{intent:this.intent,mode:this.mode,provider:'groq'});const formatted=esc(result.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');const sourceCards=(result.resources||[]).map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="ag-source-link"><strong>${esc(r.title)} ↗</strong>${r.description?`<span>${esc(r.description)}</span>`:''}${r.match_note?`<small>${esc(r.match_note)}</small>`:''}</a>`).join('');
+const sourceSection=result.resourceSearchUsed?(sourceCards?`<div class="ag-sources"><div class="bs muted" style="font-weight:700;margin:12px 0 6px">Einstein Minds directory results · external sites are not independently endorsed</div><div class="ag-source-list">${sourceCards}</div></div>`:`<div class="ag-sources"><p class="bs muted">The Einstein Minds directory did not return relevant resources for this search. No unrelated listings were substituted.</p></div>`):result.resourceSearchStatus==='unavailable'?`<div class="ag-sources"><p class="bs muted">The Einstein Minds directory search was unavailable for this request.</p></div>`:'';
+this.push(`<p>${formatted}</p>${sourceSection}<p class="bs muted">${T('ag_live_note')}${result.model?' · '+esc(result.model):''}</p>`);}
 else{this.history.pop();this.push(`<p>${esc(result.error||'Einstein could not complete this response.')}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted. Please try again.</p>`);}
 }catch(error){this.history.pop();t.remove();this.push(`<p>Einstein could not complete this response. ${esc(error?.message||String(error))}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted.</p>`);}
 finally{this.busy=false;if(sendButton)sendButton.disabled=false;ta.focus();}
@@ -1752,29 +1777,26 @@ async respond(q,history=[]){
 try{
 const {data:{session}}=await supabaseClient.auth.getSession();
 if(!session)return {success:false,error:'Your session has expired. Please sign in again.'};
-let resources=[],resourceSearchUsed=false;
-const wantsResources=this.mode==='research'||this.tools.has('tl_web')||/\b(find|search|recommend|resources?|courses?|websites?|sources?|providers?|where can i learn)\b/i.test(q);
+let resources=[],resourceSearchUsed=false,resourceSearchStatus='not_requested';
+const wantsResources=this.mode==='research'||this.tools.has('tl_web')||/\\b(find|search|recommend|resources?|courses?|websites?|sources?|providers?|where can i learn)\\b/i.test(q);
 if(wantsResources){
+resourceSearchStatus='unavailable';
 try{
 const searchController=new AbortController();const searchTimeout=setTimeout(()=>searchController.abort(),9000);
 let searchResponse;try{searchResponse=await fetch(`${SUPABASE_URL}/functions/v1/resource-search`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY,Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({query:q,page:1,page_size:6,sort:'name_asc'}),signal:searchController.signal});}finally{clearTimeout(searchTimeout);}
 const searchData=await searchResponse.json().catch(()=>({}));
 if(searchResponse.ok&&Array.isArray(searchData.items)){
-resources=searchData.items.map(r=>({title:r.name,url:r.canonical_url,description:r.directory_description||r.provider_introduction||'',id:r.id})).filter(r=>r.title&&r.url);
-resourceSearchUsed=true;
+resources=searchData.items.map(r=>({title:r.name,url:r.canonical_url,description:r.directory_description||r.provider_introduction||'',id:r.id,match_note:r.search_note||searchData.match_note||'',match_type:r.search_match||searchData.match_type||'keyword'})).filter(r=>{try{return !!r.title&&new URL(r.url).protocol==='https:'}catch{return false}});
+resourceSearchUsed=true;resourceSearchStatus=resources.length?(searchData.match_type||'keyword'):'no_matches';
 }
 }catch(searchError){console.warn('Curated resource search unavailable',String(searchError).slice(0,120));}
 }
-if(!resources.length){
-const liveItems=window.EinsteinmindsResourceNetwork?.state?.items||[];
-resources=liveItems.slice(0,6).map(r=>({title:r.name||r.title,url:r.canonical_url||r.url,description:r.directory_description||''})).filter(r=>r.title&&r.url);
-}
 const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),45000);
-let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resources}),signal:controller.signal});}finally{clearTimeout(timeout);}
+let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resources,resource_search_status:resourceSearchStatus}),signal:controller.signal});}finally{clearTimeout(timeout);}
 const out=await res.json().catch(()=>({}));
 if(!res.ok||!out?.reply){return {success:false,error:out?.error||`AI service returned HTTP ${res.status}.`};}
 if(out.demo===true||out.provider!=='groq'){return {success:false,error:'The AI provider did not confirm a genuine model response. Please try again later.'};}
-return {success:true,reply:out.reply,model:out.model||'Groq',resources:resourceSearchUsed?resources:[],resourceSearchUsed};
+return {success:true,reply:out.reply,model:out.model||'Groq',resources:resourceSearchUsed?resources:[],resourceSearchUsed,resourceSearchStatus};
 }catch(error){return {success:false,error:error?.name==='AbortError'?'Einstein is taking longer than expected. Please try again.':(error?.message||'The AI service could not be reached.')};}
 }};
 /* ═══ EDUCATOR ═══ */
