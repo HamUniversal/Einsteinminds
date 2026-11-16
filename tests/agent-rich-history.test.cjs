@@ -23,13 +23,15 @@ test('restored resource destinations are restricted to safe HTTPS URLs', () => {
   assert.match(html, /rel="noopener noreferrer" class="ag-source-link"/);
 });
 
-test('assistant Markdown restores links, emphasis, headings and lists safely', () => {
+test('assistant Markdown restores safe clickable links and rich formatting', () => {
   assert.match(html, /const safeLink=/);
   assert.match(html, /text=text\.replace\(\/https\?:/);
-  assert.match(html, /replace\(\/\*\*\(.+?\)\*\*\/g,'<strong>/);
+  assert.ok(html.includes("'<strong>$1</strong>'"));
   assert.match(html, /const bullet=line\.match/);
   assert.match(html, /const heading=line\.match/);
   assert.match(html, /target="_blank" rel="noopener noreferrer"/);
+  assert.match(html, /<table style=/);
+  assert.match(html, /<blockquote style=/);
 });
 
 test('AI backend receives plain role/content history without UI metadata', () => {
