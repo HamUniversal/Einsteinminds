@@ -20,7 +20,7 @@ test('Ask Einstein restores safe clickable links before HTML escaping', () => {
   const renderer = html.slice(start, end);
   assert.match(renderer, /const safeLink=/);
   assert.ok(renderer.indexOf('text=text.replace(/\[') < renderer.indexOf('text=esc(text)'));
-  assert.ok(renderer.includes('text=text.replace(/https?:'));
+  assert.ok(renderer.includes("out.push('<h'+level+'>'"), 'headings should retain their hierarchy');
   assert.match(renderer, /target="_blank" rel="noopener noreferrer"/);
   assert.match(renderer, /tokenFor\(link\)\+tail/);
 });
