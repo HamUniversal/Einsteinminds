@@ -1361,7 +1361,8 @@ if(!supabaseClient){Toast.show('Supabase authentication could not initialize. Ch
 // Do not probe the private profiles table while the browser is still anonymous.
 this.backendReady=true;this.renderUserArea();
 supabaseClient.auth.onAuthStateChange((event,session)=>{
-if(event==='PASSWORD_RECOVERY'){this.recoveryMode=true;setTimeout(()=>this.renderPasswordRecovery(),0);return}\nif(event==='INITIAL_SESSION'||event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED'){
+if(event==='PASSWORD_RECOVERY'){this.recoveryMode=true;setTimeout(()=>this.renderPasswordRecovery(),0);return}
+if(event==='INITIAL_SESSION'||event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED'){
 setTimeout(()=>this.applySession(session),0)
 }
 });
