@@ -52,7 +52,7 @@ test('production registration requires adult account-holder confirmation and ver
   assert.match(authSource, /emailRedirectTo:window\.location\.origin\+'\/'/);
   assert.match(authSource, /auth\.signUp\(/);
   assert.match(authSource, /Check your email and confirm your address/);
-  assert.match(authSource, /role:'Parent \/ Educator',plan:'free',ageBand:'adult'/);
+  assert.match(authSource, /role:'Parent \/ Educator',plan:billing\?'pro':'free',ageBand:'adult'/);
 });
 
 test('account recovery supports password reset and update', () => {
