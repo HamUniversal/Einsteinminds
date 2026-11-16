@@ -28,7 +28,7 @@ test('Ask Einstein restores safe clickable links before HTML escaping', () => {
 test('restored assistant messages retain rich Markdown structures', () => {
   const start = html.indexOf('renderMarkdown(source){'), end = html.indexOf('renderAssistant(message){', start);
   const renderer = html.slice(start, end);
-  assert.ok(renderer.includes("'<h'+level>"));
+  assert.ok(renderer.includes("out.push('<h'+level+'>'"), 'heading hierarchy should be preserved');
   assert.match(renderer, /<table style=/);
   assert.match(renderer, /<blockquote style=/);
   assert.match(renderer, /<ol>/);
