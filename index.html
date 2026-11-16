@@ -594,7 +594,7 @@ html[dir=rtl] .sb.open{transform:none}
 .toasts{left:var(--s4);right:var(--s4);max-width:none}.mdl{max-height:92vh;max-height:min(92vh,92dvh)}.stats{grid-template-columns:repeat(2,1fr)}
 .age-row{grid-template-columns:1fr}}
 @media print{.sb,.hdr,.ag-in,.more,.toasts{display:none!important}.main{margin-inline-start:0}.page{max-width:100%}}
-</style>
+.ag-sources{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}.ag-source-list{display:flex;flex-wrap:wrap;gap:7px}.ag-source-link{display:inline-flex;align-items:center;padding:6px 9px;border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:12px;text-decoration:none;background:var(--surface)}.ag-source-link:hover{border-color:var(--ink-2);text-decoration:underline}</style>
 
 <link rel="stylesheet" href="/assets/resource-network.css">
 </head>
@@ -880,7 +880,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="ag-av">E</div>
 <div style="flex:1"><h2 class="h3" data-i18n="n_ask">Ask Einstein</h2>
 <p class="bs muted" data-i18n="ag_desc">Advanced AI — deep reasoning, global knowledge, code, research synthesis and creative work.</p>
-<div class="ag-st"><span class="ag-st-d"></span><span data-i18n="ag_online">Online — 12 intelligence capabilities active</span></div></div>
+<div class="ag-st"><span class="ag-st-d"></span><span data-i18n="ag_online">AI learning partner · live model</span></div></div>
 <button class="btn btn-o btn-sm" onclick="Agent.clear()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg><span data-i18n="c_clear">Clear</span></button></div>
 <div class="ag-caps" id="agCaps"></div>
 <div class="ag-msgs" id="agMsgs"></div>
@@ -1158,9 +1158,9 @@ c_viewall:"View all",c_cancel:"Cancel",c_save:"Save",c_close:"Close",c_export:"E
 h_badge:"unique provider listings · external sites not independently reviewed",h_title:"What will you discover today?",h_sub:"One intelligent gateway to the world's knowledge. Ask Einstein anything.",h_ph:"Ask Einstein anything…",h_cont:"Continue Learning",h_contsub:"Pick up where you left off",h_rec:"Recommended For You",h_recsub:"Matched to your interests and level",
 q_lesson:"Build a Lesson Plan",q_family:"Find Family Activities",q_explore:"Explore My Interests",q_well:"Wellbeing Check-in",q_balance:"Digital Balance",q_inst:"Institutions",
 ag_desc:"Advanced AI — deep reasoning, global knowledge, code, research synthesis and creative work.",ag_online:"Online — 12 intelligence capabilities active",ag_ph:"Ask Einstein anything — research, code, math, writing, analysis…",ag_w1:"Hello! I'm Einstein, your advanced learning companion. I combine deep multi-step reasoning with verified educational sources.",ag_w2:"I can help with research, code, mathematical proofs, creative writing, translation, data analysis, teaching design and debate preparation.",ag_w3:"Every factual claim is backed by a verified source. I'll always tell you when I'm uncertain.",
-ag_live_note:"Live model reply for signed-in adult staging accounts. Check important claims against the cited providers.",
+ag_live_note:"AI-generated answer · verify important claims with reliable sources.",
 m_general:"General",m_research:"Research",m_explain:"Explain",m_create:"Create",m_analyze:"Analyze",m_code:"Code",m_translate:"Translate",m_math:"Math",m_write:"Write",m_teach:"Teach",m_debate:"Debate",m_summarize:"Summarize",
-tl_web:"Web Search",tl_img:"Image Analysis",tl_code:"Code Interpreter",tl_doc:"Documents",tl_viz:"Data Viz",tl_voice:"Voice Output",
+tl_web:"Search learning resources",tl_img:"Image Analysis",tl_code:"Code Interpreter",tl_doc:"Documents",tl_viz:"Data Viz",tl_voice:"Voice Output",
 e_sub:"Browse education-provider categories and select a learning domain.",e_plats:"Platforms & Sites in this Domain",e_plats_d:"External links; provider names and descriptions are shown as supplied. Content and suitability have not been independently reviewed.",e_resin:"Providers in",e_all:"All Domains",
 r_title:"Education Provider Directory",f_category:"Learning domain",f_format:"Format",f_age:"Age / Level",f_trust:"Trust Label",f_sort:"Sort By",f_all:"All labels",f_verified:"Directory listing",f_peer:"Peer-reviewed",f_oer:"Open Educational Resource",f_gov:"Government Source",f_rel:"Relevance",f_az:"Title A–Z",f_za:"Title Z–A",f_prov:"Provider",
 l_sub:"Your goals, pathways and progress",l_new:"Create New Goal",l_gname:"Goal Title",l_gsubj:"Subject",l_gweeks:"Timeline (weeks)",l_gwhy:"Why this matters to you",l_continue:"Continue",l_adjust:"Adjust Plan",l_goal:"Goal",
@@ -1740,23 +1740,38 @@ const t=document.createElement('div');t.className='msg';t.innerHTML=`<div class=
 const prior=this.history.slice(-14);this.history.push({role:'user',content:q});
 try{
 const result=await this.respond(q,prior);t.remove();
-if(result.success){this.history.push({role:'assistant',content:result.reply});Usage.inc();recordEvent('coaching_prompt',{intent:this.intent,mode:this.mode,provider:'groq'});const formatted=esc(result.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');this.push(`<p>${formatted}</p><p class="bs muted">${T('ag_live_note')}${result.model?' · '+esc(result.model):''}</p>`);}
+if(result.success){this.history.push({role:'assistant',content:result.reply});Usage.inc();recordEvent('coaching_prompt',{intent:this.intent,mode:this.mode,provider:'groq'});const formatted=esc(result.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');const sourceCards=(result.resources||[]).map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="ag-source-link">${esc(r.title)} ↗</a>`).join('');this.push(`<p>${formatted}</p>${sourceCards?`<div class="ag-sources"><div class="bs muted" style="font-weight:700;margin:12px 0 6px">Einstein Minds resources searched</div><div class="ag-source-list">${sourceCards}</div></div>`:''}<p class="bs muted">${T('ag_live_note')}${result.model?' · '+esc(result.model):''}</p>`);}
 else{this.history.pop();this.push(`<p>${esc(result.error||'Einstein could not complete this response.')}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted. Please try again.</p>`);}
 }catch(error){this.history.pop();t.remove();this.push(`<p>Einstein could not complete this response. ${esc(error?.message||String(error))}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted.</p>`);}
 finally{this.busy=false;if(sendButton)sendButton.disabled=false;ta.focus();}
 },
 async respond(q,history=[]){
-const liveItems=window.EinsteinmindsResourceNetwork?.state?.items||[];
-const resources=liveItems.slice(0,8).map(r=>({title:r.name||r.title,url:r.canonical_url||r.url,description:r.directory_description||''})).filter(r=>r.title&&r.url);
 try{
 const {data:{session}}=await supabaseClient.auth.getSession();
 if(!session)return {success:false,error:'Your session has expired. Please sign in again.'};
+let resources=[],resourceSearchUsed=false;
+const wantsResources=this.mode==='research'||this.tools.has('tl_web')||/\b(find|search|recommend|resources?|courses?|websites?|sources?|providers?|where can i learn)\b/i.test(q);
+if(wantsResources){
+try{
+const searchController=new AbortController();const searchTimeout=setTimeout(()=>searchController.abort(),9000);
+let searchResponse;try{searchResponse=await fetch(`${SUPABASE_URL}/functions/v1/resource-search`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY,Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({query:q,page:1,page_size:6,sort:'name_asc'}),signal:searchController.signal});}finally{clearTimeout(searchTimeout);}
+const searchData=await searchResponse.json().catch(()=>({}));
+if(searchResponse.ok&&Array.isArray(searchData.items)){
+resources=searchData.items.map(r=>({title:r.name,url:r.canonical_url,description:r.directory_description||r.provider_introduction||'',id:r.id})).filter(r=>r.title&&r.url);
+resourceSearchUsed=true;
+}
+}catch(searchError){console.warn('Curated resource search unavailable',String(searchError).slice(0,120));}
+}
+if(!resources.length){
+const liveItems=window.EinsteinmindsResourceNetwork?.state?.items||[];
+resources=liveItems.slice(0,6).map(r=>({title:r.name||r.title,url:r.canonical_url||r.url,description:r.directory_description||''})).filter(r=>r.title&&r.url);
+}
 const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),45000);
 let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resources}),signal:controller.signal});}finally{clearTimeout(timeout);}
 const out=await res.json().catch(()=>({}));
 if(!res.ok||!out?.reply){return {success:false,error:out?.error||`AI service returned HTTP ${res.status}.`};}
 if(out.demo===true||out.provider!=='groq'){return {success:false,error:'The AI provider did not confirm a genuine model response. Please try again later.'};}
-return {success:true,reply:out.reply,model:out.model||'Groq'};
+return {success:true,reply:out.reply,model:out.model||'Groq',resources:resourceSearchUsed?resources:[],resourceSearchUsed};
 }catch(error){return {success:false,error:error?.name==='AbortError'?'Einstein is taking longer than expected. Please try again.':(error?.message||'The AI service could not be reached.')};}
 }};
 /* ═══ EDUCATOR ═══ */
