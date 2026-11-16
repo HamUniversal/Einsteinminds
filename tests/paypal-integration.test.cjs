@@ -14,7 +14,8 @@ test('Pro checkout uses the authenticated server-side PayPal subscription functi
   assert.match(html, /action:'create'/);
   assert.match(html, /window\.location\.assign\(data\.approval_url\)/);
   assert.doesNotMatch(html, /Checkout is not connected\. No payment or plan change was made/);
-  assert.doesNotMatch(html, /Checkout is unavailable in this prototype/);
+  const checkout = html.slice(html.indexOf('id="checkoutModal"'), html.indexOf('id="instReqModal"'));
+  assert.doesNotMatch(checkout, /prototype|checkout unavailable|disabled/);
 });
 
 test('PayPal return is verified server-side before Pro access is refreshed', () => {
