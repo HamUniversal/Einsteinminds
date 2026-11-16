@@ -53,7 +53,7 @@ const checks = [
   [html.includes('supabaseClient.auth.signUp') && html.includes('supabaseClient.auth.signInWithPassword'), 'signup and password sign-in use Supabase Auth'],
   [html.includes("functions.invoke('paypal-subscriptions'") && html.includes("plan_key:this.cycle==='m'?'monthly':'yearly'"), 'monthly and annual checkout use the PayPal subscription function'],
   [html.includes('id="coPay" onclick="Plans.pay()"'), 'PayPal checkout action is enabled in the interface']
-];;
+];
 let failed = 0;
 for (const [passed, label] of checks) {
   console.log(`${passed ? 'PASS' : 'FAIL'} ${label}`);
