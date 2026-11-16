@@ -689,9 +689,9 @@ html[dir=rtl] .sb.open{transform:none}
 <div style="padding:var(--s4);background:var(--bg-2);border-radius:var(--r-md);margin-bottom:var(--s5);display:flex;justify-content:space-between;align-items:center">
 <div><b data-i18n="co_plan">Einsteinminds Pro</b><p class="cap muted" id="coCycle" data-i18n="co_cycle">Monthly billing</p></div>
 <div class="h3" id="coAmt">$8.00</div></div>
-<p class="bm muted" data-i18n="co_note">Checkout is unavailable in this prototype. No payment details should be entered; plans cannot be purchased or activated.</p>
+<p class="bm muted" id="coNote">Secure recurring billing is handled by PayPal. Einstein Minds never stores your PayPal password or card details.</p>
 </div>
-<div class="mdl-f"><button class="btn btn-o" onclick="M.close('checkoutModal')" data-i18n="c_close">Close</button><button class="btn btn-p" id="coPay" disabled data-i18n="co_unavailable">Checkout unavailable</button></div>
+<div class="mdl-f"><button class="btn btn-o" onclick="M.close('checkoutModal')" data-i18n="c_close">Close</button><button class="btn btn-o" id="coManage" onclick="Plans.cancelSubscription()" style="display:none">Cancel subscription</button><button class="btn btn-p" id="coPay" onclick="Plans.pay()">Continue to PayPal</button></div>
 </div></div>
 <!-- ═══ INSTITUTIONAL REQUEST ═══ -->
 <div class="ov" id="instReqModal"><div class="mdl">
@@ -1367,7 +1367,8 @@ setTimeout(()=>this.applySession(session),0)
 });
 const{data,error}=await supabaseClient.auth.getSession();
 if(error){Toast.show(`Could not restore the Supabase session: ${error.message}`,'bad');return}
-await this.applySession(data.session)
+await this.applySession(data.session);
+if(window.location.search.includes('paypal='))await Plans.handleReturn()
 },
 get signedIn(){return !!this.user},
 plan(){return this.user?this.user.plan:'guest'},
@@ -1403,8 +1404,12 @@ return
 }finally{if(this._profileLoads.get(authUser.id)===profilePromise)this._profileLoads.delete(authUser.id)}
 if(update!==this._sessionUpdate)return;
 const previousId=this.user&&this.user.id;
+const {data:billing,error:billingError}=await supabaseClient.from('paypal_subscriptions')
+.select('plan_key,status,paypal_subscription_id').eq('user_id',authUser.id).eq('status','ACTIVE')
+.order('updated_at',{ascending:false}).limit(1).maybeSingle();
+if(billingError){this.user=null;LS.activateUser(null);resetGuestState();Usage.load();this.renderUserArea();Toast.show('Could not verify your subscription status. Please reload and try again.','bad');return}
 this.user={id:authUser.id,name:profile.display_name||authUser.email?.split('@')[0]||'Learner',
-email:authUser.email||'',role:'Parent / Educator',plan:'free',ageBand:'adult',vpc:'pending'};
+email:authUser.email||'',role:'Parent / Educator',plan:billing?'pro':'free',ageBand:'adult',vpc:'pending',subscription:billing||null};
 if(previousId!==authUser.id){
 try{LS.activateUser(authUser.id);loadAccountState();Usage.load();mergeGuestArtifacts()}
 catch(error){this.user=null;LS.activateUser(null);resetGuestState();this.renderUserArea();Toast.show(`Could not load this account's local learning data: ${error.message}`,'bad');return}
@@ -1538,18 +1543,50 @@ S.goals.unshift(goal);if(!Auth.signedIn)guestArtifacts.goals.unshift(goal);recor
 }
 $('#onboarding').classList.remove('on');document.body.style.overflow='';
 LS.set('onboarded',true);Toast.show(T('au_welcome'),'ok');Nav.go('home');Home.render()}};
-const Plans={cycle:'m',
+const Plans={cycle:'m',busy:false,
 bill(c){this.cycle=c;$('#billM').classList.toggle('on',c==='m');$('#billY').classList.toggle('on',c==='y');
 $('#proPrice').textContent=c==='m'?'$8':'$60';$('#proPer').textContent=c==='m'?'/month':'/year'},
 choose(p){if(p==='free'){M.close('pricingModal');Toast.show(T('pl_cur'),'ok');return}
 if(p==='pro'){M.close('pricingModal');this.openCheckout();return}
 if(p==='educator'){M.close('pricingModal');this.verifyEducator();return}
 if(p==='inst'){M.close('pricingModal');M.open('instReqModal');return}},
-openCheckout(){if(!Auth.signedIn){Auth.open('in');Toast.show(T('au_signin'),'warn');return}
+async openCheckout(){if(!Auth.signedIn){Auth.open('in');Toast.show(T('au_signin'),'warn');return}
 $('#coAmt').textContent=this.cycle==='m'?'$8.00':'$60.00';
-$('#coCycle').textContent='Illustrative price only — no billing service is connected';
+$('#coCycle').textContent=this.cycle==='m'?'Monthly recurring billing':'Annual recurring billing';
+$('#coNote').textContent='Secure recurring billing is handled by PayPal. Einstein Minds never stores your PayPal password or card details.';
+$('#coManage').style.display='none';$('#coPay').style.display='';$('#coPay').disabled=false;
+const {data:sub,error}=await supabaseClient.from('paypal_subscriptions').select('paypal_subscription_id,status,plan_key,next_billing_time,cancel_requested_at').eq('user_id',Auth.user.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
+if(error){Toast.show('Could not load subscription status. Please try again.','bad');return}
+if(sub&&['ACTIVE','APPROVAL_PENDING','APPROVED','SUSPENDED','PAYMENT_FAILED'].includes(sub.status)){
+$('#coNote').textContent=sub.status==='ACTIVE'?'Your Pro subscription is active.'+(sub.next_billing_time?' Next billing: '+new Date(sub.next_billing_time).toLocaleDateString(): ''): 'Your subscription status is '+sub.status.replaceAll('_',' ').toLowerCase()+'.';
+$('#coManage').style.display=sub.status==='ACTIVE'?'':'none';$('#coPay').style.display='none';
+}
 M.open('checkoutModal')},
-pay(){Toast.show('Checkout is not connected. No payment or plan change was made.','warn')},
+async pay(){if(this.busy)return;if(!Auth.signedIn){Auth.open('in');return}
+this.busy=true;$('#coPay').disabled=true;$('#coPay').textContent='Connecting to PayPal…';
+try{const {data,error}=await supabaseClient.functions.invoke('paypal-subscriptions',{body:{action:'create',plan_key:this.cycle==='m'?'monthly':'yearly'}});
+if(error)throw error;if(!data?.approval_url)throw new Error(data?.error||'PayPal approval link was not returned.');
+window.location.assign(data.approval_url)
+}catch(error){Toast.show(error?.message||'Could not start PayPal checkout. Please try again.','bad');$('#coPay').disabled=false;$('#coPay').textContent='Continue to PayPal'}
+finally{this.busy=false}},
+async cancelSubscription(){if(!Auth.signedIn||!confirm('Cancel your Einstein Minds Pro subscription through PayPal?'))return;
+const {data:sub,error:lookupError}=await supabaseClient.from('paypal_subscriptions').select('paypal_subscription_id,status').eq('user_id',Auth.user.id).eq('status','ACTIVE').order('updated_at',{ascending:false}).limit(1).maybeSingle();
+if(lookupError||!sub){Toast.show('No active subscription could be found.','warn');return}
+const {data,error}=await supabaseClient.functions.invoke('paypal-subscriptions',{body:{action:'cancel',subscription_id:sub.paypal_subscription_id}});
+if(error) {Toast.show('Cancellation could not be submitted: '+error.message,'bad');return}
+$('#coNote').textContent='Cancellation requested. PayPal will confirm the effective date; access remains active until the subscription status changes.';
+$('#coManage').style.display='none';Toast.show('Cancellation request sent to PayPal.','ok')},
+async handleReturn(){const params=new URLSearchParams(window.location.search),state=params.get('paypal');
+if(!state)return;
+const id=params.get('subscription_id')||params.get('subscriptionId');
+if(state==='success'&&id&&Auth.signedIn){
+const {data,error}=await supabaseClient.functions.invoke('paypal-subscriptions',{body:{action:'sync',subscription_id:id}});
+if(error)Toast.show('PayPal returned, but subscription verification is still pending. Please refresh shortly.','warn');
+else if(data?.status==='ACTIVE'){const {data:sessionData}=await supabaseClient.auth.getSession();await Auth.applySession(sessionData.session);Toast.show('Your Einstein Minds Pro subscription is active.','ok')}
+else Toast.show('PayPal approval received. Subscription status: '+String(data?.status||'pending')+'.','warn');
+}else if(state==='success')Toast.show('Sign in to verify your PayPal subscription.','warn');
+else if(state==='cancel')Toast.show('PayPal checkout was cancelled. No subscription was activated.','warn');
+history.replaceState({},'',window.location.pathname+window.location.hash)},
 verifyEducator(){Toast.show('Educator verification is not connected; no account changes were made.','warn')},
 instRequest(){Toast.show('Institutional requests are unavailable and were not submitted.','warn')}};
 const Legal={docs:{
