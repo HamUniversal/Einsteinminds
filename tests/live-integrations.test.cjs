@@ -17,7 +17,7 @@ test('Supabase Auth signup and sign-in remain wired to the live client', () => {
 test('PayPal checkout supports both configured subscription intervals', () => {
   assert.match(html, /functions\.invoke\('paypal-subscriptions'/);
   assert.match(html, /plan_key:this\.cycle==='m'\?'monthly':'yearly'/);
-  assert.match(html, /this\.cycle==='m'\?'\$8':'\$60'/);
+  assert.match(html, /c==='m'\?'\$8':'\$60'/);
   assert.match(html, /this\.cycle==='m'\?'\$8\.00':'\$60\.00'/);
   assert.match(html, /id="coPay" onclick="Plans\.pay\(\)"/);
   assert.match(html, /action:'cancel'/);
