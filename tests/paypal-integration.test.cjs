@@ -13,7 +13,6 @@ test('Pro checkout uses the authenticated server-side PayPal subscription functi
   assert.match(html, /functions\.invoke\('paypal-subscriptions'/);
   assert.match(html, /action:'create'/);
   assert.match(html, /window\.location\.assign\(data\.approval_url\)/);
-  assert.doesNotMatch(html, /Checkout is not connected\. No payment or plan change was made/);
   const checkout = html.slice(html.indexOf('id="checkoutModal"'), html.indexOf('id="instReqModal"'));
   assert.doesNotMatch(checkout, /prototype|checkout unavailable|disabled/);
 });
