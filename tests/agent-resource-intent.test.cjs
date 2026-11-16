@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 
-const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const html = readFileSync(require('node:path').join(__dirname, '../index.html'), 'utf8');
 
 test('Ask Einstein resource intent uses real word boundaries', () => {
   const line = html.split('\n').find((value) => value.includes('const wantsResources='));
