@@ -41,15 +41,22 @@ Deno.serve(async(req:Request)=>{
     else if(type==="BILLING.SUBSCRIPTION.SUSPENDED")forced="SUSPENDED";
     else if(type==="BILLING.SUBSCRIPTION.EXPIRED")forced="EXPIRED";
     else if(type==="BILLING.SUBSCRIPTION.PAYMENT.FAILED")forced="PAYMENT_FAILED";
-    const row={user_id:owner,paypal_subscription_id:id,paypal_plan_id:planId,plan_key:planId===monthly?"monthly":"yearly",status:forced||String(sub.status||"").toUpperCase(),payer_email:sub.subscriber?.email_address||null,next_billing_time:sub.billing_info?.next_billing_time||null,updated_at:new Date().toISOString()};
+    const {data:previous}=await admin.from("paypal_subscriptions").select("payment_status").eq("paypal_subscription_id",id).maybeSingle();
+    let status=forced||String(sub.status||"").toUpperCase();
+    if(type==="BILLING.SUBSCRIPTION.UPDATED"&&status==="ACTIVE"&&previous?.payment_status==="FAILED")status="PAYMENT_FAILED";
+    const row:any={user_id:owner,paypal_subscription_id:id,paypal_plan_id:planId,plan_key:planId===monthly?"monthly":"yearly",status,payer_email:sub.subscriber?.email_address||null,next_billing_time:sub.billing_info?.next_billing_time||null,updated_at:new Date().toISOString()};
+    if(type==="BILLING.SUBSCRIPTION.PAYMENT.FAILED")row.payment_status="FAILED";
     const {error}=await admin.from("paypal_subscriptions").upsert(row,{onConflict:"paypal_subscription_id"});if(error)throw new Error("subscription_upsert_failed");
    }
   }else if(type.startsWith("PAYMENT.SALE.")){
    const id=String(resource.billing_agreement_id||resource.subscription_id||"");
    if(id){
     const patch:any={updated_at:new Date().toISOString()};
-    if(type==="PAYMENT.SALE.COMPLETED"){patch.last_payment_at=resource.create_time||new Date().toISOString();patch.payment_status="COMPLETED";}
-    else if(type==="PAYMENT.SALE.REFUNDED")patch.payment_status="REFUNDED";
+    if(type==="PAYMENT.SALE.COMPLETED"){
+      patch.last_payment_at=resource.create_time||new Date().toISOString();patch.payment_status="COMPLETED";
+      const sub=await paypalRequest(token,"/v1/billing/subscriptions/"+encodeURIComponent(id));
+      if(sub.status==="ACTIVE")patch.status="ACTIVE";
+    }else if(type==="PAYMENT.SALE.REFUNDED")patch.payment_status="REFUNDED";
     else if(type==="PAYMENT.SALE.REVERSED"){patch.payment_status="REVERSED";patch.status="SUSPENDED";}
     const {error}=await admin.from("paypal_subscriptions").update(patch).eq("paypal_subscription_id",id);if(error)throw new Error("payment_event_update_failed");
    }
