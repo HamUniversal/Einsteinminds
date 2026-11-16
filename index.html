@@ -1409,7 +1409,11 @@ if(previousId!==authUser.id){
 try{LS.activateUser(authUser.id);loadAccountState();Usage.load();mergeGuestArtifacts()}
 catch(error){this.user=null;LS.activateUser(null);resetGuestState();this.renderUserArea();Toast.show(`Could not load this account's local learning data: ${error.message}`,'bad');return}
 }
-this.renderUserArea();Nav.render();Home.render();if(previousId!==authUser.id){I18n.apply();Settings.sync();Settings.syncPlan();Settings.renderConsent()}
+this.renderUserArea();Nav.render();Home.render();
+// Auth can resolve after the initial Agent view render. Re-run restoration after the
+// authenticated profile is ready so a first-load anonymous restore cannot win the race.
+if(previousId!==authUser.id||Agent.restoredFor!==authUser.id){await Agent.restore();if(Agent.restoredFor!==authUser.id)await Agent.restore()}
+if(previousId!==authUser.id){I18n.apply();Settings.sync();Settings.syncPlan();Settings.renderConsent()}
 },
 open(tab){this.renderAuth(tab||'in');$('#authGate').classList.add('on')},
 close(){$('#authGate').classList.remove('on')},
@@ -1778,7 +1782,7 @@ try{
 const {data:{session}}=await supabaseClient.auth.getSession();
 if(!session)return {success:false,error:'Your session has expired. Please sign in again.'};
 let resources=[],resourceSearchUsed=false,resourceSearchStatus='not_requested';
-const wantsResources=this.mode==='research'||this.tools.has('tl_web')||/\\b(find|search|recommend|resources?|courses?|websites?|sources?|providers?|where can i learn)\\b/i.test(q);
+const wantsResources=this.mode==='research'||this.tools.has('tl_web')||/\b(find|search|recommend|resources?|courses?|websites?|sources?|providers?|where can i learn)\b/i.test(q);
 if(wantsResources){
 resourceSearchStatus='unavailable';
 try{
