@@ -1157,7 +1157,7 @@ D.en={g_core:"Core",g_learn:"Learning",g_well:"Wellbeing",g_pro:"Professional",g
 c_viewall:"View all",c_cancel:"Cancel",c_save:"Save",c_close:"Close",c_export:"Export",c_create:"Create Goal",c_refresh:"Refresh",c_filters:"Filters",c_apply:"Apply Filters",c_reset:"Reset",c_clear:"Clear",c_load:"Load 12 More Resources",c_open:"Open Original",c_saved:"Saved",c_searchph:"Search education providers…",c_notif:"Notifications",c_showing:"Showing",c_of:"of",c_ress:"provider listings",c_platforms:"platforms",c_resources:"provider listings",c_none:"No results found",c_none_d:"Try adjusting your filters or search terms.",c_back:"Back",c_delete:"Delete",
 h_badge:"unique provider listings · external sites not independently reviewed",h_title:"What will you discover today?",h_sub:"One intelligent gateway to the world's knowledge. Ask Einstein anything.",h_ph:"Ask Einstein anything…",h_cont:"Continue Learning",h_contsub:"Pick up where you left off",h_rec:"Recommended For You",h_recsub:"Matched to your interests and level",
 q_lesson:"Build a Lesson Plan",q_family:"Find Family Activities",q_explore:"Explore My Interests",q_well:"Wellbeing Check-in",q_balance:"Digital Balance",q_inst:"Institutions",
-ag_desc:"Advanced AI — deep reasoning, global knowledge, code, research synthesis and creative work.",ag_online:"Online — 12 intelligence capabilities active",ag_ph:"Ask Einstein anything — research, code, math, writing, analysis…",ag_w1:"Hello! I'm Einstein, your advanced learning companion. I combine deep multi-step reasoning with verified educational sources.",ag_w2:"I can help with research, code, mathematical proofs, creative writing, translation, data analysis, teaching design and debate preparation.",ag_w3:"Every factual claim is backed by a verified source. I'll always tell you when I'm uncertain.",
+ag_desc:"Advanced AI — deep reasoning, global knowledge, code, research synthesis and creative work.",ag_online:"AI learning partner · live model response per request",ag_ph:"Ask Einstein anything — research, code, math, writing, analysis…",ag_w1:"Hello! I'm Einstein, your advanced learning companion. I combine deep multi-step reasoning with verified educational sources.",ag_w2:"I can help with research, code, mathematical proofs, creative writing, translation, data analysis, teaching design and debate preparation.",ag_w3:"Every factual claim is backed by a verified source. I'll always tell you when I'm uncertain.",
 ag_live_note:"AI-generated answer · verify important claims with reliable sources.",
 m_general:"General",m_research:"Research",m_explain:"Explain",m_create:"Create",m_analyze:"Analyze",m_code:"Code",m_translate:"Translate",m_math:"Math",m_write:"Write",m_teach:"Teach",m_debate:"Debate",m_summarize:"Summarize",
 tl_web:"Search learning resources",tl_img:"Image Analysis",tl_code:"Code Interpreter",tl_doc:"Documents",tl_viz:"Data Viz",tl_voice:"Voice Output",
@@ -1210,12 +1210,12 @@ ob_s2:"Choose sample interests for this demo; they do not personalize recommenda
 au_signin:"Sign in",
 au_signup:"Create staging account",
 us_in:"Staging sign in",
-ag_desc:"Demonstration assistant. Responses are examples; no AI model or source search is connected.",
+ag_desc:"A live AI learning partner for explanations, research thinking, creation and guided problem-solving.",
 ag_online:"AI response service · availability checked per request",
-ag_w1:"Welcome to the Einsteinminds prototype.",
-ag_w2:"This interface previews possible learning tools. It cannot answer questions using a live AI model.",
-ag_w3:"Demo responses are not generated, checked, or supported by verified sources. Do not rely on them for factual or consequential decisions.",
-ag_demo:"This is a fixed demo response, not an AI-generated or verified answer. No model or live source search is connected.",
+ag_w1:"Welcome. Einstein is your AI learning partner.",
+ag_w2:"Ask questions, explore ideas, solve problems and build understanding through a real AI conversation.",
+ag_w3:"Einstein does not claim to browse the open web or use tools unless those services are actually connected and used.",
+ag_demo:"AI-generated response. Verify important claims against reliable sources.",
 vpc_d2:"This prototype cannot verify parental consent. Child features stay locked until a real verification provider is connected.",
 vpc_card_d:"Demo option only. No card is requested or checked.",
 vpc_form_d:"Not connected in this prototype.",
@@ -1233,7 +1233,7 @@ pl_free_f1:"Unique education-provider directory",
 pl_pro_d:"Plan preview only. No paid features or subscription service is connected.",
 pl_edu_d:"Plan preview only. Educator status cannot be verified in this prototype.",
 pl_inst_d:"Plan preview only. Institutional infrastructure is not connected.",
-pl_pro_f1:"AI responses are scripted demos",pl_pro_f2:"Tools are interface previews only",
+pl_pro_f1:"Live AI learning partner",pl_pro_f2:"Tools are interface previews only",
 pl_pro_f3:"No virtual labs are connected",pl_pro_f4:"No verified credentials are issued",
 pl_edu_f1:"Static Teaching Studio preview",pl_edu_f2:"Example content only",
 pl_edu_f3:"No educator verification or service",pl_inst_f1:"No institutional accounts",
@@ -1248,7 +1248,7 @@ s_pers_d:"This preference is stored in this browser; no AI service is connected.
 s_share:"Institution sharing preference (demo)",
 s_share_d:"This preference is stored locally; no data is shared with an institution.",
 ag_online:"AI response service · availability checked per request",
-h_sub:"Explore a sample learning interface. Ask Einstein is a scripted demo.",
+h_sub:"Explore learning across every domain. Ask Einstein is a live AI learning partner for signed-in users.",
 h_badge:"unique provider listings · external sites not independently reviewed",
 h_recsub:"Sample recommendations; not personalized.",
 c_searchph:"Search education providers…",
@@ -1483,7 +1483,7 @@ render(){this.dots();const c=$('#obContent');
 if(this.step===1){c.innerHTML=`<div style="text-align:center"><h2 class="h2" style="margin-bottom:var(--s4)">${T('ob_e1')}</h2>
 <p class="bm muted" style="margin-bottom:var(--s6)">${T('ob_e2')}</p>
 <div style="padding:var(--s5);background:var(--bg-2);border-radius:var(--r-md);text-align:left;margin-bottom:var(--s6)" class="bs">
-This demo has no AI model, live source lookup, or factual verification. Its example responses may be incorrect.</div>
+Ask Einstein uses a live AI model for signed-in accounts. External web search and optional tools are available only when explicitly connected.</div>
 <button class="btn btn-p btn-block" onclick="Onboard.next()">${T('ob_accept')}</button></div>`}
 else if(this.step===2){c.innerHTML=`<div style="text-align:center"><h2 class="h2" style="margin-bottom:var(--s2)">${T('ob_s1')}</h2>
 <p class="bm muted" style="margin-bottom:var(--s4)">${T('ob_s2')}</p>
@@ -1726,7 +1726,7 @@ welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><d
 clear(){if(this.busy)return;this.history=[];$('#agMsgs').innerHTML='';this.welcome();Toast.show(T('c_clear'),'ok')},
 setMode(m){this.mode=m;this.renderChrome();Toast.show(T('m_'+m),'ok')},
 setIntent(name,el){this.intent=name;$$('#agTools .intent').forEach(button=>button.classList.toggle('on',button===el))},
-tool(k,el){this.tools.has(k)?this.tools.delete(k):this.tools.add(k);el.classList.toggle('on');Toast.show('This tool is not connected yet. Einstein will not pretend to use it.','warn')},
+tool(k,el){if(k==='tl_web'){this.tools.has(k)?this.tools.delete(k):this.tools.add(k);el.classList.toggle('on');Toast.show(this.tools.has(k)?'Einstein Minds resource search is enabled for your next question.':'Resource search is off.','ok');return}Toast.show('This tool is not connected yet. Einstein will not pretend to use it.','warn')},
 fromHome(){const v=$('#homeAsk').value.trim();Nav.go('agent');if(v){$('#agIn').value=v;$('#homeAsk').value='';this.send()}},
 push(html,me){const d=document.createElement('div');d.className='msg'+(me?' me':'');d.innerHTML=`<div class="msg-av">${me?'You':'E'}</div><div class="msg-b">${html}</div>`;$('#agMsgs').appendChild(d);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;return d},
 async send(){const ta=$('#agIn'),q=ta.value.trim();if(!q||this.busy)return;
@@ -2125,7 +2125,7 @@ sp.className='rip';sp.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX
 if(getComputedStyle(b).position==='static')b.style.position='relative';b.appendChild(sp);setTimeout(()=>sp.remove(),640)});
 Object.assign(D.en,{
 h_sub:"One calm gateway to curated learning. Ask, explore, build — with honest labels on everything.",
-ag_desc:"A demonstration coach. Hints and examples on request — no live model or source lookup behind it yet.",
+ag_desc:"A live AI learning partner for explanations, research thinking, creation and guided problem-solving.",
 e_sub:"Sixteen doors into curated knowledge. Open any one to see the providers listed inside.",
 l_sub:"Set a goal, see your next step, and follow a plan that bends when life does.",
 p_sub:"The things you made, the feedback you acted on, and how each revision changed — yours to keep and export. Items stay labelled self-submitted until a real review exists.",
