@@ -39,6 +39,8 @@ test('PayPal webhook verifies signatures and deduplicates event IDs', () => {
   assert.match(webhook, /BILLING\.SUBSCRIPTION\.ACTIVATED/);
   assert.match(webhook, /PAYMENT\.SALE\.COMPLETED/);
   assert.match(webhook, /BILLING\.SUBSCRIPTION\.CANCELLED/);
+  assert.match(webhook, /PAYMENT_FAILED/);
+  assert.match(webhook, /previous\?\.payment_status===\"FAILED\"/);
 });
 
 test('subscription records are private and users can only read their own row', () => {
