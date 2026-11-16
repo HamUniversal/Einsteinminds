@@ -74,7 +74,7 @@ test('sign out clears the local Supabase session and app user state', () => {
 });
 
 test('all inline application scripts parse before release', () => {
-  const inlineScripts = [...html.matchAll(/<script\\b(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/gi)];
+  const inlineScripts = [...html.matchAll(new RegExp('<script\\b(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)</script>', 'gi'))];
   assert.ok(inlineScripts.length > 0, 'at least one inline application script is present');
   for (const [index, match] of inlineScripts.entries()) {
     assert.doesNotThrow(
