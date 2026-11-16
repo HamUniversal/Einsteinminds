@@ -31,5 +31,5 @@ test('restored assistant messages retain rich Markdown structures', () => {
   assert.ok(renderer.includes("out.push('<h'+level+'>'"), 'heading hierarchy should be preserved');
   assert.match(renderer, /<table style=/);
   assert.match(renderer, /<blockquote style=/);
-  assert.match(renderer, /<ol>/);
+  assert.ok(renderer.includes("bullet?'ul':'ol'"));
 });
