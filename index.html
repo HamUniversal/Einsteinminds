@@ -594,7 +594,7 @@ html[dir=rtl] .sb.open{transform:none}
 .toasts{left:var(--s4);right:var(--s4);max-width:none}.mdl{max-height:92vh;max-height:min(92vh,92dvh)}.stats{grid-template-columns:repeat(2,1fr)}
 .age-row{grid-template-columns:1fr}}
 @media print{.sb,.hdr,.ag-in,.more,.toasts{display:none!important}.main{margin-inline-start:0}.page{max-width:100%}}
-</style>
+.ag-sources{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}.ag-source-list{display:flex;flex-wrap:wrap;gap:7px}.ag-source-link{display:inline-flex;align-items:center;padding:6px 9px;border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:12px;text-decoration:none;background:var(--surface)}.ag-source-link:hover{border-color:var(--ink-2);text-decoration:underline}</style>
 
 <link rel="stylesheet" href="/assets/resource-network.css">
 </head>
@@ -880,7 +880,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="ag-av">E</div>
 <div style="flex:1"><h2 class="h3" data-i18n="n_ask">Ask Einstein</h2>
 <p class="bs muted" data-i18n="ag_desc">Advanced AI — deep reasoning, global knowledge, code, research synthesis and creative work.</p>
-<div class="ag-st"><span class="ag-st-d"></span><span data-i18n="ag_online">Online — 12 intelligence capabilities active</span></div></div>
+<div class="ag-st"><span class="ag-st-d"></span><span data-i18n="ag_online">AI learning partner · live model</span></div></div>
 <button class="btn btn-o btn-sm" onclick="Agent.clear()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg><span data-i18n="c_clear">Clear</span></button></div>
 <div class="ag-caps" id="agCaps"></div>
 <div class="ag-msgs" id="agMsgs"></div>
@@ -1157,10 +1157,10 @@ D.en={g_core:"Core",g_learn:"Learning",g_well:"Wellbeing",g_pro:"Professional",g
 c_viewall:"View all",c_cancel:"Cancel",c_save:"Save",c_close:"Close",c_export:"Export",c_create:"Create Goal",c_refresh:"Refresh",c_filters:"Filters",c_apply:"Apply Filters",c_reset:"Reset",c_clear:"Clear",c_load:"Load 12 More Resources",c_open:"Open Original",c_saved:"Saved",c_searchph:"Search education providers…",c_notif:"Notifications",c_showing:"Showing",c_of:"of",c_ress:"provider listings",c_platforms:"platforms",c_resources:"provider listings",c_none:"No results found",c_none_d:"Try adjusting your filters or search terms.",c_back:"Back",c_delete:"Delete",
 h_badge:"unique provider listings · external sites not independently reviewed",h_title:"What will you discover today?",h_sub:"One intelligent gateway to the world's knowledge. Ask Einstein anything.",h_ph:"Ask Einstein anything…",h_cont:"Continue Learning",h_contsub:"Pick up where you left off",h_rec:"Recommended For You",h_recsub:"Matched to your interests and level",
 q_lesson:"Build a Lesson Plan",q_family:"Find Family Activities",q_explore:"Explore My Interests",q_well:"Wellbeing Check-in",q_balance:"Digital Balance",q_inst:"Institutions",
-ag_desc:"Advanced AI — deep reasoning, global knowledge, code, research synthesis and creative work.",ag_online:"Online — 12 intelligence capabilities active",ag_ph:"Ask Einstein anything — research, code, math, writing, analysis…",ag_w1:"Hello! I'm Einstein, your advanced learning companion. I combine deep multi-step reasoning with verified educational sources.",ag_w2:"I can help with research, code, mathematical proofs, creative writing, translation, data analysis, teaching design and debate preparation.",ag_w3:"Every factual claim is backed by a verified source. I'll always tell you when I'm uncertain.",
-ag_live_note:"Live model reply for signed-in adult staging accounts. Check important claims against the cited providers.",
+ag_desc:"Advanced AI — deep reasoning, global knowledge, code, research synthesis and creative work.",ag_online:"AI learning partner · live model response per request",ag_ph:"Ask Einstein anything — research, code, math, writing, analysis…",ag_w1:"Hello! I'm Einstein, your advanced learning companion. I combine deep multi-step reasoning with verified educational sources.",ag_w2:"I can help with research, code, mathematical proofs, creative writing, translation, data analysis, teaching design and debate preparation.",ag_w3:"Every factual claim is backed by a verified source. I'll always tell you when I'm uncertain.",
+ag_live_note:"AI-generated answer · verify important claims with reliable sources.",
 m_general:"General",m_research:"Research",m_explain:"Explain",m_create:"Create",m_analyze:"Analyze",m_code:"Code",m_translate:"Translate",m_math:"Math",m_write:"Write",m_teach:"Teach",m_debate:"Debate",m_summarize:"Summarize",
-tl_web:"Web Search",tl_img:"Image Analysis",tl_code:"Code Interpreter",tl_doc:"Documents",tl_viz:"Data Viz",tl_voice:"Voice Output",
+tl_web:"Search learning resources",tl_img:"Image Analysis",tl_code:"Code Interpreter",tl_doc:"Documents",tl_viz:"Data Viz",tl_voice:"Voice Output",
 e_sub:"Browse education-provider categories and select a learning domain.",e_plats:"Platforms & Sites in this Domain",e_plats_d:"External links; provider names and descriptions are shown as supplied. Content and suitability have not been independently reviewed.",e_resin:"Providers in",e_all:"All Domains",
 r_title:"Education Provider Directory",f_category:"Learning domain",f_format:"Format",f_age:"Age / Level",f_trust:"Trust Label",f_sort:"Sort By",f_all:"All labels",f_verified:"Directory listing",f_peer:"Peer-reviewed",f_oer:"Open Educational Resource",f_gov:"Government Source",f_rel:"Relevance",f_az:"Title A–Z",f_za:"Title Z–A",f_prov:"Provider",
 l_sub:"Your goals, pathways and progress",l_new:"Create New Goal",l_gname:"Goal Title",l_gsubj:"Subject",l_gweeks:"Timeline (weeks)",l_gwhy:"Why this matters to you",l_continue:"Continue",l_adjust:"Adjust Plan",l_goal:"Goal",
@@ -1210,12 +1210,12 @@ ob_s2:"Choose sample interests for this demo; they do not personalize recommenda
 au_signin:"Sign in",
 au_signup:"Create staging account",
 us_in:"Staging sign in",
-ag_desc:"Demonstration assistant. Responses are examples; no AI model or source search is connected.",
-ag_online:"Demo mode — no AI or source service connected",
-ag_w1:"Welcome to the Einsteinminds prototype.",
-ag_w2:"This interface previews possible learning tools. It cannot answer questions using a live AI model.",
-ag_w3:"Demo responses are not generated, checked, or supported by verified sources. Do not rely on them for factual or consequential decisions.",
-ag_demo:"This is a fixed demo response, not an AI-generated or verified answer. No model or live source search is connected.",
+ag_desc:"A live AI learning partner for explanations, research thinking, creation and guided problem-solving.",
+ag_online:"AI response service · availability checked per request",
+ag_w1:"Welcome. Einstein is your AI learning partner.",
+ag_w2:"Ask questions, explore ideas, solve problems and build understanding through a real AI conversation.",
+ag_w3:"Einstein does not claim to browse the open web or use tools unless those services are actually connected and used.",
+ag_demo:"AI-generated response. Verify important claims against reliable sources.",
 vpc_d2:"This prototype cannot verify parental consent. Child features stay locked until a real verification provider is connected.",
 vpc_card_d:"Demo option only. No card is requested or checked.",
 vpc_form_d:"Not connected in this prototype.",
@@ -1233,7 +1233,7 @@ pl_free_f1:"Unique education-provider directory",
 pl_pro_d:"Plan preview only. No paid features or subscription service is connected.",
 pl_edu_d:"Plan preview only. Educator status cannot be verified in this prototype.",
 pl_inst_d:"Plan preview only. Institutional infrastructure is not connected.",
-pl_pro_f1:"AI responses are scripted demos",pl_pro_f2:"Tools are interface previews only",
+pl_pro_f1:"Live AI learning partner",pl_pro_f2:"Tools are interface previews only",
 pl_pro_f3:"No virtual labs are connected",pl_pro_f4:"No verified credentials are issued",
 pl_edu_f1:"Static Teaching Studio preview",pl_edu_f2:"Example content only",
 pl_edu_f3:"No educator verification or service",pl_inst_f1:"No institutional accounts",
@@ -1247,14 +1247,14 @@ s_priv:"Local demo settings",s_pers:"AI personalization preference (demo)",
 s_pers_d:"This preference is stored in this browser; no AI service is connected.",
 s_share:"Institution sharing preference (demo)",
 s_share_d:"This preference is stored locally; no data is shared with an institution.",
-ag_online:"Demo mode — no AI or source service connected",
-h_sub:"Explore a sample learning interface. Ask Einstein is a scripted demo.",
+ag_online:"AI response service · availability checked per request",
+h_sub:"Explore learning across every domain. Ask Einstein is a live AI learning partner for signed-in users.",
 h_badge:"unique provider listings · external sites not independently reviewed",
 h_recsub:"Sample recommendations; not personalized.",
 c_searchph:"Search education providers…",
 c_open:"Visit provider",
 c_ress:"provider listings",
-ag_ph:"Enter a prompt to see a scripted demo response…",
+ag_ph:"Ask Einstein anything. Your conversation context is remembered… ",
 e_plats_d:"External links; provider names and descriptions are shown as supplied. Content and suitability have not been independently reviewed.",
 p_sub:"Sample portfolio items; no educator verification or credentials are provided.",
 ed_sub:"Static lesson-plan preview; no AI co-pilot is connected.",
@@ -1483,7 +1483,7 @@ render(){this.dots();const c=$('#obContent');
 if(this.step===1){c.innerHTML=`<div style="text-align:center"><h2 class="h2" style="margin-bottom:var(--s4)">${T('ob_e1')}</h2>
 <p class="bm muted" style="margin-bottom:var(--s6)">${T('ob_e2')}</p>
 <div style="padding:var(--s5);background:var(--bg-2);border-radius:var(--r-md);text-align:left;margin-bottom:var(--s6)" class="bs">
-This demo has no AI model, live source lookup, or factual verification. Its example responses may be incorrect.</div>
+Ask Einstein uses a live AI model for signed-in accounts. External web search and optional tools are available only when explicitly connected.</div>
 <button class="btn btn-p btn-block" onclick="Onboard.next()">${T('ob_accept')}</button></div>`}
 else if(this.step===2){c.innerHTML=`<div style="text-align:center"><h2 class="h2" style="margin-bottom:var(--s2)">${T('ob_s1')}</h2>
 <p class="bm muted" style="margin-bottom:var(--s4)">${T('ob_s2')}</p>
@@ -1716,46 +1716,64 @@ const Explore={render(){$('#taxGrid').innerHTML=CATS.map((c,i)=>`<div class="tax
 /* ═══ AGENT ═══ */
 const MODES=['general','research','explain','create','analyze','code','translate','math','write','teach','debate','summarize'];
 const TOOLS=[['tl_web','globe','blue'],['tl_img','image','purple'],['tl_code','code','green'],['tl_doc','file','orange'],['tl_viz','chart','pink'],['tl_voice','volume','teal']];
-const Agent={mode:'general',intent:'hint',tools:new Set(),history:[],
+const Agent={mode:'general',intent:'hint',tools:new Set(),history:[],busy:false,
 renderChrome(){$('#agCaps').innerHTML=MODES.map(m=>`<button class="chip ${this.mode===m?'on':''}" onclick="Agent.setMode('${m}')">${T('m_'+m)}</button>`).join('');
 const intents=['hint','alternate','example','check'];
 $('#agTools').innerHTML=intents.map(name=>`<button class="tool intent ${this.intent===name?'on':''}" onclick="Agent.setIntent('${name}',this)">${T('loop_coach_'+name)}</button>`).join('')+
 TOOLS.map(([k,ic,c])=>`<button class="tool ${this.tools.has(k)?'on':''}" data-c="${c}" onclick="Agent.tool('${k}',this)">${svg(ic)}${T(k)}</button>`).join('');
 if(!$('#agMsgs').children.length)this.welcome()},
-welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>${T('ag_w1')}</p><p>${T('ag_w2')}</p><p class="bs muted">${T('ag_w3')}</p></div></div>`},
-clear(){this.history=[];$('#agMsgs').innerHTML='';this.welcome();Toast.show(T('c_clear'),'ok')},
+welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>Welcome. I'm Einstein, your AI learning partner.</p><p>Ask me to explain an idea, work through a problem, explore a topic, create something, or challenge your reasoning. I'll remember the conversation while we work.</p><p class="bs muted">AI-generated responses are not a substitute for professional advice. Live web search and the other optional tools are not enabled yet.</p></div></div>`},
+clear(){if(this.busy)return;this.history=[];$('#agMsgs').innerHTML='';this.welcome();Toast.show(T('c_clear'),'ok')},
 setMode(m){this.mode=m;this.renderChrome();Toast.show(T('m_'+m),'ok')},
 setIntent(name,el){this.intent=name;$$('#agTools .intent').forEach(button=>button.classList.toggle('on',button===el))},
-tool(k,el){this.tools.has(k)?this.tools.delete(k):this.tools.add(k);el.classList.toggle('on');Toast.show('Tool selection preview only; no service is connected.','warn')},
+tool(k,el){if(k==='tl_web'){this.tools.has(k)?this.tools.delete(k):this.tools.add(k);el.classList.toggle('on');Toast.show(this.tools.has(k)?'Einstein Minds resource search is enabled for your next question.':'Resource search is off.','ok');return}Toast.show('This tool is not connected yet. Einstein will not pretend to use it.','warn')},
 fromHome(){const v=$('#homeAsk').value.trim();Nav.go('agent');if(v){$('#agIn').value=v;$('#homeAsk').value='';this.send()}},
-push(html,me){const d=document.createElement('div');d.className='msg'+(me?' me':'');
-d.innerHTML=`<div class="msg-av">${me?'You':'E'}</div><div class="msg-b">${html}</div>`;
-$('#agMsgs').appendChild(d);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;return d},
-send(){const ta=$('#agIn'),q=ta.value.trim();if(!q)return;
+push(html,me){const d=document.createElement('div');d.className='msg'+(me?' me':'');d.innerHTML=`<div class="msg-av">${me?'You':'E'}</div><div class="msg-b">${html}</div>`;$('#agMsgs').appendChild(d);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;return d},
+async send(){const ta=$('#agIn'),q=ta.value.trim();if(!q||this.busy)return;
 if(Crisis.check(q)){Crisis.open();ta.value='';return}
 if(!Auth.signedIn){Auth.open('in');Toast.show('Sign in with an adult-only staging account to continue.','warn');return}
 if(Auth.childLocked()){VPC.open();Toast.show(T('vpc_t'),'warn');return}
 if(!Usage.allowed()){this.push(`<p><b>${T('t_limit')}</b></p><p class="bs muted" style="margin-top:8px">${T('pl_pro')} — ${T('us_unlim')}, Code Interpreter, Data Viz, Virtual Labs.</p><div style="margin-top:12px"><button class="btn btn-p btn-sm" onclick="M.open('pricingModal')">${T('us_up')}</button></div>`);return}
-Usage.inc();recordEvent('coaching_prompt',{intent:this.intent});
+this.busy=true;const sendButton=$('.ag-send');if(sendButton)sendButton.disabled=true;
 this.push(esc(q),true);ta.value='';ta.style.height='auto';
-const t=document.createElement('div');t.className='msg';
-t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div></div>`;
-$('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
-const history=this.history.slice(-12);this.history.push({role:'user',content:q});
-setTimeout(async()=>{t.remove();this.push(await this.respond(q,history))},900+Math.random()*700);
+const t=document.createElement('div');t.className='msg';t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div><p class="bs muted">Einstein is thinking…</p></div>`;$('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
+const prior=this.history.slice(-14);this.history.push({role:'user',content:q});
+try{
+const result=await this.respond(q,prior);t.remove();
+if(result.success){this.history.push({role:'assistant',content:result.reply});Usage.inc();recordEvent('coaching_prompt',{intent:this.intent,mode:this.mode,provider:'groq'});const formatted=esc(result.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');const sourceCards=(result.resources||[]).map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="ag-source-link">${esc(r.title)} ↗</a>`).join('');this.push(`<p>${formatted}</p>${sourceCards?`<div class="ag-sources"><div class="bs muted" style="font-weight:700;margin:12px 0 6px">Einstein Minds resources searched</div><div class="ag-source-list">${sourceCards}</div></div>`:''}<p class="bs muted">${T('ag_live_note')}${result.model?' · '+esc(result.model):''}</p>`);}
+else{this.history.pop();this.push(`<p>${esc(result.error||'Einstein could not complete this response.')}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted. Please try again.</p>`);}
+}catch(error){this.history.pop();t.remove();this.push(`<p>Einstein could not complete this response. ${esc(error?.message||String(error))}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted.</p>`);}
+finally{this.busy=false;if(sendButton)sendButton.disabled=false;ta.focus();}
 },
 async respond(q,history=[]){
-const liveItems=window.EinsteinmindsResourceNetwork?.state?.items||[];
-const resources=liveItems.slice(0,6).map(r=>({title:r.name||r.title,url:r.canonical_url||r.url})).filter(r=>r.title&&r.url);
 try{
-const{data:{session}}=await supabaseClient.auth.getSession();
-if(!session)throw new Error('no session');
-const res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resources})});
-const out=await res.json();
-if(res.ok&&out&&out.reply){this.history.push({role:'assistant',content:out.reply});const response=esc(out.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
-return `<p>${response}</p><p class="bs muted">${out.demo?T('ag_demo')+(out.reason?` · diagnostic: ${out.reason}`:''):T('ag_live_note')+(out.model?` · ${esc(out.model)}`:'')}</p>`}
-const reason=out?.error||`HTTP ${res.status}`;return `<p>Einstein could not complete this response. ${esc(reason)} Please try again.</p><p class="bs muted">No scripted answer was substituted.</p>`
-}catch(e){return `<p>Einstein could not reach the AI service: ${esc(e.message||String(e))}. Please try again.</p>`}};
+const {data:{session}}=await supabaseClient.auth.getSession();
+if(!session)return {success:false,error:'Your session has expired. Please sign in again.'};
+let resources=[],resourceSearchUsed=false;
+const wantsResources=this.mode==='research'||this.tools.has('tl_web')||/\b(find|search|recommend|resources?|courses?|websites?|sources?|providers?|where can i learn)\b/i.test(q);
+if(wantsResources){
+try{
+const searchController=new AbortController();const searchTimeout=setTimeout(()=>searchController.abort(),9000);
+let searchResponse;try{searchResponse=await fetch(`${SUPABASE_URL}/functions/v1/resource-search`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY,Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({query:q,page:1,page_size:6,sort:'name_asc'}),signal:searchController.signal});}finally{clearTimeout(searchTimeout);}
+const searchData=await searchResponse.json().catch(()=>({}));
+if(searchResponse.ok&&Array.isArray(searchData.items)){
+resources=searchData.items.map(r=>({title:r.name,url:r.canonical_url,description:r.directory_description||r.provider_introduction||'',id:r.id})).filter(r=>r.title&&r.url);
+resourceSearchUsed=true;
+}
+}catch(searchError){console.warn('Curated resource search unavailable',String(searchError).slice(0,120));}
+}
+if(!resources.length){
+const liveItems=window.EinsteinmindsResourceNetwork?.state?.items||[];
+resources=liveItems.slice(0,6).map(r=>({title:r.name||r.title,url:r.canonical_url||r.url,description:r.directory_description||''})).filter(r=>r.title&&r.url);
+}
+const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),45000);
+let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resources}),signal:controller.signal});}finally{clearTimeout(timeout);}
+const out=await res.json().catch(()=>({}));
+if(!res.ok||!out?.reply){return {success:false,error:out?.error||`AI service returned HTTP ${res.status}.`};}
+if(out.demo===true||out.provider!=='groq'){return {success:false,error:'The AI provider did not confirm a genuine model response. Please try again later.'};}
+return {success:true,reply:out.reply,model:out.model||'Groq',resources:resourceSearchUsed?resources:[],resourceSearchUsed};
+}catch(error){return {success:false,error:error?.name==='AbortError'?'Einstein is taking longer than expected. Please try again.':(error?.message||'The AI service could not be reached.')};}
+}};
 /* ═══ EDUCATOR ═══ */
 const TA_CHIPS=[['ta_ell','ell'],['ta_scaf','scaf'],['ta_adv','adv'],['ta_vis','vis'],['ta_rub','rub'],['ta_ass','ass'],['ta_par','par'],['ta_iep','iep'],['ta_ppt','ppt'],['ta_lab','lab'],['ta_hw','hw'],['ta_pd','pd']];
 const Edu={render(){
@@ -2107,7 +2125,7 @@ sp.className='rip';sp.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX
 if(getComputedStyle(b).position==='static')b.style.position='relative';b.appendChild(sp);setTimeout(()=>sp.remove(),640)});
 Object.assign(D.en,{
 h_sub:"One calm gateway to curated learning. Ask, explore, build — with honest labels on everything.",
-ag_desc:"A demonstration coach. Hints and examples on request — no live model or source lookup behind it yet.",
+ag_desc:"A live AI learning partner for explanations, research thinking, creation and guided problem-solving.",
 e_sub:"Sixteen doors into curated knowledge. Open any one to see the providers listed inside.",
 l_sub:"Set a goal, see your next step, and follow a plan that bends when life does.",
 p_sub:"The things you made, the feedback you acted on, and how each revision changed — yours to keep and export. Items stay labelled self-submitted until a real review exists.",
