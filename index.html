@@ -1193,7 +1193,7 @@ us_setup:"Staging auth setup incomplete",
 a_sidebar:"Collapse sidebar",a_menu:"Menu",a_plan:"Plan preview",a_theme:"Toggle theme",a_language:"Language",a_notifications:"Notifications",
 a_voice:"Voice output unavailable",a_submit:"Submit",a_send:"Send",a_clear_assistant:"Clear assistant",a_save_resource:"Save resource",
 a_remove_resource:"Remove saved resource",a_view_resource:"View resource details",
-proto_notice:"Prototype demo: Supabase Auth is configured for adult-only staging tests. Use fictional data only; AI, payments, educator checks and parental-consent verification are not connected; crisis support is not emergency monitoring. Non-English interface text is AI-generated and has not been reviewed by fluent speakers.",
+proto_notice:"Staging environment: Ask Einstein AI and the Einstein Minds provider directory are connected for adult testing. Open-web search, optional tools, payments, educator verification and parental-consent verification are not connected. Use fictional learner data; do not enter sensitive information. Crisis support is not emergency monitoring. Non-English interface text is AI-generated and has not been reviewed by fluent speakers.",
 s_lang_d:"English is the only complete interface translation currently available. Other languages are disabled until translated.",
 c_searchph:"Search education providers…",c_ress:"provider listings",c_resources:"provider listings",
 h_badge:"unique provider listings · external sites not independently reviewed",
@@ -1763,7 +1763,7 @@ if(!Usage.allowed()){this.push(`<p><b>${T('t_limit')}</b></p><p class="bs muted"
 this.busy=true;const sendButton=$('.ag-send');if(sendButton)sendButton.disabled=true;
 this.push(esc(q),true);ta.value='';ta.style.height='auto';
 const t=document.createElement('div');t.className='msg';t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div><p class="bs muted">Einstein is thinking…</p></div>`;$('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
-const prior=this.history.slice(-14);this.history.push({role:'user',content:q});await this.persist();
+const prior=this.history.slice(-14);this.history.push({role:'user',content:q});
 try{
 const result=await this.respond(q,prior);t.remove();
 if(result.success){this.history.push({role:'assistant',content:result.reply});await this.persist();Usage.inc();recordEvent('coaching_prompt',{intent:this.intent,mode:this.mode,provider:'groq'});const formatted=esc(result.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');const sourceCards=(result.resources||[]).map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="ag-source-link"><strong>${esc(r.title)} ↗</strong>${r.description?`<span>${esc(r.description)}</span>`:''}${r.match_note?`<small>${esc(r.match_note)}</small>`:''}</a>`).join('');
