@@ -40,7 +40,7 @@ const SUBJECT_FALLBACKS = [
 ];
 const STOP_WORDS = new Set("a an and are about all any can course courses find for from give i in is it learn learning me of on or please recommend reliable resource resources search show source sources the three to where website websites provider providers with".split(" "));
 function keywordQuery(value:string) {
-  const tokens=(value.toLowerCase().match(/[\\p{L}\\p{N}]{3,}/gu)||[]).filter((token:string)=>!STOP_WORDS.has(token));
+  const tokens=(value.toLowerCase().match(/[\p{L}\p{N}]{3,}/gu)||[]).filter((token:string)=>!STOP_WORDS.has(token));
   return [...new Set(tokens)].slice(0,12).join(" OR ");
 }
 function subjectFallback(value:string) { return SUBJECT_FALLBACKS.find((item)=>item.pattern.test(value)) || null; }
@@ -116,6 +116,7 @@ Deno.serve(async (req:Request)=>{
   }
 
   const searchText=keywordQuery(q);
+  if(q&&!searchText)return reply({items:[],total:0,page,page_size:pageSize,match_type:"none"},200,origin);
   let query=(await baseQuery(searchText)).query;
   if(!query)return reply({items:[],total:0,page,page_size:pageSize,match_type:"none"},200,origin);
   if(requestedId)query=query.eq("id",requestedId);
