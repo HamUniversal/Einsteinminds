@@ -612,7 +612,7 @@ html[dir=rtl] .sb.open{transform:none}
 <h2 class="d2" id="authTitle">Welcome to Einsteinminds</h2>
 <p class="sub" id="authSub">One intelligent gateway to the world's knowledge.</p>
 <div class="gate-card" id="authBody"></div>
-<p class="cap muted-3" style="text-align:center;margin-top:var(--s5)">Staging authentication only · adults testing with fictional data<br>
+<p class="cap muted-3" style="text-align:center;margin-top:var(--s5)">Adult account access · parents, guardians, and educators<br>
 <a href="#" onclick="Legal.open('tos');return false" style="text-decoration:underline" data-i18n="lg_tos">Terms</a> ·
 <a href="#" onclick="Legal.open('privacy');return false" style="text-decoration:underline" data-i18n="lg_priv">Privacy</a> ·
 <a href="#" onclick="Legal.open('dpa');return false" style="text-decoration:underline" data-i18n="lg_dpa">Data Privacy Addendum</a></p>
@@ -1361,7 +1361,7 @@ if(!supabaseClient){Toast.show('Supabase authentication could not initialize. Ch
 // Do not probe the private profiles table while the browser is still anonymous.
 this.backendReady=true;this.renderUserArea();
 supabaseClient.auth.onAuthStateChange((event,session)=>{
-if(event==='INITIAL_SESSION'||event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED'){
+if(event==='PASSWORD_RECOVERY'){this.recoveryMode=true;setTimeout(()=>this.renderPasswordRecovery(),0);return}\nif(event==='INITIAL_SESSION'||event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED'){
 setTimeout(()=>this.applySession(session),0)
 }
 });
@@ -1386,12 +1386,12 @@ if(!profilePromise){
 profilePromise=(async()=>{
 const{data:existing,error:profileError}=await supabaseClient.from('profiles')
 .select('id,display_name').eq('id',authUser.id).maybeSingle();
-if(profileError)throw new Error(`Could not load your profile: ${profileError.message}. Confirm the staging migration is applied.`);
+if(profileError)throw new Error(`Could not load your profile: ${profileError.message}. Confirm the profiles table and owner-only policies are configured.`);
 if(existing)return existing;
 const displayName=authUser.user_metadata?.display_name||authUser.email?.split('@')[0]||'Learner';
 const{data:created,error:createError}=await supabaseClient.from('profiles')
 .insert({id:authUser.id,display_name:displayName}).select('id,display_name').single();
-if(createError)throw new Error(`Could not create your profile: ${createError.message}. Confirm the staging migration is applied.`);
+if(createError)throw new Error(`Could not create your profile: ${createError.message}. Confirm the profiles table and owner-only policies are configured.`);
 return created
 })();
 this._profileLoads.set(authUser.id,profilePromise)
@@ -1404,7 +1404,7 @@ return
 if(update!==this._sessionUpdate)return;
 const previousId=this.user&&this.user.id;
 this.user={id:authUser.id,name:profile.display_name||authUser.email?.split('@')[0]||'Learner',
-email:authUser.email||'',role:'Adult test account',plan:'free',ageBand:'adult_test',vpc:'pending'};
+email:authUser.email||'',role:'Parent / Educator',plan:'free',ageBand:'adult',vpc:'pending'};
 if(previousId!==authUser.id){
 try{LS.activateUser(authUser.id);loadAccountState();Usage.load();mergeGuestArtifacts()}
 catch(error){this.user=null;LS.activateUser(null);resetGuestState();this.renderUserArea();Toast.show(`Could not load this account's local learning data: ${error.message}`,'bad');return}
@@ -1417,47 +1417,71 @@ if(previousId!==authUser.id){I18n.apply();Settings.sync();Settings.syncPlan();Se
 },
 open(tab){this.renderAuth(tab||'in');$('#authGate').classList.add('on')},
 close(){$('#authGate').classList.remove('on')},
-renderAuth(tab){const b=$('#authBody');
-const signup=tab==='up';
+renderAuth(tab){
+const b=$('#authBody'),signup=tab==='up';
 $('#authTitle').textContent=signup?T('au_signup'):T('au_signin');
-$('#authSub').textContent='Use adult-only staging accounts and fictional data. Child accounts are not enabled.';
-if(!supabaseClient){b.innerHTML='<p class="bm" role="alert">Supabase authentication is unavailable. Check network access and reload.</p>';return}
-if(!this.backendReady){b.innerHTML='<p class="bm" role="alert">The Supabase profiles migration has not been applied. Apply the staging migration and reload before signing in.</p>';return}
+$('#authSub').textContent='Create an adult account to use Einstein Minds. Parents and guardians manage any learner access.';
+if(!supabaseClient){b.innerHTML='<p class="bm" role="alert">Account services are temporarily unavailable. Please reload and try again.</p>';return}
+if(!this.backendReady){b.innerHTML='<p class="bm" role="alert">Account services are still connecting. Please wait a moment and try again.</p>';return}
 b.innerHTML=`<div class="auth-tabs"><button class="auth-tab ${signup?'':'on'}" onclick="Auth.tab('in',this)">${T('au_signin')}</button><button class="auth-tab ${signup?'on':''}" onclick="Auth.tab('up',this)">${T('au_signup')}</button></div>
-${signup?`<div class="fld"><label for="suName">${T('au_name')}</label><input class="inp" id="suName" autocomplete="name" maxlength="80"></div>`:''}
+${signup?`<div class="fld"><label for="suName">${T('au_name')}</label><input class="inp" id="suName" autocomplete="name" maxlength="80" required></div>`:''}
 <div class="fld"><label for="authEmail">${T('au_email')}</label><input class="inp" id="authEmail" type="email" autocomplete="email" required></div>
-<div class="fld"><label for="authPassword">Password</label><input class="inp" id="authPassword" type="password" autocomplete="${signup?'new-password':'current-password'}" minlength="12" required></div>
-${signup?`<label class="ck-l" style="margin-bottom:var(--s4)"><input id="adultTest" type="checkbox"><span>I am an adult testing staging with fictional data only.</span></label>`:''}
-<p class="cap muted" style="margin-bottom:var(--s4)">Supabase staging authentication. Do not enter real learner or child data.</p>
-<button class="btn btn-p btn-block" onclick="Auth.${signup?'signUp':'signIn'}()">${signup?T('au_signup'):T('au_signin')}</button>`},
-tab(t,el){if(el){$$('#authBody .auth-tab').forEach(x=>x.classList.remove('on'));el.classList.add('on')}this.renderAuth(t)},
+<div class="fld"><label for="authPassword">Password</label><div style="display:flex;gap:8px"><input class="inp" style="flex:1" id="authPassword" type="password" autocomplete="${signup?'new-password':'current-password'}" minlength="12" required><button class="btn btn-o btn-sm" type="button" onclick="Auth.togglePassword('authPassword')" aria-label="Show or hide password">Show</button></div><p class="cap muted">Use at least 12 characters.</p></div>
+${signup?`<div class="fld"><label for="authPasswordConfirm">Confirm password</label><input class="inp" id="authPasswordConfirm" type="password" autocomplete="new-password" minlength="12" required></div><label class="ck-l" style="margin-bottom:var(--s4)"><input id="adultConfirm" type="checkbox"><span>I am at least 18 and am creating this account as an adult, parent/guardian, or educator.</span></label>`: `<div style="text-align:right;margin:-8px 0 16px"><a href="#" onclick="Auth.resetPassword();return false" style="text-decoration:underline">Forgot password?</a></div>`}
+<p class="cap muted" style="margin-bottom:var(--s4)">By continuing, you agree to the Terms and Privacy Policy.</p>
+<button class="btn btn-p btn-block" onclick="Auth.${signup?'signUp':'signIn'}()">${signup?T('au_signup'):T('au_signin')}</button>`;
+},
+renderPasswordRecovery(){
+const b=$('#authBody');$('#authTitle').textContent='Reset your password';$('#authSub').textContent='Choose a new password for your Einstein Minds account.';
+b.innerHTML=`<div class="fld"><label for="recoveryPassword">New password</label><input class="inp" id="recoveryPassword" type="password" minlength="12" autocomplete="new-password"></div><div class="fld"><label for="recoveryPasswordConfirm">Confirm new password</label><input class="inp" id="recoveryPasswordConfirm" type="password" minlength="12" autocomplete="new-password"></div><button class="btn btn-p btn-block" onclick="Auth.updatePassword()">Save new password</button>`;
+$('#authGate').classList.add('on')
+},
+togglePassword(id){const el=$('#'+id);if(!el)return;el.type=el.type==='password'?'text':'password'},
+async resetPassword(){
+const email=$('#authEmail')?.value.trim();
+if(!email||!/^\S+@\S+\.\S+$/.test(email)){Toast.show('Enter your account email first.','warn');return}
+const{error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/'});
+if(error){Toast.show('Could not send the reset email: '+error.message,'bad');return}
+Toast.show('Password reset email sent. Check your inbox.','ok')
+},
+async updatePassword(){
+const password=$('#recoveryPassword')?.value||'',confirm=$('#recoveryPasswordConfirm')?.value||'';
+if(password.length<12){Toast.show('Use at least 12 characters for your new password.','warn');return}
+if(password!==confirm){Toast.show('The passwords do not match.','warn');return}
+const{error}=await supabaseClient.auth.updateUser({password});
+if(error){Toast.show('Could not update password: '+error.message,'bad');return}
+this.recoveryMode=false;this.close();Toast.show('Your password has been updated.','ok')
+},tab(t,el){if(el){$$('#authBody .auth-tab').forEach(x=>x.classList.remove('on'));el.classList.add('on')}this.renderAuth(t)},
 async signUp(){
-if(!this.backendReady){Toast.show('Apply the Supabase profiles migration before creating staging accounts.','bad');return}
-const name=$('#suName').value.trim(),email=$('#authEmail').value.trim(),password=$('#authPassword').value;
-if(!name||!email||!password){Toast.show('Enter your name, email, and password.','bad');return}
-if(name.length>80){Toast.show('Name must be 80 characters or fewer.','bad');return}
-if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){Toast.show('Enter a valid email address.','bad');return}
-if(password.length<12){Toast.show('Use a password with at least 12 characters.','bad');return}
-if(!$('#adultTest').checked){Toast.show('Confirm adult-only staging use before creating an account.','bad');return}
-const{data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{display_name:name}}});
-if(error){Toast.show(`Sign-up failed: ${error.message}`,'bad');return}
-if(data.session){await this.applySession(data.session);this.close();Toast.show('Staging account created.','ok');return}
-this.tab('in');Toast.show('Check your email to confirm the staging account, then sign in.','ok')
+if(!this.backendReady){Toast.show('Account services are still connecting. Try again shortly.','bad');return}
+const name=$('#suName')?.value.trim()||'',email=$('#authEmail')?.value.trim()||'',password=$('#authPassword')?.value||'',confirm=$('#authPasswordConfirm')?.value||'';
+if(!name||!email||!password||!confirm){Toast.show('Complete all fields before creating your account.','warn');return}
+if(name.length>80){Toast.show('Name must be 80 characters or fewer.','warn');return}
+if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){Toast.show('Enter a valid email address.','warn');return}
+if(password.length<12){Toast.show('Use a password with at least 12 characters.','warn');return}
+if(password!==confirm){Toast.show('The passwords do not match.','warn');return}
+if(!$('#adultConfirm')?.checked){Toast.show('Please confirm that you are an adult account holder (18+).','warn');return}
+const{data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin+'/',data:{display_name:name,account_type:'adult_parent_guardian_educator'}}});
+if(error){Toast.show('Sign-up failed: '+error.message,'bad');return}
+if(data.session){await this.applySession(data.session);this.close();Toast.show('Your Einstein Minds account is ready.','ok');return}
+Toast.show('Account created. Check your email and confirm your address before signing in.','ok');
+this.tab('in')
 },
 async signIn(){
-if(!this.backendReady){Toast.show('Apply the Supabase profiles migration before signing in.','bad');return}
-const email=$('#authEmail').value.trim(),password=$('#authPassword').value;
-if(!email||!password){Toast.show('Enter your email and password.','bad');return}
+if(!this.backendReady){Toast.show('Account services are still connecting. Try again shortly.','bad');return}
+const email=$('#authEmail')?.value.trim()||'',password=$('#authPassword')?.value||'';
+if(!email||!password){Toast.show('Enter your email and password.','warn');return}
 const{data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-if(error){Toast.show(`Sign-in failed: ${error.message}`,'bad');return}
+if(error){Toast.show('Sign-in failed: '+error.message,'bad');return}
 await this.applySession(data.session);
-if(this.user){this.close();Toast.show(`Signed in as ${this.user.name}.`,'ok')}
+if(this.user){this.close();Toast.show('Welcome back, '+this.user.name+'.','ok')}
 },
 async signOut(){
-const{error}=await supabaseClient.auth.signOut();
-if(error){Toast.show(`Sign-out failed: ${error.message}`,'bad');return}
-this.user=null;LS.activateUser(null);resetGuestState();Usage.load();for(const key of Object.keys(guestArtifacts))guestArtifacts[key]=[];
-this.renderUserArea();I18n.apply();Settings.sync();Settings.syncPlan();Settings.renderConsent();Toast.show(T('us_out'),'ok')
+const{error}=await supabaseClient.auth.signOut({scope:'local'});
+if(error){Toast.show('Sign-out failed: '+error.message,'bad');return}
+this._sessionUpdate++;
+this.user=null;Agent.onAuthSession(null);LS.activateUser(null);resetGuestState();Usage.load();for(const key of Object.keys(guestArtifacts))guestArtifacts[key]=[];
+this.renderUserArea();Nav.render();Home.render();I18n.apply();Settings.sync();Settings.syncPlan();Settings.renderConsent();Toast.show(T('us_out'),'ok')
 },
 deleteAccount(){Toast.show('Auth account deletion is not configured. Contact the project administrator.','warn')},
 renderUserArea(){const f=$('#sbFoot');
