@@ -1407,14 +1407,14 @@ const previousId=this.user&&this.user.id;
 const {data:billing,error:billingError}=await supabaseClient.from('paypal_subscriptions')
 .select('plan_key,status,paypal_subscription_id').eq('user_id',authUser.id).eq('status','ACTIVE')
 .order('updated_at',{ascending:false}).limit(1).maybeSingle();
-if(billingError){this.user=null;LS.activateUser(null);resetGuestState();Usage.load();this.renderUserArea();Toast.show('Could not verify your subscription status. Please reload and try again.','bad');return}
+if(billingError)Toast.show('Subscription status could not be refreshed. Paid access remains locked until verification succeeds.','warn');
 this.user={id:authUser.id,name:profile.display_name||authUser.email?.split('@')[0]||'Learner',
 email:authUser.email||'',role:'Parent / Educator',plan:billing?'pro':'free',ageBand:'adult',vpc:'pending',subscription:billing||null};
 if(previousId!==authUser.id){
 try{LS.activateUser(authUser.id);loadAccountState();Usage.load();mergeGuestArtifacts()}
 catch(error){this.user=null;LS.activateUser(null);resetGuestState();this.renderUserArea();Toast.show(`Could not load this account's local learning data: ${error.message}`,'bad');return}
 }
-this.renderUserArea();Nav.render();Home.render();
+this.renderUserArea();Nav.render();Home.render();Settings.syncPlan();
 // Auth can resolve after the initial Agent view render. Re-run restoration after the
 // authenticated profile is ready so a first-load anonymous restore cannot win the race.
 if(previousId!==authUser.id||Agent.restoredFor!==authUser.id){await Agent.restore();if(Agent.restoredFor!==authUser.id)await Agent.restore()}
