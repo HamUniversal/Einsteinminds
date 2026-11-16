@@ -33,7 +33,7 @@ test('user-facing account role is not taken from editable user metadata', () => 
   const authStart = html.indexOf('const Auth={');
   const authEnd = html.indexOf('const Usage=', authStart);
   const authSource = html.slice(authStart, authEnd);
-  assert.match(authSource, /role:'Adult test account'/);
+  assert.match(authSource, /role:'Parent \/ Educator'/);
   assert.doesNotMatch(authSource, /role:authUser\.user_metadata/);
 });
 
@@ -41,4 +41,33 @@ test('route guard loads before the deferred Auth.init callback can run', () => {
   assert.match(html, /window\.addEventListener\('load',\(\)=>Auth\.init\(\),\{once:true\}\)/);
   assert.match(html, /<script src="\/assets\/auth-route-guard\.js"><\/script>/);
   assert.doesNotMatch(html, /(?<!addEventListener\('load',\(\)=>)Auth\.init\(\);/);
+});
+
+test('production registration requires adult account-holder confirmation and verified email', () => {
+  const authStart = html.indexOf('const Auth={');
+  const authEnd = html.indexOf('const Usage=', authStart);
+  const authSource = html.slice(authStart, authEnd);
+  assert.match(authSource, /id="adultConfirm"/);
+  assert.match(authSource, /if\(!\$\('#adultConfirm'\)\?\.checked\)/);
+  assert.match(authSource, /emailRedirectTo:window\.location\.origin\+'\/'/);
+  assert.match(authSource, /auth\.signUp\(/);
+  assert.match(authSource, /Check your email and confirm your address/);
+  assert.match(authSource, /role:'Parent \/ Educator',plan:'free',ageBand:'adult'/);
+});
+
+test('account recovery supports password reset and update', () => {
+  const authStart = html.indexOf('const Auth={');
+  const authEnd = html.indexOf('const Usage=', authStart);
+  const authSource = html.slice(authStart, authEnd);
+  assert.match(authSource, /auth\.resetPasswordForEmail\(/);
+  assert.match(authSource, /auth\.updateUser\(\{password\}\)/);
+  assert.match(authSource, /event==='PASSWORD_RECOVERY'/);
+});
+
+test('sign out clears the local Supabase session and app user state', () => {
+  const authStart = html.indexOf('const Auth={');
+  const authEnd = html.indexOf('const Usage=', authStart);
+  const authSource = html.slice(authStart, authEnd);
+  assert.match(authSource, /auth\.signOut\(\{scope:'local'\}\)/);
+  assert.match(authSource, /Agent\.onAuthSession\(null\)/);
 });
