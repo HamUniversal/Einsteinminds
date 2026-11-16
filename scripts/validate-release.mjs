@@ -52,26 +52,8 @@ const checks = [
   [html.includes('PayPal checkout requires configured billing credentials and subscription plans.'), 'service dependencies are disclosed honestly'],
   [html.includes('supabaseClient.auth.signUp') && html.includes('supabaseClient.auth.signInWithPassword'), 'signup and password sign-in use Supabase Auth'],
   [html.includes("functions.invoke('paypal-subscriptions'") && html.includes("plan_key:this.cycle==='m'?'monthly':'yearly'"), 'monthly and annual checkout use the PayPal subscription function'],
-  [html.includes('id="coPay" onclick="Plans.pay()"'), 'PayPal checkout action is enabled in the interface'],
-  [!html.includes('Create staging account'), 'live Supabase signup is not labelled as staging'],
-  [!html.includes('Staging sign in'), 'live Supabase sign-in is not labelled as staging'],
-  [!html.includes('Checkout is unavailable in this prototype'), 'PayPal checkout is not falsely labelled unavailable'],
-  [!html.includes('Prototype profile only: profile data stays in this browser'), 'authenticated profile is not falsely labelled local-only'],
-  [!html.includes('educational platform prototype with sample data and local-only profiles'), 'page metadata describes the connected application accurately'],
-  [html.includes('PayPal checkout requires configured billing credentials and subscription plans.'), 'service dependencies are disclosed honestly'],
-  [html.includes('supabaseClient.auth.signUp') && html.includes('supabaseClient.auth.signInWithPassword'), 'signup and password sign-in use Supabase Auth'],
-  [html.includes("functions.invoke('paypal-subscriptions'") && html.includes("plan_key:this.cycle==='m'?'monthly':'yearly'"), 'monthly and annual checkout use the PayPal subscription function'],
-  [html.includes('id="coPay" onclick="Plans.pay()"'), 'PayPal checkout action is enabled in the interface'],
-  [!html.includes('Create staging account'), 'live Supabase signup is not labelled as staging'],
-  [!html.includes('Staging sign in'), 'live Supabase sign-in is not labelled as staging'],
-  [!html.includes('Checkout is unavailable in this prototype'), 'PayPal checkout is not falsely labelled unavailable'],
-  [!html.includes('Prototype profile only: profile data stays in this browser'), 'authenticated profile is not falsely labelled local-only'],
-  [!html.includes('educational platform prototype with sample data and local-only profiles'), 'page metadata describes the connected application accurately'],
-  [html.includes('PayPal checkout requires configured billing credentials and subscription plans.'), 'service dependencies are disclosed honestly'],
-  [html.includes('supabaseClient.auth.signUp') && html.includes('supabaseClient.auth.signInWithPassword'), 'signup and password sign-in use Supabase Auth'],
-  [html.includes("functions.invoke('paypal-subscriptions'") && html.includes("plan_key:this.cycle==='m'?'monthly':'yearly'"), 'monthly and annual checkout use the PayPal subscription function'],
   [html.includes('id="coPay" onclick="Plans.pay()"'), 'PayPal checkout action is enabled in the interface']
-];
+];;
 let failed = 0;
 for (const [passed, label] of checks) {
   console.log(`${passed ? 'PASS' : 'FAIL'} ${label}`);
