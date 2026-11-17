@@ -74,7 +74,7 @@ test('homepage recommendation refresh is wired to a fresh backend request', () =
   const frontend = fs.readFileSync(require.resolve('../assets/einsteinminds-resource-network.js'), 'utf8');
   const app = fs.readFileSync(require.resolve('../index.html'), 'utf8');
   const edge = fs.readFileSync(require.resolve('../supabase/functions/resource-search/index.ts'), 'utf8');
-  assert.match(frontend, /async function refreshHomeRecommendations\(\)/);
+  assert.match(frontend, /async function refreshHomeRecommendations\(force = false\)/);
   assert.match(frontend, /action: 'recommendations'/);
   assert.match(frontend, /refreshHomeRecommendations\s*$/m);
   assert.match(app, /async refreshRec\(\)[\s\S]{0,500}refreshHomeRecommendations/);
