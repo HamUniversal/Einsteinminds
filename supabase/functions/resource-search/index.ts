@@ -60,9 +60,9 @@ const mapRows = (rows:any[]) => rows.map((row:any) => ({
 
 Deno.serve(async (req:Request)=>{
  const origin=req.headers.get("Origin");
- if(!isAllowedOrigin(origin))return
- if(req.method==="OPTIONS")return new Response("ok",{headers:cors(origin)}); reply({error:"Origin not allowed"},403,origin);
- if(req.method!=="POST")return reply({error:"Method not allowed"},405,origin);
+ if(!isAllowedOrigin(origin)) return reply({error:"Origin not allowed"},403,origin);
+ if(req.method==="OPTIONS") return new Response("ok",{headers:cors(origin)});
+ if(req.method!=="POST") return reply({error:"Method not allowed"},405,origin);
  try{
   const body=await req.json();
   const url=Deno.env.get("SUPABASE_URL"),key=Deno.env.get("SUPABASE_ANON_KEY");
