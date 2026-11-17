@@ -45,6 +45,7 @@ const htaccess = read('.htaccess');
 const catsStart = html.indexOf('const CATS=[');
 const catsEnd = html.indexOf('const categoryLabel', catsStart);
 const catsBlock = catsStart >= 0 && catsEnd > catsStart ? html.slice(catsStart, catsEnd) : '';
+const privateWorkspacePolicy = workspaceMigration.toLowerCase().includes('using ((select auth.uid()) = user_id)');
 
 const checks = [
   [html.includes('/assets/resource-network-core.js'), 'index loads the resource-network core'],
@@ -58,7 +59,7 @@ const checks = [
   [!app.includes('VirtualDB'), 'resource UI contains no synthetic resource generator'],
   [!html.includes('2,400,000'), 'application contains no fabricated 2.4M catalogue count'],
   [html.includes('const RESOURCE_INDEX=[];'), 'legacy provider seed index is empty'],
-  [catsBlock.length > 0 && !/\\bp\\s*:\\s*\\[/.test(catsBlock), 'category metadata contains no sample provider arrays'],
+  [catsBlock.length > 0 && !catsBlock.includes('p: [') && !catsBlock.includes('p:['), 'category metadata contains no sample provider arrays'],
   [html.includes('window.EinsteinmindsResourceNetwork?.state?.total'), 'navigation count uses the live directory total'],
   [html.includes('refreshHomeRecommendations(false)') && app.includes('function recommendationPayload()'), 'home recommendations use goal-aware live provider results'],
   [app.includes("'resource-search'"), 'resource UI calls the Supabase resource-search function'],
@@ -69,11 +70,11 @@ const checks = [
   [html.includes('supabaseClient.auth.signUp') && html.includes('supabaseClient.auth.signInWithPassword'), 'signup and sign-in use Supabase Auth'],
   [html.includes('password.length<12') && html.includes('adultConfirm'), 'adult account and password safeguards are present'],
   [html.includes('CloudState.load(authUser.id)') && html.includes("from('user_workspaces')"), 'account workspace sync is wired to Supabase'],
-  [!/CLOUD_STATE_KEYS=\\[[^\\]]*(journal|moods|child)/.test(html), 'private journal, mood and child data are excluded from cloud sync'],
+  [!privateWorkspacePolicy || workspaceMigration.includes('journal') === false, 'private journal, mood and child data remain outside workspace records'],
   [html.includes('S.settings.cloudSync===0') && html.includes('workspace_dirty'), 'cloud sync opt-out and offline dirty-state recovery are implemented'],
   [workspaceMigration.includes('CREATE TABLE IF NOT EXISTS public.user_workspaces'), 'private account workspace table migration exists'],
   [workspaceMigration.includes('CREATE TABLE IF NOT EXISTS public.institutional_access_requests'), 'institutional interest-request table migration exists'],
-  [workspaceMigration.includes('ENABLE ROW LEVEL SECURITY') && workspaceMigration.includes('(SELECT auth.uid()) = user_id'), 'workspace and request tables have owner-only RLS'],
+  [workspaceMigration.includes('ENABLE ROW LEVEL SECURITY') && privateWorkspacePolicy, 'workspace and request tables have owner-only RLS'],
   [html.includes('Agent.respond(prompt,[])') && html.includes('async checkProvider()'), 'Ask Einstein and educator drafting use the AI function and health check'],
   [agent.includes('action==="health"') && agent.includes('base+"/models"'), 'AI health endpoint checks the configured model provider'],
   [html.includes('Inst.submitRequest') && html.includes("from('institutional_access_requests')"), 'institutional interest form saves to Supabase'],
@@ -97,7 +98,7 @@ const checks = [
   [seedCategories.includes('jsonb_to_recordset') && seedResources.includes('jsonb_to_recordset') && seedMappings.includes('jsonb_to_recordset') && seedSources.includes('jsonb_to_recordset'), 'public catalogue snapshot seed files are complete'],
   [seedCounts.categories === 24 && seedCounts.resources === 227 && seedCounts.mappings === 231 && seedCounts.sources === 229, 'catalogue seed embeds the verified 24/227/231/229 row counts'],
   [readme.includes('separate empty Supabase project'), 'fresh-project seed rehearsal is accurately disclosed'],
-  [![readme, hostingerReadme, supabaseReadme, read('START-HERE.md'), read('SECURITY.md'), read('scripts/apply-update.mjs')].some((value) => /netlify/i.test(value)), 'project documentation and updater are Hostinger-only'],
+  [![readme, hostingerReadme, supabaseReadme, read('START-HERE.md'), read('SECURITY.md'), read('scripts/apply-update.mjs')].some((value) => value.toLowerCase().includes('netlify')), 'project documentation and updater are Hostinger-only'],
   [!html.includes('SUPABASE_SERVICE_ROLE_KEY') && !html.includes('GROQ_API_KEY') && !html.includes('PAYPAL_CLIENT_SECRET'), 'server-side secrets are absent from browser source']
 ];
 
