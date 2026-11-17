@@ -618,28 +618,20 @@ html[dir=rtl] .sb.open{transform:none}
 <a href="#" onclick="Legal.open('privacy');return false" style="text-decoration:underline" data-i18n="lg_priv">Privacy</a> ·
 <a href="#" onclick="Legal.open('dpa');return false" style="text-decoration:underline" data-i18n="lg_dpa">Data Privacy Addendum</a></p>
 </div></div>
-<!-- ═══ VPC MODAL ═══ -->
+<!-- ═══ CHILD ACCESS STATUS ═══ -->
 <div class="ov" id="vpcModal"><div class="mdl">
-<div class="mdl-h"><h2 data-i18n="vpc_t">Parental Consent Preview</h2><button class="mdl-x" onclick="M.close('vpcModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-<div class="mdl-b">
-<div class="vpc-step on" id="vs1">
-<div style="text-align:center;margin-bottom:var(--s5)">
-<div style="width:64px;height:64px;margin:0 auto var(--s4);border-radius:var(--r-full);background:var(--bg-2);display:grid;place-items:center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-<h3 class="h3" data-i18n="vpc_unavailable">Verification unavailable</h3>
-<p class="bm muted" style="margin-top:var(--s2)" data-i18n="vpc_d2">This prototype cannot verify parental consent. Child features stay locked until a real verification provider is connected.</p>
-</div>
-<button class="btn btn-o btn-block" onclick="M.close('vpcModal')" data-i18n="c_close">Close</button>
-</div>
-</div>
+<div class="mdl-h"><h2>Child accounts are not enabled</h2><button class="mdl-x" onclick="M.close('vpcModal')" aria-label="Close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+<div class="mdl-b"><p class="bm muted">Einstein Minds currently supports adult accounts only. A verified parental-consent provider and the required safeguarding review are not in place. No child profile, child activity or child AI access is enabled.</p></div>
+<div class="mdl-f"><button class="btn btn-o btn-block" onclick="M.close('vpcModal')">Close</button></div>
 </div></div>
 <!-- ═══ PRICING MODAL ═══ -->
 <div class="ov" id="pricingModal"><div class="mdl" style="max-width:1080px">
 <div class="mdl-h"><h2 data-i18n="pl_title">Choose Your Plan</h2><button class="mdl-x" onclick="M.close('pricingModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
 <div class="mdl-b">
-<div class="card" role="note" style="margin-bottom:var(--s5);border:1px solid var(--warn)"><b>Illustrative plan preview.</b> Prices and listed capabilities are mockups only; no subscription, verification, or institutional service is available.</div>
+<div class="card" role="note" style="margin-bottom:var(--s5);border:1px solid var(--warn)"><b>Pro is priced at $8 monthly or $60 annually and is billed through PayPal when checkout configuration is verified. Educator verification and institutional services are not currently offered.</div>
 <div class="pricing-grid">
 <div class="price-card"><div class="price-tier" data-i18n="pl_free_t">Free · The Global Commons</div><div class="price-amt">$0<span>/forever</span></div>
-<p class="price-desc" data-i18n="pl_free_d">Preview the learning interface. Resources and learning tools are sample content in this prototype.</p>
+<p class="price-desc" data-i18n="pl_free_d">Explore the live external-provider directory, create adult learning goals, save providers and track your own progress.</p>
 <ul class="price-feats">
 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_free_f1">Unique education-provider directory</span></li>
 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_free_f2">20 Ask Einstein prompts / day</span></li>
@@ -650,36 +642,36 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="price-card featured"><div class="price-tier" data-i18n="pl_pro_t">Pro · Independent Learners</div>
 <div style="display:flex;align-items:baseline;gap:var(--s2)"><div class="price-amt" id="proPrice">$8</div><span class="cap muted" id="proPer">/month</span></div>
 <div class="seg" style="margin:var(--s3) 0"><button class="on" id="billM" onclick="Plans.bill('m')" data-i18n="pl_month">Monthly</button><button id="billY" onclick="Plans.bill('y')" data-i18n="pl_year">Yearly · save 37%</button></div>
-<p class="price-desc" data-i18n="pl_pro_d">Unlimited intelligence for serious learners and families.</p>
+<p class="price-desc" data-i18n="pl_pro_d">Ask Einstein without the Free plan's daily prompt cap. AI availability depends on the configured model provider.</p>
 <ul class="price-feats">
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f1">Unlimited Ask Einstein reasoning</span></li>
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f2">Code Interpreter · Data Viz · Voice</span></li>
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f3">Full Virtual Laboratories (WebGPU)</span></li>
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f4">Verified credentials &amp; export</span></li>
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f5">Family Dashboard (multi-child)</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f1">Ask Einstein without the Free daily prompt cap</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f2">Cloud-synced goals, saved providers and portfolio</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f3">Additional tools are not yet available</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f4">Learning-data export</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f5">Adult family-planning tools; child accounts remain locked</span></li>
 </ul>
 <button class="btn btn-p btn-block" onclick="Plans.choose('pro')" data-i18n="pl_up">Upgrade to Pro</button></div>
 <div class="price-card"><div class="price-tier" data-i18n="pl_edu_t">Educator · Verified Teachers</div><div class="price-amt">$0<span>/forever</span></div>
-<p class="price-desc" data-i18n="pl_edu_d">The full Teaching Studio, free for every verified educator.</p>
+<p class="price-desc" data-i18n="pl_edu_d">Educator verification and educator-specific services are not yet available.</p>
 <ul class="price-feats">
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_edu_f1">Educator Studio + AI Assistant</span></li>
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_edu_f2">Rubrics · assessments · IEP alignment</span></li>
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_edu_f3">Unlimited teaching prompts</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_edu_f1">AI lesson drafting is available to adult accounts</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_edu_f2">Draft tools require professional review</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_edu_f3">No educator verification or educator plan yet</span></li>
 </ul>
-<button class="btn btn-s btn-block" onclick="Plans.choose('educator')" data-i18n="pl_verify">Verify as Educator</button></div>
-<div class="price-card"><div class="price-tier" data-i18n="pl_inst_t">Institutional · Districts &amp; Unis</div><div class="price-amt">$4.50<span data-i18n="pl_inst_unit">/student/yr</span></div>
-<p class="price-desc" data-i18n="pl_inst_d">Enterprise infrastructure, SSO, LMS, and legal indemnification.</p>
+<button class="btn btn-s btn-block" onclick="Plans.choose('educator')" data-i18n="pl_verify">Not available yet</button></div>
+<div class="price-card"><div class="price-tier" data-i18n="pl_inst_t">Institutional · Districts &amp; Unis</div><div class="price-amt">Contact<span>for future plans</span></div>
+<p class="price-desc" data-i18n="pl_inst_d">Institutional integrations are not active. You can submit an interest request.</p>
 <ul class="price-feats">
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_inst_f1">Pro for every student &amp; teacher</span></li>
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_inst_f2">SSO · LTI 1.3 · SCIM · xAPI</span></li>
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_inst_f3">COPPA/FERPA legal coverage</span></li>
-<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_inst_f4">District analytics (RLS isolated)</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_inst_f1">Institutional access is not active</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_inst_f2">No SSO or LMS integration yet</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_inst_f3">No compliance certification is claimed</span></li>
+<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_inst_f4">No district administration yet</span></li>
 </ul>
 <button class="btn btn-s btn-block" onclick="Plans.choose('inst')" data-i18n="pl_req">Request Access</button></div>
 </div>
 <div class="robinhood">
 <div class="robinhood-ic"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-<div><b data-i18n="pl_robin_t">The Robin Hood Clause.</b> <span data-i18n="pl_robin_d">For every 10 institutional licenses sold, Einsteinminds funds one full district license for an under-resourced school at zero cost. Education equity is built into our revenue model.</span></div>
+<div><b data-i18n="pl_robin_t">The Robin Hood Clause.</b> <span data-i18n="pl_robin_d">Planned equity initiative. This program is not active and no institutional license has been sold or donated through it yet.</span></div>
 </div>
 </div>
 </div></div>
@@ -861,7 +853,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="pop pop-wide" id="notifPop"><div class="pop-h" data-i18n="c_notif">Notifications</div><div id="notifList"></div></div></div>
 </div>
 </header>
-<div class="proto-banner" role="note" data-i18n="proto_notice">Staging environment: Ask Einstein AI and the Einstein Minds provider directory are connected for adult testing. Open-web search, optional tools, payments, educator verification and parental-consent verification are not connected. Use fictional learner data; do not enter sensitive information.</div>
+<div class="proto-banner" role="note" data-i18n="proto_notice">Einstein Minds is for adult account holders. The provider directory, Supabase sign-in and account workspace are connected. Ask Einstein and PayPal require valid server-side provider configuration. Educator verification, institutional integrations and child accounts are not available yet. Listings are external and not independently reviewed. Do not enter sensitive learner information.</div>
 <div class="page">
 <!-- HOME -->
 <section class="view on" id="v-home">
@@ -879,7 +871,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="sec-h"><div class="sec-h-l"><h2 class="h3" data-i18n="h_cont">Continue Learning</h2><span class="bs muted" data-i18n="h_contsub">Pick up where you left off</span></div>
 <a class="link" href="#" onclick="Nav.go('mylearning');return false"><span data-i18n="c_viewall">View all</span> <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="9 18 15 12 9 6"/></svg></a></div>
 <div class="grid g-2 stagger" id="homePaths" style="margin-bottom:48px"></div>
-<div class="sec-h"><div class="sec-h-l"><h2 class="h3" data-i18n="h_rec">Recommended For You</h2><span class="bs muted" data-i18n="h_recsub">Matched to your interests and level</span></div>
+<div class="sec-h"><div class="sec-h-l"><h2 class="h3" data-i18n="h_rec">Recommended For You</h2><span class="bs muted" data-i18n="h_recsub">Current live provider listings</span></div>
 <button class="btn btn-s btn-sm" onclick="Home.refreshRec()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg><span data-i18n="c_refresh">Refresh</span></button></div>
 <div class="grid g-res stagger" id="homeRec"></div>
 </section>
@@ -992,7 +984,7 @@ html[dir=rtl] .sb.open{transform:none}
 <section class="view" id="v-educator">
 <div class="sec-h"><div class="sec-h-l"><h1 class="h1" data-i18n="n_edu">Educator Studio</h1><span class="bm muted" data-i18n="ed_sub">Plan, differentiate and assess with an AI co-pilot</span></div>
 <div style="display:flex;gap:8px;flex-wrap:wrap">
-<button class="btn btn-s" onclick="Toast.show('Class management is unavailable in this prototype.','warn')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span data-i18n="ed_classes">Classes unavailable</span></button>
+<button class="btn btn-s" onclick="Toast.show('Class management is not enabled yet.','warn')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span data-i18n="ed_classes">Class management not enabled</span></button>
 <button class="btn btn-p" onclick="Edu.newLesson()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span data-i18n="ed_new">New Lesson</span></button></div></div>
 <div class="card" id="eduHandoffs" style="display:none;margin-bottom:var(--s5)"></div>
 <div class="studio">
@@ -1010,7 +1002,7 @@ html[dir=rtl] .sb.open{transform:none}
 <section class="view" id="v-parent">
 <div class="sec-h"><div class="sec-h-l"><h1 class="h1" data-i18n="n_parent">Parent Dashboard</h1><span class="bm muted" data-i18n="pa_sub">Guide, don't surveil. Themes, not transcripts.</span></div>
 <div class="seg" id="childSeg"></div></div>
-<div class="card" role="note" style="margin-bottom:var(--s5);border:1px solid var(--warn)" data-i18n="pa_demo_note">Illustrative sample data only. No child account, activity, screen time, or wellbeing information is connected or monitored.</div>
+<div class="card" role="note" style="margin-bottom:var(--s5);border:1px solid var(--warn)" data-i18n="pa_demo_note">Child accounts are disabled. This page shows only the signed-in adult account's own tools; it does not monitor a child's device or wellbeing.</div>
 <div class="card" id="parentHandoffs" style="display:none;margin-bottom:var(--s5)"></div>
 <div class="grid g-2" id="parentGrid"></div>
 </section>
@@ -1042,11 +1034,12 @@ html[dir=rtl] .sb.open{transform:none}
 </div>
 <div class="set-s"><h3 data-i18n="s_priv">Privacy &amp; Consent Ledger</h3>
 <div class="consent-ledger" id="consentLedger"></div>
-<div class="set-i"><div class="set-b"><h4 data-i18n="s_pers">AI Learning Personalization</h4><p data-i18n="s_pers_d">Allow Einstein to remember your preferences and goals.</p></div><div class="tgl on" data-set="pers"></div></div>
-<div class="set-i"><div class="set-b"><h4 data-i18n="s_share">Data Sharing with Institution</h4><p data-i18n="s_share_d">Control what is shared with your school or university.</p></div><div class="tgl on" data-set="share"></div></div>
+<div class="set-i"><div class="set-b"><h4>Sync learning data to my account</h4><p>Sync saved providers, goals, portfolio, assessments, screen-time totals and preferences. Journal and mood entries remain on this device. Child profiles are not supported.</p></div><div class="tgl on" data-set="cloudSync"></div></div>
+<div class="set-i"><div class="set-b"><h4>Use learning goals as AI context</h4><p>When enabled, your saved learning goals may be included with your Ask Einstein prompt.</p></div><div class="tgl on" data-set="pers"></div></div>
+<div class="set-i"><div class="set-b"><h4>Institution data sharing</h4><p>No institutional integration is active. No data is currently shared with a school or university.</p></div><div class="tgl" aria-disabled="true" title="Not connected"></div></div>
 <div class="set-i"><div class="set-b"><h4 data-i18n="s_export">Export My Data</h4><p data-i18n="s_export_d">Download everything as JSON. Yours, always.</p></div><button class="btn btn-o btn-sm" onclick="Settings.exportData()" data-i18n="c_export">Export</button></div>
 <div class="set-i"><div class="set-b"><h4 data-i18n="s_reset">Reset Local Data</h4><p data-i18n="s_reset_d">Clear saved resources, goals, journal, session and preferences on this device.</p></div><button class="btn btn-d btn-sm" onclick="Settings.reset()" data-i18n="c_reset">Reset</button></div>
-<div class="set-i"><div class="set-b"><h4 data-i18n="s_delete">Delete My Account</h4><p data-i18n="s_delete_d">Account deletion requires support; this prototype cannot delete Auth accounts.</p></div><button class="btn btn-d btn-sm" disabled data-i18n="c_delete">Unavailable</button></div>
+<div class="set-i"><div class="set-b"><h4 data-i18n="s_delete">Delete My Account</h4><p data-i18n="s_delete_d">Account deletion is not self-service yet. Contact support to request deletion.</p></div><button class="btn btn-d btn-sm" disabled data-i18n="c_delete">Unavailable</button></div>
 </div>
 <div class="set-s"><h3 data-i18n="s_a11y">Accessibility</h3>
 <div class="set-i"><div class="set-b"><h4 data-i18n="s_contrast">High Contrast</h4><p data-i18n="s_contrast_d">Stronger borders and text contrast.</p></div><div class="tgl" id="tglContrast"></div></div>
@@ -1164,7 +1157,7 @@ let LANG=LS.get('lang','en');
 const D={};
 D.en={g_core:"Core",g_learn:"Learning",g_well:"Wellbeing",g_pro:"Professional",g_sys:"System",n_home:"Home",n_ask:"Ask Einstein",n_explore:"Explore Knowledge",n_res:"Resources",n_learn:"My Learning",n_port:"My Portfolio",n_assess:"Assessments",n_well:"Wellbeing",n_screen:"Screen Time",n_edu:"Educator Studio",n_parent:"Parent Dashboard",n_inst:"Institutions",n_set:"Settings",u_role:"Learner · Grade 10",
 c_viewall:"View all",c_cancel:"Cancel",c_save:"Save",c_close:"Close",c_export:"Export",c_create:"Create Goal",c_refresh:"Refresh",c_filters:"Filters",c_apply:"Apply Filters",c_reset:"Reset",c_clear:"Clear",c_load:"Load 12 More Resources",c_open:"Open Original",c_saved:"Saved",c_searchph:"Search education providers…",c_notif:"Notifications",c_showing:"Showing",c_of:"of",c_ress:"provider listings",c_platforms:"platforms",c_resources:"provider listings",c_none:"No results found",c_none_d:"Try adjusting your filters or search terms.",c_back:"Back",c_delete:"Delete",
-h_badge:"unique provider listings · external sites not independently reviewed",h_title:"What will you discover today?",h_sub:"One intelligent gateway to the world's knowledge. Ask Einstein anything.",h_ph:"Ask Einstein anything…",h_cont:"Continue Learning",h_contsub:"Pick up where you left off",h_rec:"Recommended For You",h_recsub:"Matched to your interests and level",
+h_badge:"unique provider listings · external sites not independently reviewed",h_title:"What will you discover today?",h_sub:"One intelligent gateway to the world's knowledge. Ask Einstein anything.",h_ph:"Ask Einstein anything…",h_cont:"Continue Learning",h_contsub:"Pick up where you left off",h_rec:"Recommended For You",h_recsub:"Current live provider listings",
 q_lesson:"Build a Lesson Plan",q_family:"Find Family Activities",q_explore:"Explore My Interests",q_well:"Wellbeing Check-in",q_balance:"Digital Balance",q_inst:"Institutions",
 ag_desc:"Advanced AI — deep reasoning, global knowledge, code, research synthesis and creative work.",ag_online:"AI learning partner · live model response per request",ag_ph:"Ask Einstein anything — research, code, math, writing, analysis…",ag_w1:"Hello! I'm Einstein, your advanced learning companion. I combine deep multi-step reasoning with verified educational sources.",ag_w2:"I can help with research, code, mathematical proofs, creative writing, translation, data analysis, teaching design and debate preparation.",ag_w3:"Every factual claim is backed by a verified source. I'll always tell you when I'm uncertain.",
 ag_live_note:"AI-generated answer · verify important claims with reliable sources.",
@@ -1186,10 +1179,10 @@ cr_title:"Your Safety Matters",cr_desc:"I am an AI, and I cannot provide the sup
 ag_title:"Family Digital Wellbeing Agreement",ag_desc:"Co-create a positive, age-appropriate media plan with your family.",ag_child:"Child's Name",ag_edu:"Daily Educational Screen Time",ag_rec:"Daily Recreational Screen Time",ag_free:"Screen-Free Times",ag_meals:"Family Meals",ag_bed:"Before Bed",ag_out:"Outdoor Time",ag_read:"Family Reading",ag_save:"Save Agreement",
 t_saved:"Saved to your collection",t_unsaved:"Removed from collection",t_lang:"Language changed",t_theme:"Theme updated",t_voice:"Voice input activated",t_classes:"Loading your classes…",t_goal:"Learning goal created",t_pf:"Portfolio item added",t_agree:"Family agreement saved",t_export:"Data exported",t_reset:"Local data cleared",t_limit:"Daily limit reached — time for a break",t_filter:"Filters applied",t_cleared:"Filters cleared",t_quiz:"Practice set generated",t_inst:"Access request submitted",t_lesson:"New lesson created",t_assign:"Lesson saved and assigned",t_journal:"Journal entry saved",t_mood:"Check-in recorded",t_refresh:"Recommendations refreshed",t_copy:"Copied to clipboard",t_deleted:"Account deleted",
 au_welcome:"Welcome to Einsteinminds",au_back:"Welcome back",au_sub:"One intelligent gateway to the world's knowledge.",au_age_t:"Create your account",au_age_s:"First, a neutral age check. This helps us apply the right protections.",au_birthm:"Birth Month",au_birthy:"Birth Year",au_continue:"Continue",au_name:"Full Name",au_email:"Email",au_pass:"Password",au_signup:"Create Account",au_signin:"Sign In",au_guest:"Continue as Guest Explorer",au_childnote:"Child account detected. AI chat and portfolio stay locked until a parent completes Verifiable Parental Consent.",au_teennote:"A parent can be invited as an Observer after sign-up.",au_created:"Account created",
-pl_title:"Choose Your Plan",pl_free_t:"Free · The Global Commons",pl_free_d:"Explore a directory of external education providers; offerings are not independently reviewed.",pl_free_f1:"Unique education-provider directory",pl_free_f2:"20 Ask Einstein prompts / day",pl_free_f3:"Explore Knowledge taxonomy",pl_free_f4:"Basic portfolio & goals",pl_pro_t:"Pro · Independent Learners",pl_pro_d:"Unlimited intelligence for serious learners and families.",pl_pro_f1:"Unlimited Ask Einstein reasoning",pl_pro_f2:"Code Interpreter · Data Viz · Voice",pl_pro_f3:"Full Virtual Laboratories (WebGPU)",pl_pro_f4:"Verified credentials & export",pl_pro_f5:"Family Dashboard (multi-child)",pl_edu_t:"Educator · Verified Teachers",pl_edu_d:"The full Teaching Studio, free for every verified educator.",pl_edu_f1:"Educator Studio + AI Assistant",pl_edu_f2:"Rubrics · assessments · IEP alignment",pl_edu_f3:"Unlimited teaching prompts",pl_inst_t:"Institutional · Districts & Unis",pl_inst_d:"Enterprise infrastructure, SSO, LMS, and legal indemnification.",pl_inst_f1:"Pro for every student & teacher",pl_inst_f2:"SSO · LTI 1.3 · SCIM · xAPI",pl_inst_f3:"COPPA/FERPA legal coverage",pl_inst_f4:"District analytics (RLS isolated)",pl_inst_unit:"/student/yr",pl_up:"Upgrade to Pro",pl_cur:"Current Plan",pl_verify:"Verify as Educator",pl_req:"Request Access",pl_month:"Monthly",pl_year:"Yearly · save 37%",pl_robin_t:"The Robin Hood Clause.",pl_robin_d:"For every 10 institutional licenses sold, Einsteinminds funds one full district license for an under-resourced school at zero cost. Education equity is built into our revenue model.",
+pl_title:"Choose Your Plan",pl_free_t:"Free · The Global Commons",pl_free_d:"Explore a directory of external education providers; offerings are not independently reviewed.",pl_free_f1:"Unique education-provider directory",pl_free_f2:"20 Ask Einstein prompts / day",pl_free_f3:"Explore Knowledge taxonomy",pl_free_f4:"Basic portfolio & goals",pl_pro_t:"Pro · Independent Learners",pl_pro_d:"Ask Einstein without the Free plan's daily prompt cap. AI availability depends on the configured model provider.",pl_pro_f1:"Ask Einstein without the Free daily prompt cap",pl_pro_f2:"Cloud-synced goals, saved providers and portfolio",pl_pro_f3:"Additional tools are not yet available",pl_pro_f4:"Verified credentials & export",pl_pro_f5:"Adult family-planning tools; child accounts remain locked",pl_edu_t:"Educator · Verified Teachers",pl_edu_d:"Educator verification and educator-specific services are not yet available.",pl_edu_f1:"AI lesson drafting is available to adult accounts",pl_edu_f2:"Draft tools require professional review",pl_edu_f3:"No educator verification or educator plan yet",pl_inst_t:"Institutional · Districts & Unis",pl_inst_d:"Institutional integrations are not active. You can submit an interest request.",pl_inst_f1:"Pro for every student & teacher",pl_inst_f2:"No SSO or LMS integration yet",pl_inst_f3:"No compliance certification is claimed",pl_inst_f4:"No district administration yet",pl_inst_unit:"/student/yr",pl_up:"Upgrade to Pro",pl_cur:"Current Plan",pl_verify:"Not available yet",pl_req:"Request Access",pl_month:"Monthly",pl_year:"Yearly · save 37%",pl_robin_t:"The Robin Hood Clause.",pl_robin_d:"Planned equity initiative. This program is not active and no institutional license has been sold or donated through it yet.",
 co_title:"Upgrade to Pro",co_plan:"Einsteinminds Pro",co_cycle:"Monthly billing",co_name:"Cardholder Name",co_card:"Card Number",co_exp:"Expiry",co_cvc:"CVC",co_note:"🔒 Simulated checkout. In production this is PCI-DSS compliant via Stripe. No card data touches Einsteinminds servers.",co_pay:"Pay & Activate",
 ir_title:"Request Institutional Access",ir_org:"Organization Name",ir_type:"Organization Type",ir_size:"Number of Learners",ir_email:"Work Email",ir_msg:"What are you hoping to achieve?",ir_note:"$4.50 per student/year · Includes Pro for all staff & students · Robin Hood Clause applies",ir_submit:"Submit Request",
-ob_e1:"The Epistemic Contract",ob_e2:"This prototype offers a directory of external education providers, not a verified inventory. I am an AI and can make mistakes; check information and source websites.",ob_accept:"I Accept These Terms",ob_s1:"What sparks your curiosity?",ob_s2:"Pick anything — this shapes your recommendations, not a test score.",ob_g1:"The Safeguarding Handshake",ob_g2:"Your safety is my priority. If you ever tell me you are feeling unsafe, overwhelmed, or in crisis, I will pause our lesson and help you connect to a trusted adult or professional helpline. I am a tutor, not a therapist — and I know my limits.",ob_understand:"I Understand",ob_ready:"You're ready",ob_start:"Start Learning",
+ob_e1:"The Epistemic Contract",ob_e2:"Einstein Minds lists external education providers. Listings are not independently reviewed or endorsed. I am an AI and can make mistakes; check information and source websites.",ob_accept:"I Accept These Terms",ob_s1:"What sparks your curiosity?",ob_s2:"Pick anything — this shapes your recommendations, not a test score.",ob_g1:"The Safeguarding Handshake",ob_g2:"Your safety is my priority. If you ever tell me you are feeling unsafe, overwhelmed, or in crisis, I will pause our lesson and help you connect to a trusted adult or professional helpline. I am a tutor, not a therapist — and I know my limits.",ob_understand:"I Understand",ob_ready:"You're ready",ob_start:"Start Learning",
 us_today:"prompts today",us_left:"left",us_unlim:"Unlimited prompts",us_up:"⚡ Upgrade to Pro",us_out:"Sign Out",us_in:"Sign In / Create Account",
 vpc_t:"Verifiable Parental Consent",vpc_d1:"A parent or guardian must verify this account",vpc_d2:"Because this learner is under 13, COPPA 2026 requires Verifiable Parental Consent before AI chat and portfolio features unlock. This protects your child's data.",vpc_parent:"I'm the parent — continue",vpc_email:"Parent / Guardian Email",vpc_rel:"Your relationship to the child",vpc_rel1:"Parent",vpc_rel2:"Legal Guardian",vpc_rel3:"School Official (with consent authority)",vpc_choose:"Choose a verification method",vpc_card:"Credit / Debit Card",vpc_card_d:"A $0.50 authorization token (fully refunded). Fastest method.",vpc_form:"Signed Consent Form",vpc_form_d:"Digitally sign a COPPA consent form. Processed within 24h.",vpc_school:"School Official Consent",vpc_school_d:"If enrolled via a district, the school may consent on your behalf.",vpc_verify:"Verify",vpc_processing:"Verifying consent…",vpc_proc_d:"Contacting the secure verification provider. No card data is stored by Einsteinminds.",vpc_success:"Consent verified",vpc_success_d:"The account is now fully unlocked. A confirmation was sent to the parent email. You can review or revoke consent anytime in Settings → Privacy.",vpc_done:"Start Learning",
 lg_tos:"Terms of Service",lg_priv:"Privacy Policy",lg_dpa:"Data Privacy Addendum",lg_coppa:"COPPA Notice"};
@@ -1209,7 +1202,7 @@ h_badge:"unique provider listings · external sites not independently reviewed",
 r_title:"Education Provider Directory",
 e_sub:"Browse education-provider categories and select a learning domain.",
 i_sub:"Static examples for education institutions; no institutional service is connected.",
-i_apid:"No API or integration service is available in this prototype.",
+i_apid:"Institutional API and SSO integrations are not active yet.",
 s_lang_d:"AI-generated translations are available as drafts and have not been reviewed by fluent speakers.",
 s_remind:"Learning reminder preference (demo)",
 s_remind_d:"This preference is stored locally; no reminders are sent.",
@@ -1225,7 +1218,7 @@ ag_w1:"Welcome. Einstein is your AI learning partner.",
 ag_w2:"Ask questions, explore ideas, solve problems and build understanding through a real AI conversation.",
 ag_w3:"Einstein does not claim to browse the open web or use tools unless those services are actually connected and used.",
 ag_demo:"AI-generated response. Verify important claims against reliable sources.",
-vpc_d2:"This prototype cannot verify parental consent. Child features stay locked until a real verification provider is connected.",
+vpc_d2:"Child accounts are currently disabled. Einstein Minds has not connected a verified parental-consent provider, so no child profile or child AI access can be created.",
 vpc_card_d:"Demo option only. No card is requested or checked.",
 vpc_form_d:"Not connected in this prototype.",
 vpc_school_d:"Not connected in this prototype.",
@@ -1250,9 +1243,9 @@ pl_inst_f2:"No SSO or LMS integrations",pl_inst_f3:"No compliance coverage",
 pl_inst_f4:"No district analytics",vpc_t:"Parental Consent Preview",
 pl_title:"Choose Your Plan",pl_up:"Upgrade to Pro",
 au_signin:"Sign in",au_signup:"Create account",
-us_in:"Sign in / Create account",t_voice:"Voice output is not connected in this prototype.",
-ob_g2:"This prototype does not monitor emergencies or connect to professional help. Contact a trusted adult or local emergency/support service directly if you need help.",
-s_priv:"Local demo settings",s_pers:"AI personalization preference (demo)",
+us_in:"Sign in / Create account",t_voice:"Voice output is not available yet.",
+ob_g2:"Einstein Minds does not monitor emergencies or provide professional crisis support. Contact a trusted person or local emergency/support service directly if you need help.",
+s_priv:"Account privacy and data controls",s_pers:"Use saved learning goals for AI context",
 s_pers_d:"This preference is stored in this browser; no AI service is connected.",
 s_share:"Institution sharing preference (demo)",
 s_share_d:"This preference is stored locally; no data is shared with an institution.",
@@ -1268,8 +1261,8 @@ e_plats_d:"External links; provider names and descriptions are shown as supplied
 p_sub:"Sample portfolio items; no educator verification or credentials are provided.",
 ed_sub:"Static lesson-plan preview; no AI co-pilot is connected.",
 pa_sub:"Sample child profiles and recommendations; no real learner data is connected.",
-pa_demo_note:"Illustrative sample data only. No child account, activity, screen time, or wellbeing information is connected or monitored.",
-pa_healthy:"Sample data",
+pa_demo_note:"Child accounts are disabled. This page shows only the signed-in adult account's own tools; it does not monitor a child's device or wellbeing.",
+pa_healthy:"Adult account tools",
 pa_disc:"Guide unavailable",
 pl_free_t:"Free",
 pl_cur:"Current plan",
@@ -1284,13 +1277,13 @@ i_unid:"Example university-services screen only; no service or data is connected
 i_disd:"Example district-management screen only; no service or data is connected.",
 i_govd:"Example government-services screen only; no service or data is connected.",
 i_ngod:"Example NGO-services screen only; no service or data is connected.",
-i_apid:"No API or integration service is available in this prototype.",
-ir_note:"Institutional services and request submission are unavailable in this prototype. No contact information is collected.",
+i_apid:"Institutional API and SSO integrations are not active yet.",
+ir_note:"Institutional integrations are not active yet. You can submit an interest request; it is not a service order.",
 ir_unavailable:"Request unavailable",
 ed_classes:"Classes unavailable",
 ed_assign:"Assignment unavailable",
 cr_call:"Call or text 988 (U.S. only)",
-cr_desc:"This prototype cannot assess your situation or provide emergency support. Please reach out to a trusted adult or local emergency/support service directly.",
+cr_desc:"Einstein Minds does not assess emergencies or provide crisis support. Please contact a trusted person or local emergency/support service directly.",
 pl_free_f2:"20 prompts/day (browser counter)",
 pl_pro_t:"Pro",pl_edu_t:"Educator (preview)",pl_inst_t:"Institutional (preview)",
 pl_year:"Yearly · save 37%",pl_month:"Monthly",
@@ -1597,21 +1590,14 @@ else Toast.show('PayPal approval received. Subscription status: '+String(data?.s
 }else if(state==='success')Toast.show('Sign in to verify your PayPal subscription.','warn');
 else if(state==='cancel')Toast.show('PayPal checkout was cancelled. No subscription was activated.','warn');
 history.replaceState({},'',window.location.pathname+window.location.hash)},
-verifyEducator(){Toast.show('Educator verification is not connected; no account changes were made.','warn')},
-instRequest(){Toast.show('Institutional requests are unavailable and were not submitted.','warn')}};
+verifyEducator(){Toast.show('Educator verification is not available yet. The AI lesson planner is available to adult accounts.','warn')},
+instRequest(){if(!Auth.signedIn){Auth.open('in');return}M.open('instReqModal')}};
 const Legal={docs:{
-tos:{t:'Terms of Service',b:`<h3>1. The Service</h3><p>Einsteinminds is a learning intelligence platform that connects users to verified educational resources and AI-assisted reasoning. It is not a medical, legal, or clinical service.</p><h3>2. AI Limitations</h3><p>Responses are generated by AI and may contain errors. Every factual claim is grounded in cited sources, but users must verify critical information independently. Einsteinminds never makes consequential decisions about a learner without human review.</p><h3>3. Acceptable Use</h3><ul><li>Do not attempt to bypass safeguarding or age-gating systems.</li><li>Do not use the platform to generate harmful, deceptive, or illegal content.</li><li>Do not resell or scrape the verified resource index.</li></ul><h3>4. Subscriptions</h3><p>Pro subscriptions renew automatically and may be cancelled anytime. Institutional licenses are governed by a separate Data Privacy Addendum. No ads. No sale of data. Ever.</p>`},
-privacy:{t:'Privacy Policy',b:`<h3>Data Minimization</h3><p>We collect only what is required to deliver the service. Child accounts collect the minimum necessary and never serve behavioral advertising.</p><h3>Your Rights</h3><ul><li>Export all your data as JSON at any time.</li><li>Delete your account and all associated data permanently.</li><li>Revoke any consent from the Consent Ledger in Settings.</li></ul><h3>Compliance</h3><p>COPPA 2026 · FERPA · GDPR · UK Children's Code · EU AI Act. Children under 13 require Verifiable Parental Consent before AI features unlock.</p>`},
-dpa:{t:'Data Privacy Addendum (Institutional)',b:`<h3>School Official Exception</h3><p>For districts and universities, Einsteinminds acts as a School Official under FERPA. Student PII flows via secure SSO/OneRoster and remains under institutional control.</p><h3>Isolation</h3><p>Multi-tenant Row-Level Security ensures no institution can access another's data. Aggregate analytics only — never individual surveillance.</p><h3>Breach Notification</h3><p>Institutions are notified within 48 hours of any confirmed incident. Annual third-party penetration testing is published.</p>`},
-coppa:{t:'COPPA 2026 Notice',b:`<h3>Verifiable Parental Consent</h3><p>Accounts for children under 13 are placed in Restricted Mode. AI chat, portfolio saving, and personalization remain locked until a parent verifies via credit-card token, signed consent form, or school official consent.</p><h3>What We Never Do</h3><ul><li>Sell children's data</li><li>Serve behavioral ads to children</li><li>Use dark patterns or manipulative engagement loops</li><li>Track facial expressions, voice emotion, or keystrokes</li></ul>`}},
-open(k){const d=this.docs[k];$('#legalTitle').textContent=T('lg_'+k)||d.t;$('#legalBody').innerHTML=d.b;M.open('legalModal')}};
-Object.assign(Legal.docs,{
-tos:{t:'Prototype terms',b:`<h3>Prototype only</h3><p>This website is a user-interface demonstration. It does not provide production learning, authentication, AI, resource-verification, payment, educator-verification, or institutional services.</p><h3>Demo data</h3><p>Catalog records and generated responses are examples, not verified or personalized outputs. Do not rely on them for factual, educational, safety, or other consequential decisions.</p><h3>Local data</h3><p>Some information is stored in this browser. Do not enter real credentials, payment details, or sensitive learner information.</p>`},
-privacy:{t:'Privacy notice',b:`<h3>Prototype data</h3><p>Some demo state is stored in browser localStorage. This is not secure storage or account authentication. No real parental consent is collected or verified by this prototype.</p><h3>Do not enter sensitive data</h3><p>Do not use this prototype with real child, learner, health, payment, or institutional data. It has not undergone privacy or legal review.</p>`},
-dpa:{t:'Institutional services unavailable',b:`<h3>No institutional service</h3><p>This prototype does not provide school accounts, SSO, LMS integration, a data-processing agreement, or district analytics. The screen is illustrative only.</p>`},
-coppa:{t:'Parental-consent prototype notice',b:`<h3>No consent verification</h3><p>No parental-consent provider is connected. The consent interface does not collect, verify, or record consent, and cannot unlock child accounts. Do not use this prototype to manage accounts for children.</p>`}
-});
-/* ═══ DATA ENGINE ═══ */
+tos:{t:'Terms of Service',b:'<h3>Service</h3><p>Einstein Minds provides an adult learning workspace, an external education-provider directory and AI-assisted learning drafts. Provider listings are not endorsements, accreditation or safety reviews.</p><h3>AI limitations</h3><p>AI outputs may be incomplete or incorrect. Verify important claims, links, standards and recommendations with original sources and qualified people. AI outputs are drafts, not professional advice or decisions about a learner.</p><h3>Accounts and age</h3><p>Accounts are for adults aged 18 or older. Child accounts and child AI access are disabled. Do not submit sensitive learner or child information.</p><h3>Subscriptions</h3><p>Pro is offered at $8 per month or $60 per year when PayPal checkout is configured. Subscriptions renew according to the selected PayPal plan. Manage or cancel an active subscription through the account billing controls. An interest request for institutional services is not a contract or an active license.</p><h3>Availability</h3><p>AI and payment services depend on external provider configuration and availability. Educator verification, institutional integrations, voice, code execution and virtual laboratories are not currently offered.</p>'},
+privacy:{t:'Privacy Policy',b:'<h3>Who can use the service</h3><p>Einstein Minds currently supports adult account holders only. Child profiles and child accounts are disabled. Do not enter children\'s names, contact details, school records or other sensitive learner information.</p><h3>Account and workspace data</h3><p>Supabase stores your account profile, subscription status and, when cloud sync is enabled, saved providers, learning goals, portfolio items, assessment progress, screen-time totals, preferences and learning activity events. Row-level security restricts workspace rows to the owning account.</p><h3>Device-only data</h3><p>Journal entries, mood check-ins and some interface preferences remain in this browser\'s local storage. They are not included in the cloud workspace sync. Clearing browser data may remove them.</p><h3>AI and external providers</h3><p>When you use Ask Einstein or the lesson planner, your prompt and relevant conversation context are sent to the configured AI provider through a Supabase Edge Function. Resource searches query the Einstein Minds directory. External provider websites have their own privacy practices.</p><h3>Payments</h3><p>PayPal handles checkout and payment details. Einstein Minds does not store your card number or PayPal password. Supabase stores subscription identifiers, plan, status and billing metadata needed to manage access.</p><h3>Institutional requests</h3><p>If you submit an institutional interest request, the organization name, work email, role, estimated user count and message are stored in Supabase and visible to your account and authorized project administrators. Automated confirmation emails are not currently configured.</p><h3>Your controls</h3><p>You can export account data, disable cloud sync, reset your workspace data and contact support to request account deletion. Account deletion is not yet self-service. This notice should be reviewed by qualified privacy counsel before public launch.</p>'},
+dpa:{t:'Institutional services notice',b:'<h3>Institutional services are not active</h3><p>Einstein Minds does not currently provide institutional accounts, SSO, LMS/OneRoster integrations, district administration, student analytics or a signed Data Processing Addendum. Submitting an interest request does not activate these services or create a school contract. Do not upload student records.</p>'},
+coppa:{t:'Child safety and age notice',b:'<h3>Adult accounts only</h3><p>Einstein Minds currently accepts adult account holders aged 18 or older. Child accounts, child profiles and child AI access are disabled. No parental-consent provider is connected, and the platform does not collect or verify parental consent. Do not create an account for a child or submit child personal information. A child-facing service requires a separate safeguarding, privacy and legal review before activation.</p>'}},
+open(k){const d=this.docs[k];if(!d)return;$('#legalTitle').textContent=d.t;$('#legalBody').innerHTML=d.b;M.open('legalModal')}};/* ═══ DATA ENGINE ═══ */
 const CATS=[
 {id:'math',ic:'calc',c:'#0A84FF',n:'Mathematics & Quantitative Sciences',d:'Algebra, calculus, statistics, modelling and data analysis',count:0,subs:['Calculus','Statistics','Algebra','Geometry','Mathematical Modeling','Number Theory'],p:[['Khan Academy — Math','https://www.khanacademy.org/math','Free mastery-based math courses','#14BF96'],['Desmos','https://www.desmos.com','Graphing calculator & activities','#2A7DE1'],['GeoGebra','https://www.geogebra.org','Dynamic geometry, algebra & calculus','#6666CC'],['Wolfram MathWorld','https://mathworld.wolfram.com','Mathematics encyclopedia','#DD1100'],['Art of Problem Solving','https://artofproblemsolving.com','Competition problem solving','#008445'],['Illustrative Mathematics','https://illustrativemathematics.org','Standards-aligned curriculum','#1F4E9C'],['OpenStax — Math','https://openstax.org/subjects/math','Free peer-reviewed textbooks','#005A9C'],['NRICH (Cambridge)','https://nrich.maths.org','Rich tasks & math thinking','#E4002B'],['Mathigon','https://mathigon.org','Interactive textbooks','#F5A623'],["Paul's Online Notes",'https://tutorial.math.lamar.edu','Calculus & DE notes','#8B0000'],['Project Euler','https://projecteuler.net','Computational challenges','#3D5A80'],['CK-12 — Math','https://www.ck12.org/math/','Adaptive practice','#00A94F']]},
 {id:'science',ic:'atom',c:'#30D158',n:'Natural Sciences',d:'Physics, chemistry, biology, astronomy and earth systems',count:0,subs:['Quantum Physics','Organic Chemistry','Marine Biology','Astronomy','Genetics','Thermodynamics','Geology'],p:[['PhET Simulations','https://phet.colorado.edu','Research-based science sims','#0057A0'],['NASA Science','https://science.nasa.gov','Missions, data & imagery','#0B3D91'],['HHMI BioInteractive','https://www.biointeractive.org','Biology films & labs','#00768C'],['Physics Classroom','https://www.physicsclassroom.com','Concept builders','#1B4F9C'],['ChemCollective','https://chemcollective.org','Virtual chemistry labs','#7B2D26'],['Khan Academy — Science','https://www.khanacademy.org/science','Full science library','#14BF96'],['NOAA Education','https://www.noaa.gov/education','Ocean & climate data','#003087'],['USGS Education','https://www.usgs.gov/educational-resources','Earth science','#006F41'],['LabXchange (Harvard)','https://www.labxchange.org','Virtual bio labs','#A51C30'],['OpenStax — Science','https://openstax.org/subjects/science','Free science texts','#005A9C'],['iBiology','https://www.ibiology.org','Biology talks','#2E7D32'],['ESA Education','https://www.esa.int/Education','Space science','#003247']]},
@@ -1790,7 +1776,7 @@ if(v==='resources')Lib.render();if(v==='screentime')Screen.render();if(v==='asse
 toggleMin(){$('#sb').classList.toggle('min');LS.set('min',$('#sb').classList.contains('min'));$('#tglMin').classList.toggle('on',$('#sb').classList.contains('min'))}};
 /* ═══ HOME ═══ */
 const Home={render(){
-$('#resourceTotal').textContent=fmt(TOTAL);
+$('#resourceTotal').textContent='—';
 const qa=[['q_lesson','educator','cap'],['q_family','parent','users'],['q_explore','explore','compass'],['q_well','wellbeing','heart'],['q_balance','screentime','clock'],['q_inst','institutions','build']];
 $('#qaRow').innerHTML=qa.map(([k,v,ic])=>`<button class="chip" onclick="Nav.go('${v}')">${svg(ic)}${T(k)}</button>`).join('');
 $('#homePaths').innerHTML=S.goals.slice(0,3).map((g,i)=>{const c=goalCategory(g);
@@ -1820,9 +1806,9 @@ const Agent={mode:'general',intent:'hint',tools:new Set(),history:[],busy:false,
 renderChrome(){$('#agCaps').innerHTML=MODES.map(m=>`<button class="chip ${this.mode===m?'on':''}" onclick="Agent.setMode('${m}')">${T('m_'+m)}</button>`).join('');
 const intents=['hint','alternate','example','check'];
 $('#agTools').innerHTML=intents.map(name=>`<button class="tool intent ${this.intent===name?'on':''}" onclick="Agent.setIntent('${name}',this)">${T('loop_coach_'+name)}</button>`).join('')+
-TOOLS.map(([k,ic,c])=>`<button class="tool ${this.tools.has(k)?'on':''}" data-c="${c}" onclick="Agent.tool('${k}',this)">${svg(ic)}${T(k)}</button>`).join('');
+TOOLS.map(([k,ic,c])=>k==='tl_web'?`<button class="tool ${this.tools.has(k)?'on':''}" data-c="${c}" onclick="Agent.tool('${k}',this)">${svg(ic)}${T(k)}</button>`:`<button class="tool" data-c="${c}" disabled aria-disabled="true" title="Not available yet">${svg(ic)}${T(k)}</button>`).join('');
 if(!$('#agMsgs').children.length)this.welcome();this.restore()},
-welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>Welcome. I'm Einstein, your AI learning partner.</p><p>Ask me to explain an idea, work through a problem, explore a topic, create something, or challenge your reasoning. I'll remember the conversation while we work.</p><p class="bs muted">The Einstein Minds directory can be searched. Open-web search and optional tools are not connected yet. Recent conversation history is saved in this browser tab for this signed-in account.</p></div></div>`},
+welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>Welcome. I'm Einstein, your AI learning partner.</p><p>Ask me to explain an idea, work through a problem, explore a topic, create something, or challenge your reasoning. I'll remember the conversation while we work.</p><p class="bs muted">The live Einstein Minds directory can be searched. Open-web search, image generation, code execution, document tools and voice are not available yet. Recent conversation history is saved in this browser tab.</p></div></div>`},
 onAuthSession(userId){
 if(this.activeUserId!==userId){this.history=[];this.storageKey=null;this.restoredFor=null;if($('#agMsgs'))$('#agMsgs').innerHTML='';}
 this.activeUserId=userId||null;
@@ -2308,17 +2294,17 @@ sync(){const sz=document.documentElement.dataset.size||'md';
 $$('#sizeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.sz===sz));
 $$('[data-set]').forEach(t=>t.classList.toggle('on',!!S.settings[t.dataset.set]));
 $('#tglMin').classList.toggle('on',$('#sb').classList.contains('min'))},
-syncPlan(){const p=Auth.plan(),map={guest:'Guest demo (5 local prompts/day).',free:'Local demo profile (20 local prompts/day).',pro:'Paid plan unavailable in this prototype.',educator:'Educator verification unavailable in this prototype.',inst:'Institutional service unavailable in this prototype.'};
+syncPlan(){const p=Auth.plan(),map={guest:'Guest access is limited; sign in to use Einstein.',free:'Free adult account · 20 Ask Einstein prompts per day.',pro:'Pro access depends on verified PayPal subscription status.',educator:'Educator verification is not currently available.',inst:'Institutional integrations are not currently available.'};
 $('#setPlanDesc').textContent=map[p]||map.free;this.renderPlanDemo(p)},
 renderPlanDemo(plan=Auth.plan()){const slot=$('#settingsPlanDemo');if(!slot)return;
 if(plan!=='free'&&plan!=='guest'){slot.innerHTML='';return}
-slot.innerHTML=`<div class="upgrade-banner plan-demo"><h3>⚡ ${T('pl_up')}</h3><p>${plan==='guest'?'Guest':'Free'} plan preview · ${Usage.limit()} demo prompts/day. Paid features are not connected in this prototype.</p><button class="btn btn-lg" onclick="M.open('pricingModal')">${T('pl_up')}</button></div>`},
+slot.innerHTML=`<div class="upgrade-banner plan-demo"><h3>⚡ ${T('pl_up')}</h3><p>${plan==='guest'?'Sign in to use Einstein Minds.':'Your Free adult account includes '+Usage.limit()+' Ask Einstein prompts per day. Pro is $8 monthly or $60 annually when PayPal checkout is configured.'}</p><button class="btn btn-lg" onclick="M.open('pricingModal')">${T('pl_up')}</button></div>`},
 renderConsent(){const u=Auth.user;
-const rows=[['Prototype notice',LS.get('onboarded',false)?'Acknowledged':'—',LS.get('onboarded',false)?'yes':'no'],
-['Safety demo notice',LS.get('onboarded',false)?'Acknowledged':'—',LS.get('onboarded',false)?'yes':'no'],
-['AI personalization preference (local)',u&&u.consent&&u.consent.pers?'On':'Off',u&&u.consent&&u.consent.pers?'yes':'no'],
-['Institution sharing preference (local)',u&&u.consent&&u.consent.share?'On':'Off',u&&u.consent&&u.consent.share?'yes':'no'],
-['Parental consent (not verified)',u&&u.ageBand==='child'?'Not verified':'Not applicable',u&&u.ageBand==='child'?'pend':'no']];
+const rows=[['Adult account access',u?'Signed in':'Signed out',u?'yes':'no'],
+['Cloud workspace sync',S.settings.cloudSync===0?'Off':'On',S.settings.cloudSync===0?'pend':'yes'],
+['Journal and mood entries','This device only','pend'],
+['Institution data sharing','Not connected','no'],
+['Child accounts','Disabled · no consent provider','pend']];
 $('#consentLedger').innerHTML=rows.map(([k,v,s])=>`<div class="consent-row"><span>${k}</span><span class="consent-status cs-${s}">${v}</span></div>`).join('')},
 download(obj,name){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)},
 exportData(){this.download({exported:new Date().toISOString(),user:Auth.user,lang:LANG,theme:Theme.mode,saved:S.saved,goals:S.goals,portfolio:S.portfolio,journal:S.journal,moods:S.moods,quizHistory:S.quizHist,screenTime:S.st,limits:S.lim,sessions:S.sess,settings:S.settings,handoffs:S.handoffs,events:S.events},'einsteinminds-data.json');Toast.show(T('t_export'),'ok')},
@@ -2362,8 +2348,8 @@ ed_sub:"Plan, differentiate and assess with a co-pilot preview — static sample
 pa_sub:"Guide, don't surveil. Progress and themes — never transcripts.",
 i_sub:"Enterprise tooling for schools and systems — shown here as an interface preview.",
 s_sub:"Appearance, language, privacy, consent and accessibility — plainly under your control.",
-pl_pro_d:"Adaptive plans, progress history, and richer practice — the loop, turned up. Preview only; billing not connected.",
-pl_pro_f4:"Portfolio export & revision history"
+pl_pro_d:"Ask Einstein without the Free daily prompt cap, plus account-synced learning goals, saved providers and portfolio. Provider availability applies.",
+pl_pro_f4:"Export your learning data"
 });
 /* ═══ BOOT ═══ */
 document.addEventListener('DOMContentLoaded',()=>{
@@ -2390,8 +2376,8 @@ if(mod&&e.key.toLowerCase()==='k'){e.preventDefault();Cmd.open()}
 if(mod&&e.key.toLowerCase()==='b'){e.preventDefault();Nav.toggleMin()}
 if(mod&&e.key.toLowerCase()==='d'){e.preventDefault();Theme.cycle()}
 if(e.key==='Escape'){Cmd.close();M.closeAll();Crisis.close();$('#sb').classList.remove('open')}});
-console.log('%c🧠 Einsteinminds prototype','font-size:17px;font-weight:800');
-console.log('%cEnglish UI · sample data · production integrations unavailable','font-size:11px;color:#6E6E73');
+console.log('%c🧠 Einstein Minds','font-size:17px;font-weight:800');
+console.log('%cSupabase Auth · live resource directory · account workspace · AI and billing availability depend on provider configuration','font-size:11px;color:#6E6E73');
 });
 </script>
 
