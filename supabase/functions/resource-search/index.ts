@@ -14,8 +14,8 @@ const cors = (origin: string | null) => ({
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Vary": "Origin"
 });
-const reply = (body: unknown, status=200, origin: string | null=null) =>
-  new Response(JSON.stringify(body), {status,headers:{...cors(origin),"Content-Type":"application/json","Cache-Control":"public, max-age=30, stale-while-revalidate=120"}});
+const reply = (body: unknown, status=200, origin: string | null=null, cacheControl="public, max-age=30, stale-while-revalidate=120") =>
+  new Response(JSON.stringify(body), {status,headers:{...cors(origin),"Content-Type":"application/json","Cache-Control":cacheControl}});
 const STAGES = new Set(["pre_k","kindergarten","primary","middle","secondary","vocational","undergraduate","graduate","doctoral","professional","entrepreneur","lifelong"]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function safeStoredHttps(value: unknown) {
@@ -95,6 +95,14 @@ Deno.serve(async (req:Request)=>{
   if((resourceIds||resourceUrls)&&resourceIds?.length===0&&resourceUrls?.length===0)return reply({items:[],total:0,page,page_size:pageSize},200,origin);
 
   const selectFields="id,canonical_url,official_domain,name,resource_type,directory_description,provider_introduction,intro_status,intro_source_url,intro_language,original_language,supported_languages,country_or_region,cost_model,pricing_url,accessibility_metadata,licensing_metadata,privacy_url,evidence_status,source_status,editorial_status,learning_stages,learning_stage_evidence_url,learning_stage_reviewed_at,last_checked_at,last_successful_link_check,resource_category_links!inner(category_id,resource_categories!inner(slug,name))";
+
+  if(body?.action==="recommendations"){
+   const {data,error}=await db.from("resources").select(selectFields).eq("is_published",true).limit(500);
+   if(error){console.error("recommendations query error",error.message);return reply({error:"Fresh recommendations are temporarily unavailable"},503,origin,"private, no-store");}
+   const items=mapRows(data||[]);
+   for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];}
+   return reply({items:items.slice(0,6),total:items.length,strategy:"random_catalogue_sample"},200,origin,"private, no-store");
+  }
   async function baseQuery(searchText=q, categorySlug=category){
    let query=db.from("resources").select(selectFields,{count:"exact"}).eq("is_published",true);
    if(categorySlug){
