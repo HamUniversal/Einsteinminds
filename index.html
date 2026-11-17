@@ -285,6 +285,7 @@ input,textarea,select{font:inherit;color:inherit}ul,ol{list-style:none}img,svg{d
 .ag-send:hover{transform:scale(1.08) rotate(-8deg);box-shadow:var(--sh-2)}
 .ag-send svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2.2}
 .ag-tools{display:flex;gap:var(--s2);margin-top:var(--s3);flex-wrap:wrap}
+.ag-file-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}.ag-file-status{font-size:.76rem;color:var(--ink-2);min-width:0;overflow-wrap:anywhere}.ag-file-note{font-size:.7rem;color:var(--ink-3);margin-top:5px}.ag-file-remove{font-size:.72rem;color:var(--bad);padding:4px 8px;border-radius:8px}.ag-file-remove:hover{background:var(--bg-2)}
 .tool{display:inline-flex;align-items:center;gap:7px;font-size:.775rem;font-weight:620;padding:7px 14px;border-radius:var(--r-full);background:var(--surface);border:1.5px solid var(--line);color:var(--ink-2);transition:all var(--t-fast)}
 .tool svg{width:15px;height:15px;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
 .tool:hover{transform:translateY(-2px);box-shadow:var(--sh-1);color:var(--ink)}
@@ -888,6 +889,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="ag-row">
 <textarea class="ag-ta" id="agIn" rows="1" data-i18n-ph="ag_ph" placeholder="Ask Einstein anything — research, code, math, writing, analysis…"></textarea>
 <button class="ag-send" onclick="Agent.send()" data-i18n-aria="a_send" aria-label="Send"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>
+<div class="ag-file-row"><input id="agFile" type="file" hidden accept=".pdf,.docx,.txt,.md,.markdown,.html,.htm,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,text/html" onchange="Agent.attachFile(this)"><button class="tool" type="button" onclick="Agent.pickFile()">＋ Attach document</button><span class="ag-file-status" id="agFileStatus" aria-live="polite">PDF, DOCX, TXT, Markdown or HTML · up to 15 MB</span><button class="ag-file-remove" id="agFileRemove" type="button" hidden onclick="Agent.removeFile()">Remove</button></div><div class="ag-file-note">Text is extracted in this browser and sent to the AI provider with your prompt. The file is not saved to your Einstein Minds account.</div>
 <div class="ag-tools" id="agTools"></div></div>
 </div></section>
 <!-- EXPLORE -->
@@ -1062,6 +1064,8 @@ html[dir=rtl] .sb.open{transform:none}
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.9.0/mammoth.browser.min.js"></script>
 <script src="translations.js" onerror="console.error('Locale drafts failed to load; the interface will remain in English.')"></script>
 <script>
 'use strict';
@@ -1716,7 +1720,7 @@ const Explore={render(){$('#taxGrid').innerHTML=CATS.map((c,i)=>`<div class="tax
 /* ═══ AGENT ═══ */
 const MODES=['general','research','explain','create','analyze','code','translate','math','write','teach','debate','summarize'];
 const TOOLS=[['tl_web','globe','blue'],['tl_img','image','purple'],['tl_code','code','green'],['tl_doc','file','orange'],['tl_viz','chart','pink'],['tl_voice','volume','teal']];
-const Agent={mode:'general',intent:'hint',tools:new Set(),history:[],historyScope:null,busy:false,
+const Agent={mode:'general',intent:'hint',tools:new Set(),history:[],historyScope:null,busy:false,documentContext:null,documentName:'',
 renderChrome(){$('#agCaps').innerHTML=MODES.map(m=>`<button class="chip ${this.mode===m?'on':''}" onclick="Agent.setMode('${m}')">${T('m_'+m)}</button>`).join('');
 const intents=['hint','alternate','example','check'];
 $('#agTools').innerHTML=intents.map(name=>`<button class="tool intent ${this.intent===name?'on':''}" onclick="Agent.setIntent('${name}',this)">${T('loop_coach_'+name)}</button>`).join('')+
@@ -1730,35 +1734,52 @@ if(this.history.length){for(const m of this.history){const formatted=esc(m.conte
 }else if(!$('#agMsgs').children.length){if(this.history.length){for(const m of this.history){const formatted=esc(m.content).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');this.push('<p>'+formatted+'</p>',m.role==='user')}}else this.welcome()}
 },
 welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>Welcome. I'm Einstein, your AI learning partner.</p><p>Ask me to explain an idea, work through a problem, explore a topic, create something, or challenge your reasoning. I'll remember the conversation while we work.</p><p class="bs muted">AI-generated responses are not a substitute for professional advice. Einstein Minds directory search is available when you ask for learning resources. General web browsing and the other optional tools are not connected yet.</p></div></div>`},
-clear(){if(this.busy)return;this.history=[];if(Auth.signedIn)LS.del('agentHistory');$('#agMsgs').innerHTML='';this.welcome();Toast.show(T('c_clear'),'ok')},
+clear(){if(this.busy)return;this.history=[];this.removeFile();if(Auth.signedIn)LS.del('agentHistory');$('#agMsgs').innerHTML='';this.welcome();Toast.show(T('c_clear'),'ok')},
 setMode(m){this.mode=m;this.renderChrome();Toast.show(T('m_'+m),'ok')},
 setIntent(name,el){this.intent=name;$$('#agTools .intent').forEach(button=>button.classList.toggle('on',button===el))},
 tool(k,el){if(k==='tl_web'){this.tools.has(k)?this.tools.delete(k):this.tools.add(k);el.classList.toggle('on');Toast.show(this.tools.has(k)?'Einstein Minds resource search is enabled for your next question.':'Resource search is off.','ok');return}Toast.show('This tool is not connected yet. Einstein will not pretend to use it.','warn')},
+pickFile(){$('#agFile').click()},
+removeFile(){this.documentContext=null;this.documentName='';$('#agFileStatus').textContent='PDF, DOCX, TXT, Markdown or HTML · up to 15 MB';$('#agFileRemove').hidden=true;$('#agFile').value='';},
+async attachFile(input){
+const file=input.files&&input.files[0];input.value='';if(!file)return;
+if(this.busy){Toast.show('Wait for the current response to finish before changing the attachment.','warn');return}
+if(!Auth.signedIn){Auth.open('in');Toast.show('Sign in before attaching a document.','warn');return}
+if(file.size>15*1024*1024){Toast.show('This file is larger than the 15 MB limit.','warn');return}
+const name=file.name||'document',ext=name.toLowerCase().split('.').pop();$('#agFileStatus').textContent='Extracting '+name+'…';
+try{let extracted='';
+if(ext==='pdf'){if(!window.pdfjsLib)throw new Error('The PDF reader did not load. Refresh the page and try again.');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;if(pdf.numPages>40)throw new Error('This PDF has more than 40 pages. Please split it into smaller files.');const pages=[];for(let n=1;n<=pdf.numPages;n++){const page=await pdf.getPage(n);const content=await page.getTextContent();const line=content.items.map(item=>item.str||'').filter(Boolean).join(' ');pages.push('[Page '+n+']\\n'+line)}extracted=pages.join('\\n\\n');}
+else if(ext==='docx'){if(!window.mammoth)throw new Error('The Word document reader did not load. Refresh the page and try again.');const result=await mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});extracted=result.value||'';}
+else if(['txt','md','markdown'].includes(ext)){extracted=await file.text()}
+else if(['html','htm'].includes(ext)){const raw=await file.text();const parsed=new DOMParser().parseFromString(raw,'text/html');parsed.querySelectorAll('script,style,template,noscript,svg').forEach(node=>node.remove());extracted=parsed.body?parsed.body.innerText||parsed.body.textContent||'':parsed.documentElement.textContent||'';}
+else throw new Error('Unsupported format. Use PDF, DOCX, TXT, Markdown or HTML. Legacy .doc files are not supported yet.');
+extracted=String(extracted).replace(/\\u0000/g,'').trim();if(extracted.length<20)throw new Error('No readable text was extracted. Scanned/image-only PDFs need OCR, which is not available yet.');const truncated=extracted.length>26000;this.documentContext=extracted.slice(0,26000)+(truncated?'\\n\\n[Extract truncated at 26,000 characters.]':'');this.documentName=name;$('#agFileStatus').textContent='Attached: '+name+' · '+Math.min(extracted.length,26000).toLocaleString()+' characters'+(truncated?' · shortened':'');$('#agFileRemove').hidden=false;Toast.show('Document text extracted and ready for Ask Einstein.','ok');
+}catch(error){this.removeFile();Toast.show(error?.message||'Could not read this document.','warn');$('#agFileStatus').textContent='Could not read '+name+'. Choose another file.'}
+},
 fromHome(){const v=$('#homeAsk').value.trim();Nav.go('agent');if(v){$('#agIn').value=v;$('#homeAsk').value='';this.send()}},
 push(html,me){const d=document.createElement('div');d.className='msg'+(me?' me':'');d.innerHTML=`<div class="msg-av">${me?'You':'E'}</div><div class="msg-b">${html}</div>`;$('#agMsgs').appendChild(d);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;return d},
-async send(){const ta=$('#agIn'),q=ta.value.trim();if(!q||this.busy)return;
+async send(){const ta=$('#agIn'),q=ta.value.trim()||(this.documentContext?'Please analyze the attached document and provide a clear, structured summary, key points, and any limitations.':'');if(!q||this.busy)return;
 if(Crisis.check(q)){Crisis.open();ta.value='';return}
 if(!Auth.signedIn){Auth.open('in');Toast.show('Sign in with an adult-only staging account to continue.','warn');return}
 if(Auth.childLocked()){VPC.open();Toast.show(T('vpc_t'),'warn');return}
 if(!Usage.allowed()){this.push(`<p><b>${T('t_limit')}</b></p><p class="bs muted" style="margin-top:8px">${T('pl_pro')} — ${T('us_unlim')}, Code Interpreter, Data Viz, Virtual Labs.</p><div style="margin-top:12px"><button class="btn btn-p btn-sm" onclick="M.open('pricingModal')">${T('us_up')}</button></div>`);return}
 this.busy=true;const sendButton=$('.ag-send');if(sendButton)sendButton.disabled=true;
-this.push(esc(q),true);ta.value='';ta.style.height='auto';
+this.push(esc(q)+(this.documentName?'<p class="bs muted">Attached: '+esc(this.documentName)+'</p>':''),true);ta.value='';ta.style.height='auto';
 const t=document.createElement('div');t.className='msg';t.innerHTML=`<div class="msg-av">E</div><div class="msg-b"><div class="typing"><i></i><i></i><i></i></div><p class="bs muted">Einstein is thinking…</p></div>`;$('#agMsgs').appendChild(t);$('#agMsgs').scrollTop=$('#agMsgs').scrollHeight;
 const prior=this.history.slice(-14);this.history.push({role:'user',content:q});
 try{
-const result=await this.respond(q,prior);t.remove();
+const result=await this.respond(q,prior,this.documentContext,this.documentName);t.remove();
 if(result.success){this.history.push({role:'assistant',content:result.reply});if(Auth.signedIn)LS.set('agentHistory',this.history.slice(-40));Usage.inc();recordEvent('coaching_prompt',{intent:this.intent,mode:this.mode,provider:'groq'});const formatted=esc(result.reply).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');const sourceCards=(result.resources||[]).map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="ag-source-link">${esc(r.title)} ↗</a>`).join('');this.push(`<p>${formatted}</p>${sourceCards?`<div class="ag-sources"><div class="bs muted" style="font-weight:700;margin:12px 0 6px">Einstein Minds resources searched</div><div class="ag-source-list">${sourceCards}</div></div>`:''}<p class="bs muted">${T('ag_live_note')}${result.model?' · '+esc(result.model):''}</p>`);}
 else{this.history.pop();this.push(`<p>${esc(result.error||'Einstein could not complete this response.')}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted. Please try again.</p>`);}
 }catch(error){this.history.pop();t.remove();this.push(`<p>Einstein could not complete this response. ${esc(error?.message||String(error))}</p><p class="bs muted">No scripted answer was substituted. Your prompt was not counted.</p>`);}
 finally{this.busy=false;if(sendButton)sendButton.disabled=false;ta.focus();}
 },
-async respond(q,history=[]){
+async respond(q,history=[],documentContext=null,documentName=''){
 try{
 const {data:{session}}=await supabaseClient.auth.getSession();
 if(!session)return {success:false,error:'Your session has expired. Please sign in again.'};
 const wantsResources=this.mode==='research'||this.tools.has('tl_web')||/\b(find|search|recommend|resources?|courses?|websites?|sources?|providers?|where can i learn)\b/i.test(q);
 const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),45000);
-let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resource_search_requested:wantsResources}),signal:controller.signal});}finally{clearTimeout(timeout);}
+let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resource_search_requested:wantsResources,document_context:documentContext||undefined,document_name:documentName||undefined}),signal:controller.signal});}finally{clearTimeout(timeout);}
 const out=await res.json().catch(()=>({}));
 if(!res.ok||!out?.reply){return {success:false,error:out?.error||`AI service returned HTTP ${res.status}.`};}
 if(out.demo===true||out.provider!=='groq'){return {success:false,error:'The AI provider did not confirm a genuine model response. Please try again later.'};}
