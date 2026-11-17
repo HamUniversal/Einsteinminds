@@ -34,8 +34,8 @@ test('user-facing account role is not taken from editable user metadata', () => 
   const authStart = html.indexOf('const Auth={');
   const authEnd = html.indexOf('const Usage=', authStart);
   const authSource = html.slice(authStart, authEnd);
-  assert.match(authSource, /role:'Parent \/ Educator'/);
-  assert.doesNotMatch(authSource, /role:authUser\.user_metadata/);
+  assert.match(authSource, /role:'Adult account',plan:billing\?'pro':'free',ageBand:'adult'/);
+  assert.doesNotMatch(authSource, /role\s*:\s*(?:authUser|profile)\.user_metadata/);
 });
 
 test('route guard loads before the deferred Auth.init callback can run', () => {
@@ -53,7 +53,7 @@ test('production registration requires adult account-holder confirmation and ver
   assert.match(authSource, /emailRedirectTo:window\.location\.origin\+'\/'/);
   assert.match(authSource, /auth\.signUp\(/);
   assert.match(authSource, /Check your email and confirm your address/);
-  assert.match(authSource, /role:'Parent \/ Educator',plan:billing\?'pro':'free',ageBand:'adult'/);
+  assert.match(authSource, /role:'Adult account',plan:billing\?'pro':'free',ageBand:'adult'/);
 });
 
 test('account recovery supports password reset and update', () => {
