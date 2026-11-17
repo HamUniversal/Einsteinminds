@@ -26,8 +26,8 @@ function mayAppendCampaign(url:URL){
 }
 Deno.serve(async(req:Request)=>{
  const origin=req.headers.get("Origin");
- if(!isAllowedOrigin(origin))return
- if(req.method==="OPTIONS")return new Response("ok",{headers:cors(origin)}); json({error:"Origin not allowed"},403,origin);
+ if(!isAllowedOrigin(origin)) return json({error:"Origin not allowed"},403,origin);
+ if(req.method==="OPTIONS") return new Response("ok",{headers:cors(origin)});
  if(req.method!=="POST")return json({error:"Method not allowed"},405,origin);
  try{
   const body=await req.json(),id=String(body?.resource_id||""),category=String(body?.category_slug||"").slice(0,64),addUtm=body?.add_utm!==false;
