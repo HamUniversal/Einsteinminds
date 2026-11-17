@@ -694,13 +694,21 @@ html[dir=rtl] .sb.open{transform:none}
 </div>
 <div class="mdl-f"><button class="btn btn-o" onclick="M.close('checkoutModal')" data-i18n="c_close">Close</button><button class="btn btn-o" id="coManage" onclick="Plans.cancelSubscription()" style="display:none">Cancel subscription</button><button class="btn btn-p" id="coPay" onclick="Plans.pay()">Continue to PayPal</button></div>
 </div></div>
-<!-- ═══ INSTITUTIONAL REQUEST ═══ -->
-<div class="ov" id="instReqModal"><div class="mdl">
-<div class="mdl-h"><h2 data-i18n="ir_title">Request Institutional Access</h2><button class="mdl-x" onclick="M.close('instReqModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+<!-- ═══ INSTITUTIONAL INTEREST REQUEST ═══ -->
+<div class="ov" id="instReqModal"><div class="mdl" style="max-width:620px">
+<div class="mdl-h"><h2>Institutional interest request</h2><button class="mdl-x" onclick="M.close('instReqModal')" aria-label="Close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
 <div class="mdl-b">
-<p class="bm muted" data-i18n="ir_note">Institutional services and request submission are unavailable in this prototype. No contact information is collected.</p>
+<p class="bm muted" style="margin-bottom:var(--s4)">Institutional products, SSO, LMS connections and district administration are not active yet. This form records your interest; it is not a service order or a promise of availability.</p>
+<div class="fld"><label for="irOrg">Institution name</label><input class="inp" id="irOrg" maxlength="160" required autocomplete="organization"></div>
+<div class="fld"><label for="irEmail">Work email</label><input class="inp" id="irEmail" type="email" maxlength="254" required autocomplete="email"></div>
+<div class="fld"><label for="irRole">Your role</label><input class="inp" id="irRole" maxlength="120" required placeholder="e.g. Principal, IT Director, Program Lead"></div>
+<div class="fld"><label for="irSeats">Approximate number of learners / users</label><select class="inp" id="irSeats"><option value="">Not sure yet</option><option value="25">1–25</option><option value="100">26–100</option><option value="500">101–500</option><option value="1000">501–1,000</option><option value="5000">1,001–5,000</option><option value="10000">5,001–10,000</option><option value="100000">10,001+</option></select></div>
+<div class="fld"><label for="irMessage">What are you looking for?</label><textarea class="inp" id="irMessage" rows="4" maxlength="2000" placeholder="Tell us about your institution and the capabilities you need. Do not include student or other sensitive personal information."></textarea></div>
+<label class="ck-l" style="margin-bottom:var(--s3)"><input id="irConsent" type="checkbox"><span>I agree that Einstein Minds may store this request and contact me about institutional availability.</span></label>
+<p class="cap muted">The request is saved to your signed-in account. Automated email notifications are not configured yet.</p>
+<p id="irResult" class="bs" role="status" aria-live="polite"></p>
 </div>
-<div class="mdl-f"><button class="btn btn-o" onclick="M.close('instReqModal')" data-i18n="c_close">Close</button><button class="btn btn-p" disabled data-i18n="ir_unavailable">Request unavailable</button></div>
+<div class="mdl-f"><button class="btn btn-o" onclick="M.close('instReqModal')">Close</button><button class="btn btn-p" id="irSubmit" onclick="Inst.submitRequest()">Submit interest request</button></div>
 </div></div>
 <!-- ═══ LEGAL MODAL ═══ -->
 <div class="ov" id="legalModal"><div class="mdl" style="max-width:760px">
@@ -1957,25 +1965,52 @@ return {success:true,reply:out.reply,model:out.model||'Groq',resources:resourceS
 }};
 /* ═══ EDUCATOR ═══ */
 const TA_CHIPS=[['ta_ell','ell'],['ta_scaf','scaf'],['ta_adv','adv'],['ta_vis','vis'],['ta_rub','rub'],['ta_ass','ass'],['ta_par','par'],['ta_iep','iep'],['ta_ppt','ppt'],['ta_lab','lab'],['ta_hw','hw'],['ta_pd','pd']];
-const Edu={render(){
-$('#eduCanvas').innerHTML=`    <div class="canvas-h"><div style="flex:1;min-width:220px"><input class="canvas-t" value="Sample lesson: Climate Change"><div class="std">Example standard mapping; not verified</div></div>
-<div style="display:flex;gap:8px"><button class="btn btn-o btn-sm" onclick="Toast.show('Static lesson preview only.','warn')">${T('ed_preview')}</button><button class="btn btn-p btn-sm" onclick="Toast.show('Assignment is unavailable in this prototype.','warn')">${T('ed_assign')}</button></div></div>
-<div class="lsec"><div class="lsec-t">${T('ed_obj')}</div><div class="lsec-b"><ul><li>Explain the greenhouse effect and its role in Earth's climate system.</li><li>Analyse ice-core and satellite data to identify climate trends.</li><li>Evaluate proposed mitigation solutions against evidence.</li></ul></div></div>
-<div class="lsec" style="animation-delay:.08s"><div class="lsec-t">${T('ed_seq')}</div><div class="lsec-b"><p><b>Hook (5 min):</b> Time-lapse satellite imagery of Arctic ice retreat, 1980–2025.</p><p><b>Direct instruction (15 min):</b> Interactive greenhouse simulation; students manipulate CO₂.</p><p><b>Guided practice (15 min):</b> Pairs analyse NOAA ice-core data spanning 800,000 years.</p><p><b>Independent application (10 min):</b> 200-word evidence-based local solution proposal.</p></div></div>
-<div class="lsec" style="animation-delay:.16s"><div class="lsec-t">${T('ed_form')}</div><div class="lsec-b"><p>Exit ticket: "In your own words, explain why increasing CO₂ leads to warming. Use the word <i>infrared</i>."</p></div></div>`;
+const Edu={busy:false,currentOutput:'',render(){
+$('#eduCanvas').innerHTML=`<div class="canvas-h"><div style="flex:1;min-width:220px"><input class="canvas-t" id="eduTitle" maxlength="140" value="New lesson draft"><div class="std">AI-generated draft · adult account required · review before use</div></div><button class="btn btn-p btn-sm" onclick="Edu.newLesson()">Generate lesson</button></div>
+<div class="lsec" id="eduDraft"><div class="lsec-t">Lesson workspace</div><div class="lsec-b"><p class="bm muted">Create a lesson draft with Einstein. You can request objectives, a timed sequence, differentiation, formative checks, materials, homework and source suggestions. Review factual claims and curriculum references before using the draft.</p></div></div>
+<p class="cap muted" style="margin-top:12px">The AI lesson planner is available to signed-in adult accounts. It does not verify educator status, certify curriculum alignment or replace professional review.</p>`;
 $('#taChips').innerHTML=TA_CHIPS.map(([k,a])=>`<button class="dchip" onclick="Edu.act('${a}','${k}')">${T(k)}</button>`).join('');
 renderHandoffs('#eduHandoffs');
-if(!$('#taMsgs').children.length)this.say(`This is a static sample lesson mapped to NGSS.HS-ESS3-5. No AI or verification service is connected; the content has not been reviewed.`)},
-say(html,me){const d=document.createElement('div');d.className='msg'+(me?' me':'');
-d.innerHTML=`<div class="msg-av">${me?'T':'E'}</div><div class="msg-b">${html}</div>`;
-$('#taMsgs').appendChild(d);$('#taMsgs').scrollTop=$('#taMsgs').scrollHeight},
-clear(){$('#taMsgs').innerHTML='';this.render()},
-act(a,k){const detail={ell:'visual vocabulary banks, sentence frames and cognate support',scaf:'three levelled text versions and a graphic organiser',adv:'an open-ended extension task with primary-literature analysis',vis:'labelled diagrams, an infographic sequence and captioned video',rub:'a four-point analytic rubric with observable criteria',ass:'a ten-item formative assessment with answer key and distractor rationale',par:'a bilingual family letter with home support ideas',iep:'accommodation mapping for extended time and alternative response modes',ppt:'a twelve-slide deck with speaker notes and alt-text',lab:'a safe, low-cost hands-on investigation with risk assessment',hw:'a spaced five-day practice set with self-check answers',pd:'a CPD micro-module with reflection prompts'}[a];
-this.say(`Demo preview: <b>${T(k)}</b> selected.<br><br>Example capability: ${detail}. No artifact was generated or checked by a service.`);
-Toast.show(T(k)+' — demo only','warn')},
-send(){const i=$('#taIn'),v=i.value.trim();if(!v)return;this.say(esc(v),true);i.value='';
-setTimeout(()=>this.say('No AI service is connected, so this request was not processed and the sample lesson was not changed.'),300)},
-newLesson(){Toast.show('Lesson creation is unavailable in this prototype.','warn')}};
+if(!$('#taMsgs').children.length)this.say('<p>Ask Einstein to create or adapt a lesson, rubric, assessment, activity, family letter or presentation outline. Outputs are drafts and should be reviewed before use.</p>')},
+say(html,me){const d=document.createElement('div');d.className='msg'+(me?' me':'');d.innerHTML=`<div class="msg-av">${me?'You':'E'}</div><div class="msg-b">${html}</div>`;$('#taMsgs').appendChild(d);$('#taMsgs').scrollTop=$('#taMsgs').scrollHeight;return d},
+async generate(prompt){
+ if(this.busy)return;
+ if(!Gate.require())return;
+ if(!Usage.allowed()){Toast.show('You have reached today’s prompt allowance. Upgrade to Pro to remove the free daily cap.','warn');M.open('pricingModal');return}
+ this.busy=true;const input=$('#taIn');const send=$('.drawer-in button');if(send)send.disabled=true;
+ this.say(esc(prompt),true);
+ const pending=this.say('<div class="typing"><i></i><i></i><i></i></div><p class="bs muted">Einstein is preparing your draft…</p>');
+ const previousMode=Agent.mode,previousIntent=Agent.intent;
+ Agent.mode='teach';Agent.intent='full';
+ try{
+  const result=await Agent.respond(prompt,[]);
+  if(!result.success)throw new Error(result.error||'The AI service could not complete this request.');
+  this.currentOutput=result.reply;
+  pending.querySelector('.msg-b').innerHTML=Agent.renderAssistant({content:result.reply,resources:result.resources||[],resourceSearchUsed:result.resourceSearchUsed===true,resourceSearchStatus:result.resourceSearchStatus||'not_requested',model:result.model||''});
+  const title=$('#eduTitle')?.value.trim()||'AI lesson draft';
+  $('#eduDraft').innerHTML=`<div class="lsec-t">${esc(title)} · AI draft</div><div class="lsec-b">${Agent.renderMarkdown(result.reply)}</div><div style="padding:16px"><button class="btn btn-p btn-sm" onclick="Edu.saveLast()">Save draft to portfolio</button></div>`;
+  Usage.inc();recordEvent('educator_draft_generated',{title:title.slice(0,140),model:result.model||'Groq'});
+ }catch(error){
+  pending.querySelector('.msg-b').innerHTML='<p>'+esc(error.message||String(error))+'</p><p class="cap muted">No sample content was substituted. Please try again when the AI service is available.</p>';
+ }finally{
+  Agent.mode=previousMode;Agent.intent=previousIntent;this.busy=false;if(send)send.disabled=false;if(input)input.focus();
+ }
+},
+act(action,key){
+ const detail={ell:'visual vocabulary banks, sentence frames and multilingual learner supports',scaf:'three differentiated text versions and a graphic organiser',adv:'an open-ended extension task with primary-source analysis',vis:'labelled diagrams, an infographic sequence and accessible captions',rub:'a four-level analytic rubric with observable criteria',ass:'a formative assessment with answer key and distractor explanations',par:'a family letter with practical at-home learning suggestions',iep:'general accessibility accommodations and alternative response options; do not infer a disability or write a formal IEP',ppt:'a slide-by-slide presentation outline with speaker notes and alt-text suggestions',lab:'a low-cost hands-on investigation with a safety review checklist',hw:'a spaced five-day practice set with answer key',pd:'a professional-learning micro-module with reflection prompts'}[action];
+ const title=$('#eduTitle')?.value.trim()||'the current lesson';
+ this.generate('For '+title+', create '+detail+'. Include a clear structure, age/level assumptions, learning objectives, teacher directions, learner tasks, assessment and accessibility notes. Mark assumptions and any unverified standards. Do not invent citations or claim that the draft is certified.');
+},
+send(){const input=$('#taIn'),prompt=input.value.trim();if(!prompt)return;input.value='';this.generate(prompt)},
+newLesson(){const title=$('#eduTitle')?.value.trim()||'New lesson';this.generate('Create a complete, practical lesson plan titled "'+title+'". Include the intended learner level (state assumptions if missing), measurable objectives, prerequisite knowledge, materials, a timed lesson sequence, differentiation, formative assessment, homework or extension, accessibility and safety considerations. Suggest standards only when clearly identified and mark them for human verification. Include source links for factual claims when available; do not invent citations.')},
+saveLast(){
+ if(!this.currentOutput||!Gate.require())return;
+ const title=$('#eduTitle')?.value.trim()||'AI lesson draft';
+ S.portfolio.unshift({id:'lesson-'+Date.now(),t:title,c:'Teaching & Learning',d:new Date().toLocaleDateString(LANG),v:'AI-generated draft · review required',status:'draft',desc:this.currentOutput.slice(0,7000),ic:'book'});
+ S.portfolio=S.portfolio.slice(0,100);persist();Portfolio.render();Toast.show('Lesson draft saved to your portfolio.','ok')
+},
+clear(){this.currentOutput='';$('#taMsgs').innerHTML='';this.render()}
+};
 /* ═══ LEARNING ═══ */
 const Learn={editingId:null,render(){
 $('#goalModalTitle').textContent=this.editingId?T('l_adjust'):T('l_new');
@@ -2207,30 +2242,40 @@ const di=(new Date().getDay()+6)%7;S.week[di]=Math.min(300,S.week[di]+mm);record
 this.pause();this.sec=0;this.tick(false);this.render()},
 saveAgreement(){const n=$('#agName').value.trim()||'Family';S.lim.educational=+$('#agEdu').value;S.lim.recreational=+$('#agRec').value;persist();M.close('mAgree');this.render();Toast.show(T('t_agree')+' · '+n,'ok')}};
 /* ═══ PARENT ═══ */
-const CHILDREN={Maya:{age:8,themes:['Marine Biology','Fractions'],acts:3,saved:2,recs:[['Offline: Build a Coral Reef Model','Example activity; not personalized or reviewed.'],['Interactive: Ocean Ecosystem Simulation','Generated example; provider content has not been checked.'],['Reading: Ocean-themed story','Example recommendation; check suitability independently.']],note:'Sample text only; no learner wellbeing assessment or activity monitoring.'},
-Leo:{age:5,themes:['Space','Counting to 100'],acts:5,saved:1,recs:[['Offline: Cardboard Rocket Ship','Example activity; not personalized or reviewed.'],['Interactive: Counting Stars Game','Generated example; provider content has not been checked.'],['Reading: Space-themed story','Example recommendation; check suitability independently.']],note:'Sample text only; no learner wellbeing assessment or activity monitoring.'}};
-const Parent={render(){renderHandoffs('#parentHandoffs');$('#childSeg').innerHTML=Object.keys(CHILDREN).map(n=>`<button class="${S.child===n?'on':''}" onclick="Parent.pick('${n}')">${n} (${CHILDREN[n].age})</button>`).join('');
-const c=CHILDREN[S.child];
-$('#parentGrid').innerHTML=`<div class="card"><div class="sec-h" style="margin-bottom:16px"><h3 class="h4">${T('pa_exp')}</h3><span class="tag">Sample week</span></div>
-<p class="bm" style="margin-bottom:20px">${S.child} explored <b>${c.themes[0]}</b> and practised <b>${c.themes[1]}</b>. Completed ${c.acts} activities and saved ${c.saved} resources.</p>
-<button class="btn btn-s btn-sm" onclick="Toast.show('${T('pa_disc')}','warn')">${T('pa_disc')} →</button></div>
-<div class="card"><div class="sec-h" style="margin-bottom:16px"><h3 class="h4">${T('pa_bal')}</h3><span class="tag v">${T('pa_healthy')}</span></div>
-<div style="display:flex;gap:28px;margin-bottom:20px">${[['1.5h','st_edu'],['30m','st_cre'],['45m','st_rec']].map(([v,k])=>`<div style="text-align:center"><div class="h2">${v}</div><div class="cap muted">${T(k)}</div></div>`).join('')}</div>
-<button class="btn btn-s btn-sm" onclick="M.open('mAgree')">${T('pa_upd')}</button></div>
-<div class="card"><h3 class="h4" style="margin-bottom:16px">${T('pa_act')}</h3>
-<div style="display:flex;flex-direction:column;gap:12px">${c.recs.map(([t,d])=>`<div style="padding:14px;background:var(--bg-2);border-radius:14px"><b class="bs">${esc(t)}</b><p class="cap muted" style="margin-top:3px">${esc(d)}</p></div>`).join('')}</div></div>
-<div class="card"><h3 class="h4" style="margin-bottom:12px">${T('pa_well')}</h3><p class="bs muted" style="margin-bottom:16px">${c.note}</p><button class="btn btn-o btn-sm" onclick="Nav.go('wellbeing')">${T('pa_view')}</button></div>`},
-pick(n){S.child=n;this.render();Toast.show(n,'ok')}};
+const Parent={render(){
+ renderHandoffs('#parentHandoffs');
+ const total=Math.floor(Object.values(S.st).reduce((sum,value)=>sum+(Number(value)||0),0)/60);
+ const goalItems=S.goals.slice(0,3).map(goal=>'<li>'+esc(goal.n)+'</li>').join('');
+ $('#childSeg').innerHTML='<p class="bs muted">Child profiles are not enabled. No child activity is monitored or displayed.</p>';
+ $('#parentGrid').innerHTML=`
+ <div class="card"><div class="sec-h" style="margin-bottom:12px"><h3 class="h4">Child account access</h3><span class="tag">Locked</span></div><p class="bm muted" style="margin-bottom:16px">Einstein Minds currently supports adult accounts only. A verified parental-consent provider is not connected, so child accounts and child AI access remain disabled.</p><button class="btn btn-o btn-sm" onclick="VPC.open()">View child-access status</button></div>
+ <div class="card"><div class="sec-h" style="margin-bottom:12px"><h3 class="h4">Your screen-time tracker</h3><span class="tag">Account activity</span></div><div class="h2" style="margin-bottom:8px">${total} min</div><p class="bs muted" style="margin-bottom:16px">Time recorded by the timer on this account. This is not device-wide monitoring and does not track children or other apps.</p><button class="btn btn-p btn-sm" onclick="Nav.go('screentime')">Open screen-time tracker</button></div>
+ <div class="card"><h3 class="h4" style="margin-bottom:12px">Learning goals</h3><p class="bs muted" style="margin-bottom:12px">${S.goals.length} saved goal(s) on this adult account.</p>${goalItems?'<ul class="bs" style="padding-left:18px;list-style:disc;margin-bottom:14px">'+goalItems+'</ul>':'<p class="bs muted" style="margin-bottom:14px">No learning goals have been created yet.</p>'}<button class="btn btn-o btn-sm" onclick="Nav.go('mylearning')">Manage learning goals</button></div>
+ <div class="card"><h3 class="h4" style="margin-bottom:12px">Family learning agreement</h3><p class="bs muted" style="margin-bottom:16px">Create a household screen-time plan for your own use. It does not apply device controls or monitor a child’s device.</p><button class="btn btn-o btn-sm" onclick="M.open('mAgree')">Edit agreement</button></div>`;
+}};
 /* ═══ INSTITUTIONS ═══ */
-const INST=[['i_sch','i_schd','landmark',[['UI preview','only'],['Service','unavailable']]],['i_uni','i_unid','cap',[['UI preview','only'],['Service','unavailable']]],['i_dis','i_disd','build',[['UI preview','only'],['Service','unavailable']]],['i_gov','i_govd','globe',[['UI preview','only'],['Service','unavailable']]],['i_ngo','i_ngod','heart',[['UI preview','only'],['Service','unavailable']]],['i_api','i_apid','code',[['UI preview','only'],['Service','unavailable']]]];
-const Inst={render(){$('#instGrid').innerHTML=INST.map(([k,d,ic,st],i)=>`<div class="inst" style="--i:${i}" onclick="Inst.open(${i})">
-<div class="inst-ic">${svg(ic)}</div><h3>${T(k)}</h3><p>${T(d)}</p>
-<div class="inst-s">${st.map(([v,l])=>`<div><div class="inst-sv">${v}</div><div class="inst-sl">${l}</div></div>`).join('')}</div></div>`).join('')},
-open(i){const[k,d,ic,st]=INST[i];$('#instTitle').textContent=T(k);
-$('#instBody').innerHTML=`<p class="bm" style="margin-bottom:20px">${T(d)}</p>
-<div class="grid" style="grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px">${st.map(([v,l])=>`<div style="padding:18px;background:var(--bg-2);border-radius:14px;text-align:center"><div class="h2">${v}</div><div class="cap muted">${l}</div></div>`).join('')}</div>
-<div style="padding:16px;background:var(--bg-2);border-radius:14px" class="bs muted">Illustrative interface only. No institutional service, integration, or compliance capability is available.</div>`;
-M.open('mInst')}};
+const INST=[['i_sch','i_schd','landmark'],['i_uni','i_unid','cap'],['i_dis','i_disd','build'],['i_gov','i_govd','globe'],['i_ngo','i_ngod','heart'],['i_api','i_apid','code']];
+const Inst={
+ render(){
+  $('#instGrid').innerHTML=INST.map(([k,d,ic],i)=>`<div class="inst" style="--i:${i}" onclick="Inst.open(${i})"><div class="inst-ic">${svg(ic)}</div><h3>${T(k)}</h3><p>${T(d)}</p><div class="inst-s"><div><div class="inst-sv">Interest form</div><div class="inst-sl">Available</div></div><div><div class="inst-sv">Integration</div><div class="inst-sl">Not active yet</div></div></div></div>`).join('')
+ },
+ open(i){if(!Gate.require())return;M.open('instReqModal')},
+ async submitRequest(){
+  if(!Gate.require())return;
+  const org=$('#irOrg')?.value.trim()||'',email=$('#irEmail')?.value.trim()||'',role=$('#irRole')?.value.trim()||'',seats=$('#irSeats')?.value||'',message=$('#irMessage')?.value.trim()||'';
+  if(org.length<2||!/^\S+@\S+\.\S+$/.test(email)||role.length<2){Toast.show('Complete the institution, work email and role fields.','warn');return}
+  if(!$('#irConsent')?.checked){Toast.show('Please consent to being contacted about this request.','warn');return}
+  const button=$('#irSubmit');if(button){button.disabled=true;button.textContent='Submitting…'}
+  try{
+   const {data,error}=await supabaseClient.from('institutional_access_requests').insert({user_id:Auth.user.id,organization_name:org,contact_email:email,contact_role:role,estimated_seats:seats?Number(seats):null,message,consent_to_contact:true}).select('id,status,created_at').single();
+   if(error)throw error;
+   $('#irResult').textContent='Your interest request was saved to your Einstein Minds account. No automatic confirmation email is sent yet.';
+   $('#irOrg').value='';$('#irRole').value='';$('#irSeats').value='';$('#irMessage').value='';$('#irConsent').checked=false;
+   Toast.show('Institutional interest request recorded.','ok');
+  }catch(error){Toast.show('The request could not be saved: '+(error?.message||String(error)),'bad')}
+  finally{if(button){button.disabled=false;button.textContent='Submit interest request'}}
+ }
+};
 /* ═══ SETTINGS ═══ */
 const Settings={init(){
 $('#langList').innerHTML=LANGS.map(l=>{const ready=localeReady(l.c),draft=l.c!=='en'&&ready;
