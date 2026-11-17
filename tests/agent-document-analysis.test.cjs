@@ -27,7 +27,10 @@ test('supported document formats are extracted in the browser, not uploaded as f
   assert.match(html, /mammoth\.extractRawText/);
   assert.match(html, /new DOMParser\(\)/);
   assert.match(html, /document_context:documentContext/);
-  assert.doesNotMatch(html, /supabaseClient\.storage\.from\([^)]*\)\.upload/);
+  const start = html.indexOf('async attachFile(input)');
+  const end = html.indexOf('fromHome()', start);
+  assert.ok(start >= 0 && end > start);
+  assert.doesNotMatch(html.slice(start, end), /\\.upload\\(/);
 });
 
 test('document text is not persisted in conversation history', () => {
