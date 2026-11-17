@@ -1,126 +1,99 @@
-# Einsteinminds — GitHub + Supabase + Hostinger
+# Einstein Minds
 
-**Reinventing Education for the Future**
+Einstein Minds is deployed as a **static web application on Hostinger**. GitHub is the application source of truth; Supabase provides authentication, the resource catalogue, private account workspaces, AI Edge Functions and PayPal subscription handling.
 
-This project uses GitHub as the source repository, Supabase for authentication and the live resource catalogue, and Hostinger for `einsteinminds.com` hosting. There is no Netlify deployment path.
+- Production URL: https://einsteinminds.com
+- Supabase project: `fxxjainrhtdezyzbqynn`
+- Frontend deployment: Hostinger `public_html`
+- No Node.js runtime, build command or Hostinger environment variables are required for the static frontend.
 
-## Architecture
+## Deploy the Hostinger package
 
-- **GitHub:** canonical application source and review history.
-- **Supabase:** project `fxxjainrhtdezyzbqynn` (`Einsteinminds`, `us-west-2`); Auth, 24 knowledge domains, resource records, search, provider metadata and controlled outbound links.
-- **Hostinger:** production hosting for `einsteinminds.com`; connect the repository using Hostinger's native GitHub integration from hPanel.
-- **GitHub Actions:** validates syntax, tests and release contents. It does not deploy production.
+1. Back up the current contents of Hostinger `public_html`.
+2. Upload the release ZIP.
+3. Extract it directly into `public_html`.
+4. Confirm that `index.html`, `.htaccess` and `assets/` are directly inside `public_html`.
+5. Open https://einsteinminds.com and hard-refresh the page.
 
-## Live catalogue facts — checked 15 November 2026
+The `.htaccess` file provides SPA fallback for the Supabase auth callback path, disables directory listings, prevents stale HTML caching and applies security headers. Static assets are cached for one hour.
 
-| Measure | Supabase value |
-|---|---:|
-| Knowledge domains | 24 |
-| Published provider listings | 227 |
-| Category assignments | 231 |
-| Source/provenance records | 229 |
-| Verification-evidence records | 0 |
-| Resources with learning-stage assignment | 0 |
-| Editorially reviewed resources | 0 |
+## Supabase services
 
-The interface must not call the current directory "verified", "top-ranked", "approved" or "recommended". Listings are labelled as not independently reviewed unless later evidence records support a stronger status.
+Active Edge Functions (verified 2026-11-17):
 
-The previous appended v9 patches generated a synthetic 2.4-million-resource catalogue, fabricated titles and ratings, and Google search destinations. The update removes that generator and returns the displayed catalogue total to the actual Supabase count.
-
-## Learning-level filter
-
-The interface supports:
-
-1. Pre-K / Early Years
-2. Kindergarten
-3. Elementary / Primary
-4. Middle School
-5. High School / Upper Secondary
-6. Vocational / Technical
-7. Undergraduate
-8. Graduate / Postgraduate
-9. Doctoral / Research
-10. Professional / Continuing
-11. Entrepreneur / Founder
-12. Lifelong Learning
-
-The Supabase `learning_stages` field currently has no reviewed mappings. Therefore, specific stage filters correctly return no results until provider-specific evidence is reviewed and stored. The interface does not infer learner age suitability from a provider name, topic, or marketing claim. "All learning levels" and "Not yet classified" remain available.
-
-## Existing Supabase functions
-
-The live Supabase project already contains these active Edge Functions:
-
-| Function | Version | Role |
+| Function | Version | JWT |
 |---|---:|---|
-| `agent` | 10 | Authenticated learning assistant; reports a scripted fallback when no model is configured |
-| `resource-search` | 3 | Public published-resource search, category counts and stage filters |
-| `resource-outbound` | 2 | Resolves a catalogue UUID, validates its stored HTTPS host, records a minimal click event and applies safe UTM tags |
-| `provider-introduction` | 1 | Retrieves and caches metadata from the provider's official page |
+| `agent` | 27 | Required |
+| `resource-search` | 17 | Not required; public catalogue search only |
+| `resource-outbound` | 14 | Required |
+| `provider-introduction` | 13 | Required |
+| `paypal-subscriptions` | 9 | Required |
+| `paypal-webhook` | 9 | Not required; PayPal signature verification is required |
 
-The update calls these functions; it does not redeploy or replace them and does not require a database migration. The deployed function source and the four existing migration files still need to be exported into GitHub before GitHub can become the complete reproducible source of truth for the backend. See `supabase/README.md`.
+The project contains 24 active resource categories, 227 published provider records, 231 category mappings and 229 source records. The verification-evidence table currently contains **zero records**; directory entries are not independently reviewed or endorsed.
 
-## Apply the code update
+The database includes adult account profiles, private PayPal subscription records, a private webhook idempotency ledger, the account-owned `user_workspaces` table and the account-owned `institutional_access_requests` table. Row-level security is enabled on all public tables. Workspace and institutional request policies use `auth.uid()` and restrict records to the signed-in owner.
 
-1. Create a new branch in `HamUniversal/Einsteinminds` from the current `main` branch. Do not edit production `main` directly.
-2. Extract this update bundle into the repository root, preserving the folder structure.
-3. Run the updater from the repository root:
+The `paypal_webhook_events` table intentionally has RLS enabled with no client policies and no client grants; only the server-side service role can write/read the webhook ledger.
 
-   ```bash
-   node scripts/apply-update.mjs
-   ```
+## Supabase secrets (server-side only)
 
-   It removes the appended legacy v9.0/v9.2 patch blocks, inserts the new UI scripts and stylesheet into `index.html`, replaces the old Netlify-oriented `README.md`, removes stale Netlify deployment files and the malformed nested workflow, and updates the `SECURITY.md` deployment reference if present.
+Configure these under Supabase Edge Function secrets. **Never paste them into this repository, the browser, or Hostinger.**
 
-4. Run the checks:
+AI:
+- `GROQ_API_KEY` (or `LLM_API_KEY`)
+- Optional `LLM_BASE_URL` for an OpenAI-compatible HTTPS endpoint
 
-   ```bash
-   node --check assets/resource-network-core.js
-   node --check assets/einsteinminds-resource-network.js
-   node --test tests/*.test.cjs
-   node scripts/validate-release.mjs
-   ```
+PayPal:
+- `PAYPAL_CLIENT_ID`
+- `PAYPAL_CLIENT_SECRET`
+- `PAYPAL_PLAN_MONTHLY_ID`
+- `PAYPAL_PLAN_YEARLY_ID`
+- `PAYPAL_WEBHOOK_ID`
+- `PAYPAL_MODE` = `live` or `sandbox`
+- `APP_URL` = `https://einsteinminds.com`
 
-5. Review the complete Git diff and open a pull request. Merge only after the preview/build and the live Supabase requests have been checked.
+Supabase provides `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` to Edge Functions. Do not place the service-role key in the frontend.
 
-## Connect Hostinger to GitHub
+The app now checks AI provider connectivity after sign-in. PayPal checkout runs a server-side preflight that checks credentials, the active $8/month and $60/year plans, and the webhook URL/event subscriptions before enabling checkout. This validates configuration; it does not replace a real PayPal sandbox/live purchase test.
 
-For a custom HTML website on an eligible Hostinger Web or Cloud hosting plan:
+## Supabase Auth settings
 
-1. Open Hostinger hPanel → **Websites** → `einsteinminds.com` → **Manage site**.
-2. Open **Advanced → Git**.
-3. Choose **Connect with GitHub** and authorize Hostinger for `HamUniversal/Einsteinminds`.
-4. Select the reviewed deployment branch (normally `main` after the pull request is merged).
-5. Set the deployment root to the repository root containing `index.html`, `assets/`, and `.htaccess`.
-6. Confirm the target website and deployment directory. Back up the existing website files first; changing the connected repository can overwrite files in the target directory.
-7. For the first release, keep automatic deployment paused. After the GitHub validation workflow passes and the pull request is merged, use Hostinger's **Redeploy** action and confirm the deployment history shows the intended commit.
-8. Enable automatic deployment only after `main` is protected by pull-request review and required passing GitHub checks; otherwise Hostinger may deploy a push before the validation workflow finishes.
+- Site URL: `https://einsteinminds.com`
+- Redirect allow-list: `https://einsteinminds.com/**`
+- Add `https://www.einsteinminds.com/**` only if the www host is used.
+- For temporary Hostinger testing, add `https://darkturquoise-magpie-142020.hostingersite.com/**`.
+- For local testing, add the exact localhost origin used by the local server.
 
-Hostinger supports this Git integration for custom PHP/HTML websites on eligible Web and Cloud hosting plans. Node.js websites use a separate GitHub deployment flow. Hostinger AI Builder websites do not support this integration. Check the website type shown in hPanel before connecting. Official instructions: [Deploy a website from GitHub in Hostinger](https://www.hostinger.com/support/1583302-how-to-deploy-a-git-repository-in-hostinger/).
+The app sends confirmation and recovery redirects to the current site root. Configure a production SMTP provider in Supabase Auth so confirmation and recovery emails can be delivered reliably.
 
-**Production safety:** do not connect Hostinger to the update branch while it is still under review unless that branch is deliberately being used as a staging website/root. The production website should follow the approved branch only.
+## Live features and current limits
 
-## Browser-side Supabase configuration
+Live:
+- Supabase adult-account signup, sign-in, password recovery and protected routes.
+- Resource directory search against the Supabase catalogue.
+- Safe outbound provider links through the outbound Edge Function.
+- AI Ask Einstein and AI lesson drafting, subject to the AI provider health check.
+- Account workspace sync for saved providers, goals, portfolio, assessment history, screen-time totals, preferences and learning events when cloud sync is enabled.
+- PayPal subscription create/cancel/return synchronization when preflight passes.
+- Institutional interest requests stored privately in Supabase.
 
-The existing browser application uses the Supabase project URL and a publishable key. A publishable key is intended for browser use. Never put a Supabase secret key or `service_role` key in `index.html`, static JavaScript, GitHub, or Hostinger public files.
+Not currently offered:
+- Child accounts, child AI access or parental-consent verification.
+- Educator identity verification or educator-only subscription benefits.
+- Institutional accounts, SSO, LMS integrations, district administration or a signed DPA.
+- Voice, image generation, document tools, code execution and virtual laboratories.
+- Email notifications for institutional interest requests.
+- Self-service account deletion.
 
-The interface calls:
+Journal and mood entries remain in this browser and are not included in cloud workspace sync. The screen-time tracker records only activity within Einstein Minds; it does not monitor the device or other apps.
 
-- `/functions/v1/resource-search`
-- `/functions/v1/resource-outbound`
-- `/functions/v1/provider-introduction`
+## Security follow-up before public launch
 
-No new Hostinger environment variable is required for this static frontend. Server-side Edge Functions continue to read their secrets from Supabase-managed function secrets.
+The Supabase security advisor currently reports **leaked-password protection disabled**. Enable it in Supabase Authentication password settings. The project also has one INFO finding for the intentionally private `paypal_webhook_events` table and unused-index INFO findings; do not add client policies to the webhook ledger merely to silence the advisor.
 
-## Rollback
+There is currently one Auth user/profile, zero workspace rows, zero institutional requests, zero PayPal subscription rows and zero webhook events. No successful payment has yet been recorded in this project.
 
-Keep a backup of the current Hostinger files before the first deployment. For rollback, redeploy the last known-good commit in Hostinger's Git deployment history, or revert the GitHub commit and redeploy the selected branch. The update does not change Supabase tables or data, so UI rollback does not require a database rollback.
+## Migration-source note
 
-## Safeguards
-
-- External providers open in a new tab only after an explicit confirmation.
-- The browser passes a catalogue resource UUID, never an arbitrary URL, to the outbound gateway.
-- The gateway resolves the destination from the stored record and checks the stored official host.
-- UTM parameters contain no learner name, email, private search phrase or other personal learner data.
-- Provider-page metadata is labelled as metadata supplied by the provider, not as Einsteinminds editorial review.
-- Learning-stage mappings are not guessed.
-- No synthetic catalogue entries, ratings, reviews or resource counts are generated.
+The remote project has eight applied migration entries. The repository contains the Auth, PayPal and workspace/request migration files. The original four resource-network migration SQL files are not currently present in this branch, so this repository is not yet a fully reproducible bootstrap for a brand-new Supabase project. Do not run it against a blank project expecting it to recreate the existing resource catalogue schema until those original migration files are recovered.
