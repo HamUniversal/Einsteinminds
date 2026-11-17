@@ -543,7 +543,7 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .price-card{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-lg);padding:var(--s6);display:flex;flex-direction:column;transition:all var(--t);position:relative}
 .price-card:hover{transform:translateY(-6px);box-shadow:var(--sh-3)}
 .price-card.featured{border-color:var(--accent);box-shadow:var(--sh-2)}
-.price-card.featured::before{content:'Plan preview';position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-size:.6rem;font-weight:800;letter-spacing:normal;padding:4px 14px;border-radius:var(--r-full)}
+.price-card.featured::before{content:'Pro';position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-size:.6rem;font-weight:800;letter-spacing:normal;padding:4px 14px;border-radius:var(--r-full)}
 .price-tier{font-size:.8rem;font-weight:680;text-transform:none;letter-spacing:normal;color:var(--ink-3);margin-bottom:var(--s3)}
 .price-amt{font-size:2.4rem;font-weight:800;letter-spacing:-.03em;line-height:1}
 .price-amt span{font-size:.9rem;font-weight:600;color:var(--ink-2)}
@@ -713,7 +713,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="crisis-c">
 <div class="crisis-ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></div>
 <h2 data-i18n="cr_title">Your Safety Matters</h2>
-<p data-i18n="cr_desc">This prototype cannot assess your situation or provide emergency support. Please reach out to a trusted adult or local emergency/support service directly.</p>
+<p data-i18n="cr_desc">Einstein Minds does not assess emergencies or provide crisis support. Please contact a trusted person or local emergency/support service directly.</p>
 <div class="crisis-a">
 <a class="btn btn-p btn-lg" href="tel:988"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span data-i18n="cr_call">Call or text 988 (U.S. only)</span></a>
 <button class="btn btn-s btn-lg" onclick="Crisis.close()" data-i18n="cr_safe">I'm safe, return to learning</button>
@@ -843,7 +843,7 @@ html[dir=rtl] .sb.open{transform:none}
 <span class="srch-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
 <input type="search" id="gSearch" data-i18n-ph="c_searchph" placeholder="Search education providers…" autocomplete="off"><span class="srch-kbd">⌘K</span></div>
 <div class="hdr-act">
-<button class="ib" onclick="M.open('pricingModal')" data-i18n-title="a_plan" data-i18n-aria="a_plan" title="Plan preview" aria-label="Plan preview"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+<button class="ib" onclick="M.open('pricingModal')" data-i18n-title="a_plan" data-i18n-aria="a_plan" title="Plans and billing" aria-label="Plans and billing"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
 <button class="ib" id="themeBtn" onclick="Theme.cycle()" data-i18n-aria="a_theme" aria-label="Toggle theme"><svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
 <div style="position:relative">
 <button class="ib" id="langBtn" data-i18n-aria="a_language" aria-label="Language"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button>
@@ -1010,7 +1010,7 @@ html[dir=rtl] .sb.open{transform:none}
 <section class="view" id="v-institutions">
 <div class="sec-h"><div class="sec-h-l"><h1 class="h1" data-i18n="n_inst">Institutional Dashboard</h1><span class="bm muted" data-i18n="i_sub">Enterprise-grade tools for schools, universities, districts and ministries.</span></div>
 <button class="btn btn-p" onclick="M.open('instReqModal')"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span data-i18n="i_request">Request Access</span></button></div>
-<div class="card" role="note" style="margin-bottom:var(--s5);border:1px solid var(--warn)" data-i18n="i_demo_note">Institution cards below are illustrative UI only. No organizations, users, integrations, or service metrics are connected.</div>
+<div class="card" role="note" style="margin-bottom:var(--s5);border:1px solid var(--warn)" data-i18n="i_demo_note">Institutional integrations are not active. These cards explain future areas; submit an interest request to register your needs.</div>
 <div class="grid g-res stagger" id="instGrid"></div>
 </section>
 <!-- SETTINGS -->
@@ -1204,11 +1204,11 @@ e_sub:"Browse education-provider categories and select a learning domain.",
 i_sub:"Static examples for education institutions; no institutional service is connected.",
 i_apid:"Institutional API and SSO integrations are not active yet.",
 s_lang_d:"AI-generated translations are available as drafts and have not been reviewed by fluent speakers.",
-s_remind:"Learning reminder preference (demo)",
+s_remind:"Learning reminder preference (not active)",
 s_remind_d:"This preference is stored locally; no reminders are sent.",
-s_reco:"Sample recommendations (demo)",
-s_reco_d:"Home recommendations are static sample content and are not personalized.",
-ob_s2:"Choose sample interests for this demo; they do not personalize recommendations.",
+s_reco:"Live provider directory suggestions",
+s_reco_d:"Show current provider listings from the live directory. These are not ranked or personally endorsed.",
+ob_s2:"Choose topics you are curious about. You can change your learning goals at any time; this is not a test score.",
 au_signin:"Sign in",
 au_signup:"Create account",
 us_in:"Sign in / Create account",
@@ -1219,15 +1219,15 @@ ag_w2:"Ask questions, explore ideas, solve problems and build understanding thro
 ag_w3:"Einstein does not claim to browse the open web or use tools unless those services are actually connected and used.",
 ag_demo:"AI-generated response. Verify important claims against reliable sources.",
 vpc_d2:"Child accounts are currently disabled. Einstein Minds has not connected a verified parental-consent provider, so no child profile or child AI access can be created.",
-vpc_card_d:"Demo option only. No card is requested or checked.",
-vpc_form_d:"Not connected in this prototype.",
-vpc_school_d:"Not connected in this prototype.",
+vpc_card_d:"No payment-card or parental-consent verification is available.",
+vpc_form_d:"Not connected. Child access remains disabled.",
+vpc_school_d:"Not connected. Child access remains disabled.",
 vpc_unavailable:"Verification unavailable",
 vpc_unavailable_d:"No parental-consent provider is connected. This account remains locked; no consent has been collected or verified.",
 co_note:"PayPal handles secure checkout. Payment details are entered on PayPal, not on Einstein Minds. Subscription access is updated after the billing service verifies the subscription.",
 co_unavailable:"Continue to PayPal",
-ir_note:"This request form is a demo. No request is sent or retained by a service.",
-auth_demo_note:"Your account is authenticated by Supabase. Account profile information is associated with your signed-in account.",
+ir_note:"Institutional interest requests are stored in your signed-in account. No automated confirmation email is sent yet.",
+auth_demo_note:"Your adult account is authenticated by Supabase. Selected learning data syncs to your account when cloud sync is enabled.",
 f_trust:"Listing type",f_all:"All domains",f_verified:"Directory listing",
 ob_e2:"Einstein Minds provides a directory of external education providers; listings are not independently reviewed. Ask Einstein availability depends on the configured AI service. Verify important information with original sources.",
 pl_free_d:"Browse the Einstein Minds education-provider directory. Listings are external and are not independently reviewed.",
@@ -1237,17 +1237,17 @@ pl_edu_d:"Educator verification and educator services are not yet available.",
 pl_inst_d:"Institutional services, integrations and district administration are not yet available.",
 pl_pro_f1:"Ask Einstein AI (requires active AI service)",pl_pro_f2:"Additional tools are not yet connected",
 pl_pro_f3:"No virtual labs are connected",pl_pro_f4:"No verified credentials are issued",
-pl_edu_f1:"Static Teaching Studio preview",pl_edu_f2:"Example content only",
+pl_edu_f1:"Educator verification not available",pl_edu_f2:"AI lesson planner available to adult accounts",
 pl_edu_f3:"No educator verification or service",pl_inst_f1:"No institutional accounts",
 pl_inst_f2:"No SSO or LMS integrations",pl_inst_f3:"No compliance coverage",
-pl_inst_f4:"No district analytics",vpc_t:"Parental Consent Preview",
+pl_inst_f4:"No district administration",vpc_t:"Child accounts are disabled",
 pl_title:"Choose Your Plan",pl_up:"Upgrade to Pro",
 au_signin:"Sign in",au_signup:"Create account",
 us_in:"Sign in / Create account",t_voice:"Voice output is not available yet.",
 ob_g2:"Einstein Minds does not monitor emergencies or provide professional crisis support. Contact a trusted person or local emergency/support service directly if you need help.",
 s_priv:"Account privacy and data controls",s_pers:"Use saved learning goals for AI context",
 s_pers_d:"This preference is stored in this browser; no AI service is connected.",
-s_share:"Institution sharing preference (demo)",
+s_share:"Institution data sharing (not connected)",
 s_share_d:"This preference is stored locally; no data is shared with an institution.",
 ag_online:"AI response service · availability checked per request",
 h_sub:"Explore learning across every domain. Ask Einstein is available to signed-in users when the AI provider is configured.",
@@ -1258,9 +1258,9 @@ c_open:"Visit provider",
 c_ress:"provider listings",
 ag_ph:"Ask Einstein anything. Your conversation context is remembered… ",
 e_plats_d:"External links; provider names and descriptions are shown as supplied. Content and suitability have not been independently reviewed.",
-p_sub:"Sample portfolio items; no educator verification or credentials are provided.",
-ed_sub:"Static lesson-plan preview; no AI co-pilot is connected.",
-pa_sub:"Sample child profiles and recommendations; no real learner data is connected.",
+p_sub:"Your saved learning work and AI lesson drafts. No credential or educator verification is implied.",
+ed_sub:"Create and adapt lesson drafts with Einstein. Review standards, facts and activities before use.",
+pa_sub:"Adult family-planning tools. Child accounts and child activity monitoring are disabled.",
 pa_demo_note:"Child accounts are disabled. This page shows only the signed-in adult account's own tools; it does not monitor a child's device or wellbeing.",
 pa_healthy:"Adult account tools",
 pa_disc:"Guide unavailable",
@@ -1268,9 +1268,9 @@ pl_free_t:"Free",
 pl_cur:"Current plan",
 pl_verify:"Educator verification unavailable",
 pl_req:"Institutional request unavailable",
-pl_pro_f5:"Sample parent-dashboard UI",
+pl_pro_f5:"Adult family-planning tools; no child profiles",
 i_request:"Availability notice",
-i_demo_note:"Institution cards below are illustrative UI only. No organizations, users, integrations, or service metrics are connected.",
+i_demo_note:"Institutional integrations are not active. These cards explain future areas; submit an interest request to register your needs.",
 i_sub:"Static examples for education institutions; no institutional service is connected.",
 i_schd:"Example school-administration screen only; no service or data is connected.",
 i_unid:"Example university-services screen only; no service or data is connected.",
@@ -1285,21 +1285,21 @@ ed_assign:"Assignment unavailable",
 cr_call:"Call or text 988 (U.S. only)",
 cr_desc:"Einstein Minds does not assess emergencies or provide crisis support. Please contact a trusted person or local emergency/support service directly.",
 pl_free_f2:"20 prompts/day (browser counter)",
-pl_pro_t:"Pro",pl_edu_t:"Educator (preview)",pl_inst_t:"Institutional (preview)",
+pl_pro_t:"Pro",pl_edu_t:"Educator (not available)",pl_inst_t:"Institutional (interest only)",
 pl_year:"Yearly · save 37%",pl_month:"Monthly",
 pl_robin_t:"Equity model (concept only)",
-pl_robin_d:"The Robin Hood Clause is a concept in this demo; no licenses or funding are operational.",
-a_none_d:"No educator assignments are connected. Try a local sample practice set instead.",
+pl_robin_d:"Planned equity initiative. This program is not active and no institutional licenses have been sold or donated through it yet.",
+a_none_d:"No assignments are saved yet. Create an AI lesson draft in Educator Studio.",
 p_sub:"Your local projects and descriptions. Items are self-submitted and not independently verified.",
 loop_available:"Weekly study time (minutes)",loop_sessions:"Study sessions per week",loop_evidence:"Practice evidence",
 loop_schedule:"{minutes} min/week · {sessions} sessions · about {session} min/session",loop_questions:"questions",loop_correct:"correct",
 loop_progress:"{value}% plan progress",
 loop_baseline:"Starting point",loop_any_goal:"Any topic",loop_answer_all:"Answer every question before submitting.",
-loop_score_note:"This score covers only these sample questions. It is not a mastery measure.",
+loop_score_note:"This score covers only the questions in this practice set. It is not a mastery measure.",
 loop_guest_notice:"This result is temporary and will be lost when this browser session ends. Sign in to save it to an account.",
 loop_coach_hint_d:"Try restating the task in your own words, then identify the first small step you can justify.",
 loop_coach_alternate_d:"Split the task into smaller parts. Write down what you know and what you still need to find out.",
-loop_coach_example_d:"Choose one related example from the sample library and compare its steps with your task.",
+loop_coach_example_d:"Ask Einstein to create a related example and compare its steps with your task.",
 loop_coach_check_d:"Check each step against the original question and explain why it follows. This is a scripted prompt, not AI feedback.",
 loop_coach_hint:"Hint",loop_coach_alternate:"Break it down",loop_coach_example:"Find an example",loop_coach_check:"Check my reasoning",
 loop_no_evidence:"No practice evidence yet. Try a short check to establish a starting point.",
@@ -1531,7 +1531,7 @@ else if(this.step===2){c.innerHTML=`<div style="text-align:center"><h2 class="h2
 <button class="btn btn-p btn-block" id="obContinue" onclick="Onboard.next()" ${this.sparks.length?'':'disabled'}>${T('au_continue')}</button></div>`}
 else if(this.step===3){c.innerHTML=`<div style="text-align:center"><h2 class="h2" style="margin-bottom:var(--s4)">${T('ob_g1')}</h2>
 <p class="bm muted" style="margin-bottom:var(--s6)">${T('ob_g2')}</p>
-<div style="padding:var(--s5);background:var(--bg-2);border-radius:var(--r-md);margin-bottom:var(--s6)" class="bs muted">This prototype does not monitor emergencies or connect you to professional help. If you need help, contact a trusted adult or local emergency/support service directly.</div>
+<div style="padding:var(--s5);background:var(--bg-2);border-radius:var(--r-md);margin-bottom:var(--s6)" class="bs muted">Einstein Minds does not monitor emergencies or provide professional crisis support. Contact a trusted person or local emergency/support service directly.</div>
 <button class="btn btn-p btn-block" onclick="Onboard.next()">${T('ob_understand')}</button></div>`}
 else{c.innerHTML=`<div style="text-align:center"><div style="width:72px;height:72px;margin:0 auto var(--s5);border-radius:var(--r-full);background:rgba(48,209,88,.14);display:grid;place-items:center"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2.6"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
 <h2 class="h2" style="margin-bottom:var(--s2)">${T('ob_ready')}, ${Auth.user?esc(Auth.user.name.split(' ')[0]):'explorer'}.</h2>
@@ -2361,9 +2361,9 @@ p_sub:"The things you made, the feedback you acted on, and how each revision cha
 a_sub:"Low-stakes practice that points to your next step — never a verdict on you.",
 w_sub:"Optional, private, and never judgmental. Support for the whole person behind the learner.",
 st_sub:"Technology that serves your focus, not harvests it.",
-ed_sub:"Plan, differentiate and assess with a co-pilot preview — static samples, no live model connected.",
+ed_sub:"Create and adapt lesson drafts with Einstein. Review standards, facts and activities before use.",
 pa_sub:"Guide, don't surveil. Progress and themes — never transcripts.",
-i_sub:"Enterprise tooling for schools and systems — shown here as an interface preview.",
+i_sub:"Institutional integrations are not active. Submit an interest request to register your needs.",
 s_sub:"Appearance, language, privacy, consent and accessibility — plainly under your control.",
 pl_pro_d:"Ask Einstein without the Free daily prompt cap, plus account-synced learning goals, saved providers and portfolio. Provider availability applies.",
 pl_pro_f4:"Export your learning data"
