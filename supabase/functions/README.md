@@ -1,26 +1,42 @@
 # Supabase Edge Functions
 
-This directory records the source currently deployed to the Einsteinminds Supabase project (`fxxjainrhtdezyzbqynn`). It is maintained for reproducible review and deployment. Do not commit secret values.
+This directory records the Einstein Minds Edge Function source deployed to Supabase project \`fxxjainrhtdezyzbqynn\`. Keep source synchronized with the deployed project. Never commit secrets.
 
-## Functions and runtime settings
+## Active functions (verified 17 November 2026)
 
-| Function | Deployed version at export | JWT verification | Required secrets/config |
+| Function | Active version | JWT verification | Required configuration |
 |---|---:|---|---|
-| `agent` | 10 | enabled | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GROQ_API_KEY` (preferred) or legacy `LLM_API_KEY`; optional `LLM_BASE_URL`, `LLM_MODEL` |
-| `resource-search` | 5 | disabled; public catalogue read only | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
-| `resource-outbound` | 3 | disabled; validates published resource IDs and resolves destinations from the database | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
-| `provider-introduction` | 2 | disabled; public metadata refresh for published resource IDs | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
+| \`agent\` | 27 | Enabled | Supabase runtime keys and \`GROQ_API_KEY\` or \`LLM_API_KEY\`; optional \`LLM_BASE_URL\` |
+| \`resource-search\` | 18 | Disabled | Supabase runtime URL and public key; public read-only catalogue search |
+| \`resource-outbound\` | 15 | Enabled | Supabase runtime URL and public key; resolves only published resource IDs |
+| \`provider-introduction\` | 14 | Enabled | Supabase runtime keys and server-side service-role key |
+| \`paypal-subscriptions\` | 10 | Enabled | PayPal client ID/secret, monthly/yearly plan IDs, webhook ID, mode and app URL |
+| \`paypal-webhook\` | 9 | Disabled | PayPal client ID/secret and webhook ID; verifies PayPal signatures before processing |
 
-Supabase supplies the project URL and public/anon key in the Edge Function runtime. Configure any provider credentials through Supabase Edge Function Secrets, never in browser code or Git. The service-role key must remain server-side only.
+Supabase supplies \`SUPABASE_URL\`, \`SUPABASE_ANON_KEY\` and \`SUPABASE_SERVICE_ROLE_KEY\` to the Edge Function runtime. Do not put the service-role key in the browser, GitHub, or Hostinger static files.
 
-## Deployment caution
+## Hostinger origins
 
-- Review each function and its authorization/CORS behavior before deploying.
-- Keep `agent` JWT verification enabled.
-- The three public functions deliberately perform limited public catalogue operations. Do not add account or administrative operations to them without explicit authentication and authorization checks.
-- The AI function accepts `GROQ_API_KEY` (preferred) or the legacy `LLM_API_KEY`. Default provider URL is Groq's OpenAI-compatible endpoint. It supports up to 12 prior user/assistant messages and a selected learning mode. It returns a clearly labelled scripted fallback when the key/provider is unavailable; a successful HTTP response does not prove a live model answered. Never place the Groq key in browser code or Git.
-- Verify logs and real responses after each deployment. Do not use a real child account for staging tests.
+The user-facing app is hosted at \`https://einsteinminds.com\`. The resource and billing functions also accept HTTPS Hostinger preview subdomains ending in \`.hostingersite.com\` for preview testing. Local development uses \`http://localhost:8888\`.
 
-## Reproducibility gap
+## AI readiness
 
-The database currently records six applied migrations. Only the two authentication-hardening migrations are present in this repository at this revision. The four earlier resource-network migrations still need their exact SQL source recovered and committed; do not reconstruct them from names alone.
+The \`agent\` function requires a valid signed-in Supabase user for all actions. Its \`health\` action verifies the configured OpenAI-compatible provider endpoint and API key without returning the secret. A successful HTTP response is not sufficient; the response must report \`ready: true\`.
+
+## PayPal readiness
+
+The \`paypal-subscriptions\` function's authenticated \`preflight\` action checks:
+- PayPal client credentials;
+- active monthly and annual plans at USD 8.00/month and USD 60.00/year;
+- correct billing intervals;
+- webhook URL and required event subscriptions.
+
+A passing preflight verifies configuration only. A real sandbox checkout, approval, webhook delivery and subscription cancellation must still be tested before public launch.
+
+## Security
+
+- Keep JWT verification enabled for \`agent\`, \`resource-outbound\`, \`provider-introduction\` and \`paypal-subscriptions\`.
+- \`resource-search\` is public but read-only and validates published-resource queries.
+- \`paypal-webhook\` is public at the transport layer but independently verifies the PayPal webhook signature and deduplicates event IDs.
+- Never add client access policies to \`paypal_webhook_events\`; it is intentionally private to the service role.
+- The Supabase security advisor reports leaked-password protection disabled; enable it in Supabase Authentication before public launch.
