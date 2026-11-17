@@ -24,10 +24,10 @@ Active Edge Functions (verified 2026-11-17):
 | Function | Version | JWT |
 |---|---:|---|
 | `agent` | 27 | Required |
-| `resource-search` | 17 | Not required; public catalogue search only |
-| `resource-outbound` | 14 | Required |
-| `provider-introduction` | 13 | Required |
-| `paypal-subscriptions` | 9 | Required |
+| `resource-search` | 18 | Not required; public catalogue search only |
+| `resource-outbound` | 15 | Required |
+| `provider-introduction` | 14 | Required |
+| `paypal-subscriptions` | 10 | Required |
 | `paypal-webhook` | 9 | Not required; PayPal signature verification is required |
 
 The project contains 24 active resource categories, 227 published provider records, 231 category mappings and 229 source records. The verification-evidence table currently contains **zero records**; directory entries are not independently reviewed or endorsed.
