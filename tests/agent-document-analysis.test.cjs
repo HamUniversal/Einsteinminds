@@ -30,6 +30,8 @@ test('supported document formats are extracted in the browser, not uploaded as f
   assert.match(html, /this\.documentContext=null/);
   assert.match(html, /const ownerId=Auth\.user\?\.id\|\|null,token=\+\+this\.fileToken/);
   assert.match(html, /token!==this\.fileToken\|\|!Auth\.signedIn\|\|Auth\.user\?\.id!==ownerId/);
+  assert.match(html, /this\.documentLoading=true/);
+  assert.match(html, /Wait until document extraction finishes before sending/);
   const start = html.indexOf('async attachFile(input)');
   const end = html.indexOf('fromHome()', start);
   assert.ok(start >= 0 && end > start);
