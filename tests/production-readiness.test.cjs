@@ -6,6 +6,16 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8');
 const html = read('index.html');
+const cloudKeysStart = html.indexOf('const CLOUD_STATE_KEYS=[');
+const cloudKeysEnd = html.indexOf('];', cloudKeysStart);
+const cloudKeysBlock = cloudKeysStart >= 0 && cloudKeysEnd > cloudKeysStart ? html.slice(cloudKeysStart, cloudKeysEnd) : '';
+
+test('cloud workspace whitelist excludes device-only journal and mood entries', () => {
+  assert.ok(cloudKeysBlock.length > 0);
+  assert.ok(!cloudKeysBlock.includes('journal'));
+  assert.ok(!cloudKeysBlock.includes('moods'));
+  assert.ok(!cloudKeysBlock.includes('child'));
+});
 
 test('workspace and institutional request migration applies owner-only RLS', () => {
   const sql = read('supabase/migrations/20261117053941_user_workspace_and_institutional_requests.sql');
