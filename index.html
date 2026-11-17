@@ -859,7 +859,7 @@ html[dir=rtl] .sb.open{transform:none}
 <section class="view on" id="v-home">
 <div class="card loop-plan" id="homePlan"></div>
 <div class="hero"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
-<div class="hero-badge"><b id="resourceTotal">176</b> <span data-i18n="h_badge">unique provider listings · external sites not independently reviewed</span></div>
+<div class="hero-badge"><b id="resourceTotal">—</b> <span data-i18n="h_badge">unique provider listings · external sites not independently reviewed</span></div>
 <h1 class="d1" data-i18n="h_title">What will you discover today?</h1>
 <p class="bl" data-i18n="h_sub">One intelligent gateway to the world's knowledge. Ask Einstein anything.</p>
 <div class="ask-wrap">
@@ -1771,7 +1771,7 @@ const NAV=[{g:'g_core',items:[['home','home','n_home'],['agent','msg','n_ask'],[
 const Nav={cur:'home',
 render(){const n=$('#sbNav');if(!n)return;
 n.innerHTML=NAV.map(g=>`<div class="nav-grp"><div class="nav-lbl">${T(g.g)}</div>
-${g.items.map(([v,ic,k,b])=>{let badge=b;if(v==='resources'){const saved=Lib.savedIds().length;badge=saved?`${saved}★`:fmt(TOTAL)}
+${g.items.map(([v,ic,k,b])=>{let badge=b;if(v==='resources'){const saved=Lib.savedIds().length,liveTotal=window.EinsteinmindsResourceNetwork?.state?.total||0;badge=saved?`${saved}★`:liveTotal?fmt(liveTotal):'—'}
 return `<a href="#" class="nav-i ${this.cur===v?'on':''}" data-v="${v}" data-tip="${T(k)}"><span class="ni-ic">${svg(ic)}</span><span class="ni-tx">${T(k)}</span>${badge?`<span class="ni-badge">${badge}</span>`:''}</a>`}).join('')}</div>`).join('');
 $$('#sbNav .nav-i').forEach(a=>a.onclick=e=>{e.preventDefault();Nav.go(a.dataset.v)})},
 go(v){this.cur=v;$$('.view').forEach(s=>s.classList.remove('on'));const el=$('#v-'+v);if(el)el.classList.add('on');
