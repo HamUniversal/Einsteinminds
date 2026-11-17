@@ -107,6 +107,10 @@ Current database counts: one profile, one account workspace, zero institutional 
 - Document content is treated as untrusted source material by the agent; embedded instructions are not to be followed.
 - The document-analysis frontend is included in `upgrade/resource-network-v2` after PR #4. It is not live on the production Hostinger site until the release is approved and the Hostinger front end is deployed.
 
-## Migration-source note
+## Rebuilding Supabase and restoring the catalogue
 
-The remote project has eight applied migration entries. The repository contains the Auth, PayPal and workspace/request migration files. The original four resource-network migration SQL files are not currently present in this branch, so this repository is not yet a fully reproducible bootstrap for a brand-new Supabase project. Do not run it against a blank project expecting it to recreate the existing resource catalogue schema until those original migration files are recovered.
+All eight historical migrations are now present under `supabase/migrations/`. The four original resource-network SQL files were recovered verbatim from the live Supabase migration-history records. The public catalogue snapshot and ordered, re-runnable seed scripts are under `supabase/seed/`.
+
+For a new project, apply the eight migrations in chronological filename order, then run `supabase/seed/README.md` in order to restore 24 categories, 227 published resources, 231 category mappings and 229 provenance records. Run `99_verify.sql` to check the snapshot counts. The seed restores public directory data only; it does not copy Auth identities, private workspaces, payment records, webhook events, telemetry or secrets.
+
+This restores source-level reproducibility, but a complete restore has not yet been exercised against a separate empty Supabase project. Do not run the dated snapshot on a live catalogue as a casual update: the scripts are upserts and may restore the 18 November 2026 values for matching IDs.
