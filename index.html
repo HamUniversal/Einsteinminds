@@ -1415,7 +1415,7 @@ this.user={id:authUser.id,name:profile.display_name||authUser.email?.split('@')[
 email:authUser.email||'',role:'Adult account',plan:billing?'pro':'free',ageBand:'adult',vpc:'pending',subscription:billing||null};
 if(previousId!==authUser.id){
 try{LS.activateUser(authUser.id);LS.del('child');loadAccountState();
-try{await CloudState.load(authUser.id)}catch(syncError){CloudState.reset();Toast.show('Cloud sync could not be loaded. Your account is still available; learning changes will remain on this device until sync is restored.','warn')}
+try{await CloudState.load(authUser.id)}catch(syncError){LS.set('workspace_dirty',true);CloudState.reset();Toast.show('Cloud sync could not be loaded. Your account is still available; learning changes will remain on this device until sync is restored.','warn')}
 Usage.load();mergeGuestArtifacts()}
 catch(error){this.user=null;LS.activateUser(null);resetGuestState();this.renderUserArea();Toast.show(`Could not load this account's local learning data: ${error.message}`,'bad');return}
 }
@@ -1728,23 +1728,46 @@ guestArtifacts[key]=[]
 }
 persist()
 };
-const CLOUD_STATE_KEYS=['saved','goals','portfolio','quizHist','st','lim','sess','week','settings','recSeed','handoffs','events','onboarded'];
+const CLOUD_STATE_KEYS=['saved','goals','portfolio','quizHist','st','lim','sess','week','settings','recSeed','handoffs','events'];
 const CloudState={
 timer:null,busy:false,pending:false,loadedFor:null,lastError:'',
 reset(){clearTimeout(this.timer);this.timer=null;this.loadedFor=null;this.pending=false},
 snapshot(){const state={};for(const key of CLOUD_STATE_KEYS)state[key]=S[key];state.usage=Usage.data;return state},
-schedule(){if(!Auth.signedIn||this.loadedFor!==Auth.user.id||S.settings.cloudSync===0)return;clearTimeout(this.timer);this.timer=setTimeout(()=>this.flush(Auth.user.id),650)},
+mergeArray(remote,local,limit=250){const map=new Map();for(const item of [...(Array.isArray(remote)?remote:[]),...(Array.isArray(local)?local:[])]){const key=typeof item==='string'?item:(item?.id||item?.uid||item?.created_at||JSON.stringify(item));map.set(key,item)}return [...map.values()].slice(-limit)},
+mergeUsage(remote,local){if(!remote||typeof remote!=='object')return local;if(!local||typeof local!=='object')return remote;if(remote.date===local.date)return {date:local.date,count:Math.max(Number(remote.count)||0,Number(local.count)||0)};return String(local.date||'')>String(remote.date||'')?local:remote},
+schedule(){if(!Auth.signedIn||this.loadedFor!==Auth.user.id||S.settings.cloudSync===0)return;LS.set('workspace_dirty',true);clearTimeout(this.timer);this.timer=setTimeout(()=>this.flush(Auth.user.id),650)},
 async load(userId){
  if(!supabaseClient||!userId)return;
+ if(S.settings.cloudSync===0){this.loadedFor=userId;return}
+ const local=this.snapshot(),dirty=LS.get('workspace_dirty',false);
  const {data,error}=await supabaseClient.from('user_workspaces').select('state,updated_at').eq('user_id',userId).maybeSingle();
  if(error)throw new Error('Cloud workspace could not be loaded: '+error.message);
  this.loadedFor=userId;
  if(data&&data.state&&typeof data.state==='object'){
-  for(const key of CLOUD_STATE_KEYS){if(Object.prototype.hasOwnProperty.call(data.state,key)){S[key]=data.state[key];LS.set(key,S[key])}}
-  S.settings=Object.assign({},emptyState().settings,S.settings||{});LS.set('settings',S.settings);
-  if(data.state.usage&&typeof data.state.usage==='object'){Usage.data=data.state.usage;LS.set('usage',Usage.data)}
-  normalisePortfolio()
- }else if(S.settings.cloudSync!==0){await this.flush(userId)}
+  if(dirty){
+   const remote=data.state;
+   for(const key of CLOUD_STATE_KEYS){
+    if(Array.isArray(local[key])||Array.isArray(remote[key]))S[key]=this.mergeArray(remote[key],local[key],key==='saved'?2000:250);
+    else if(key==='st'){const merged={...(remote[key]||{})};for(const [k,v] of Object.entries(local[key]||{}))merged[k]=Math.max(Number(merged[k])||0,Number(v)||0);S[key]=merged}
+    else if(key==='week'){const a=Array.isArray(remote[key])?remote[key]:[],b=Array.isArray(local[key])?local[key]:[];S[key]=Array.from({length:7},(_,i)=>Math.max(Number(a[i])||0,Number(b[i])||0))}
+    else if(key==='settings')S[key]=Object.assign({},emptyState().settings,remote[key]||{},local[key]||{});
+    else S[key]=local[key]===undefined?remote[key]:local[key];
+    LS.set(key,S[key]);
+   }
+   Usage.data=this.mergeUsage(remote.usage,local.usage);LS.set('usage',Usage.data);
+   S.settings=Object.assign({},emptyState().settings,S.settings||{});LS.set('settings',S.settings);
+   normalisePortfolio();
+   await this.flush(userId);
+  }else{
+   for(const key of CLOUD_STATE_KEYS){if(Object.prototype.hasOwnProperty.call(data.state,key)){S[key]=data.state[key];LS.set(key,S[key])}}
+   S.settings=Object.assign({},emptyState().settings,S.settings||{});LS.set('settings',S.settings);
+   if(data.state.usage&&typeof data.state.usage==='object'){Usage.data=data.state.usage;LS.set('usage',Usage.data)}
+   normalisePortfolio();
+  }
+ }else{
+  LS.set('workspace_dirty',true);
+  await this.flush(userId)
+ }
 },
 async flush(userId){
  if(!Auth.signedIn||Auth.user.id!==userId||this.loadedFor!==userId||S.settings.cloudSync===0)return;
@@ -1752,10 +1775,12 @@ async flush(userId){
  this.busy=true;
  const snapshot=this.snapshot();
  try{
+  if(JSON.stringify(snapshot).length>480000)throw new Error('Your account workspace is too large to sync. Export your data and reduce saved portfolio content.');
   const {error}=await supabaseClient.from('user_workspaces').upsert({user_id:userId,state:snapshot,updated_at:new Date().toISOString()},{onConflict:'user_id'});
   if(error)throw error;
-  this.lastError='';
+  this.lastError='';LS.set('workspace_dirty',false);
  }catch(error){
+  LS.set('workspace_dirty',true);
   if(!this.lastError)Toast.show('Cloud sync is temporarily unavailable. Your latest changes remain on this device.','warn');
   this.lastError=String(error?.message||error);
  }finally{
@@ -1766,6 +1791,7 @@ async flush(userId){
 async clear(){
  clearTimeout(this.timer);
  if(Auth.signedIn){const {error}=await supabaseClient.from('user_workspaces').delete().eq('user_id',Auth.user.id);if(error)throw error}
+ LS.set('workspace_dirty',false);
  this.loadedFor=Auth.signedIn?Auth.user.id:null
 }
 };
