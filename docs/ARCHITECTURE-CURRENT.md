@@ -31,13 +31,13 @@ The browser contains only the Supabase project URL and public/publishable browse
 | Function | Version | Purpose |
 |---|---:|---|
 | `agent` | 36 | Authenticated AI assistant, provider health check and bounded directory lookup |
-| `resource-search` | 20 | Public read-only published-catalogue search, counts, filters and home recommendations |
+| `resource-search` | 21 | Public read-only published-catalogue search, counts, filters and home recommendations |
 | `resource-outbound` | 16 | Resolves a published resource identifier to its stored official HTTPS host and logs minimal outbound events |
 | `provider-introduction` | 15 | Retrieves limited provider-page metadata for a directory resource |
 | `paypal-subscriptions` | 11 | Authenticated subscription preflight, creation and cancellation/return synchronization |
 | `paypal-webhook` | 9 | PayPal webhook signature verification and event deduplication |
 
-The deployed function files matched the release-branch source byte-for-byte when checked on 18 November 2026. The goal-personalized recommendation improvement has since changed the GitHub `resource-search` source and requires its own verified deployment to become active.
+The six deployed function entrypoint files were compared with the corresponding release-branch sources on 18 November 2026. The updated `resource-search` v21 source was deployed after the recommendation changes and its active version/source flags were checked.
 
 ### Database
 
