@@ -31,6 +31,29 @@ jobs:
           node --check assets/auth-route-guard.js
           node --check scripts/apply-update.mjs
           node --check scripts/validate-release.mjs
+      - name: Check inline application JavaScript
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html = Path('index.html').read_text(encoding='utf-8')
+          scripts = []
+          pattern = re.compile(r'<script(?![^>]*\\bsrc=)([^>]*)>([\\s\\S]*?)</script>', re.I)
+          for index, match in enumerate(pattern.finditer(html)):
+              attrs, body = match.group(1).lower(), match.group(2)
+              if 'application/ld+json' in attrs or 'application/json' in attrs or not body.strip():
+                  continue
+              suffix = '.mjs' if 'type="module"' in attrs or "type='module'" in attrs else '.js'
+              target = Path('/tmp') / f'einsteinminds-inline-{index}{suffix}'
+              target.write_text(body, encoding='utf-8')
+              scripts.append(str(target))
+          Path('/tmp/einsteinminds-inline-scripts.txt').write_text('\\n'.join(scripts), encoding='utf-8')
+          print(f'Extracted {len(scripts)} inline script block(s).')
+          PY
+          while IFS= read -r file; do
+            [ -z "$file" ] || node --check "$file"
+          done < /tmp/einsteinminds-inline-scripts.txt
       - name: Run tests
         run: node --test tests/*.test.cjs
       - name: Validate release contents
