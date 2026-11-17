@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const billing = fs.readFileSync(path.join(root, 'supabase/functions/paypal-subscriptions/index.ts'), 'utf8');
 const webhook = fs.readFileSync(path.join(root, 'supabase/functions/paypal-webhook/index.ts'), 'utf8');
-const migration = fs.readFileSync(path.join(root, 'supabase/migrations/20261116000000_paypal_subscriptions.sql'), 'utf8');
+const migration = fs.readFileSync(path.join(root, 'supabase/migrations/20261116153025_paypal_subscription_billing.sql'), 'utf8');
 
 test('Pro checkout uses the authenticated server-side PayPal subscription function', () => {
   assert.match(html, /functions\.invoke\('paypal-subscriptions'/);
