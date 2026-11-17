@@ -54,7 +54,7 @@ test('the interface does not invent child accounts or institutional integrations
 test('provider directory and saved resources are live, not a synthetic seed catalogue', () => {
   assert.match(html, /const RESOURCE_INDEX=\[\]/);
   assert.match(html, /function poolFor\(cid\)\{return \[\]\}/);
-  assert.match(html, /renderHomeRecommendations/);
+  assert.match(html, /refreshHomeRecommendations/);
   assert.match(html, /live provider listings/);
   const network = fs.readFileSync(path.join(root, 'assets/einsteinminds-resource-network.js'), 'utf8');
   assert.match(network, /Auth\.signedIn/);
