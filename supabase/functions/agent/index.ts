@@ -81,8 +81,9 @@ Deno.serve(async(req:Request)=>{
     const key=Deno.env.get("GROQ_API_KEY")||Deno.env.get("LLM_API_KEY");
     if(action==="health"){
       if(!key)return json({ready:false,provider:"Groq",message:"The AI provider key is not configured."},200,requestId);
-      const base=(Deno.env.get("LLM_BASE_URL")||"https://api.groq.com/openai/v1").replace(/\\/+$/,"");
-      if(!/^https:\\/\\//i.test(base))return json({ready:false,provider:"AI",message:"The AI provider URL is invalid."},200,requestId);
+      let base=Deno.env.get("LLM_BASE_URL")||"https://api.groq.com/openai/v1";
+      while(base.endsWith("/"))base=base.slice(0,-1);
+      if(!base.toLowerCase().startsWith("https://"))return json({ready:false,provider:"AI",message:"The AI provider URL is invalid."},200,requestId);
       try{
         const response=await fetch(base+"/models",{headers:{Authorization:"Bearer "+key}});
         if(!response.ok)return json({ready:false,provider:new URL(base).hostname,message:response.status===401||response.status===403?"The AI provider rejected its configured key.":"The AI provider is temporarily unavailable (HTTP "+response.status+")."},200,requestId);
