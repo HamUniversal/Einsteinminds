@@ -46,6 +46,9 @@ const catsStart = html.indexOf('const CATS=[');
 const catsEnd = html.indexOf('const categoryLabel', catsStart);
 const catsBlock = catsStart >= 0 && catsEnd > catsStart ? html.slice(catsStart, catsEnd) : '';
 const privateWorkspacePolicy = workspaceMigration.toLowerCase().includes('using ((select auth.uid()) = user_id)');
+const cloudKeysStart = html.indexOf('const CLOUD_STATE_KEYS=[');
+const cloudKeysEnd = html.indexOf('];', cloudKeysStart);
+const cloudKeysBlock = cloudKeysStart >= 0 && cloudKeysEnd > cloudKeysStart ? html.slice(cloudKeysStart, cloudKeysEnd) : '';
 
 const checks = [
   [html.includes('/assets/resource-network-core.js'), 'index loads the resource-network core'],
@@ -70,7 +73,7 @@ const checks = [
   [html.includes('supabaseClient.auth.signUp') && html.includes('supabaseClient.auth.signInWithPassword'), 'signup and sign-in use Supabase Auth'],
   [html.includes('password.length<12') && html.includes('adultConfirm'), 'adult account and password safeguards are present'],
   [html.includes('CloudState.load(authUser.id)') && html.includes("from('user_workspaces')"), 'account workspace sync is wired to Supabase'],
-  [!privateWorkspacePolicy || workspaceMigration.includes('journal') === false, 'private journal, mood and child data remain outside workspace records'],
+  [cloudKeysBlock.length > 0 && !cloudKeysBlock.includes('journal') && !cloudKeysBlock.includes('moods') && !cloudKeysBlock.includes('child'), 'private journal, mood and child data remain outside workspace records'],
   [html.includes('S.settings.cloudSync===0') && html.includes('workspace_dirty'), 'cloud sync opt-out and offline dirty-state recovery are implemented'],
   [workspaceMigration.includes('CREATE TABLE IF NOT EXISTS public.user_workspaces'), 'private account workspace table migration exists'],
   [workspaceMigration.includes('CREATE TABLE IF NOT EXISTS public.institutional_access_requests'), 'institutional interest-request table migration exists'],
