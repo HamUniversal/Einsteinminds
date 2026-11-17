@@ -8,6 +8,11 @@ const app = read('assets/einsteinminds-resource-network.js');
 const core = read('assets/resource-network-core.js');
 const guard = read('assets/auth-route-guard.js');
 const workspaceMigration = read('supabase/migrations/20261117053941_user_workspace_and_institutional_requests.sql');
+const migrationPaths = ['20261115022622_resource_network_v1.sql','20261115022922_resource_policy_performance_hardening.sql','20261115023213_resource_category_counts_rpc.sql','20261115025852_resource_category_admin_and_count_fix.sql','20261115180822_auth_least_privilege_grants.sql','20261115180838_grant_authenticated_evidence_review.sql','20261116153025_paypal_subscription_billing.sql','20261117053941_user_workspace_and_institutional_requests.sql'];
+const seedCategories = read('supabase/seed/00_resource_categories.sql');
+const seedResources = read('supabase/seed/01_resources.sql');
+const seedMappings = read('supabase/seed/02_resource_category_links.sql');
+const seedSources = read('supabase/seed/03_resource_sources.sql');
 const paypal = read('supabase/functions/paypal-subscriptions/index.ts');
 const agent = read('supabase/functions/agent/index.ts');
 const hostingerWorkflow = read('.github/workflows/package-hostinger.yml');
@@ -68,7 +73,9 @@ const checks = [
   [hostingerWorkflow.includes('einsteinminds-hostinger-upload.zip') && hostingerWorkflow.includes('upload-artifact@v4'), 'Hostinger ZIP packaging workflow exists'],
   [validateWorkflow.includes('node --test tests/*.test.cjs'), 'CI runs the full automated test suite'],
   [readme.includes('Hostinger') && hostingerReadme.includes('public_html') && supabaseReadme.includes('Supabase backend'), 'deployment and backend documentation exist'],
-  [readme.includes('original four resource-network migration SQL files'), 'remaining migration-source gap is disclosed'],
+  [migrationPaths.every((file) => fs.existsSync(path.join(root, 'supabase/migrations', file))), 'all eight historical migration SQL files are present'],
+  [seedCategories.includes('jsonb_to_recordset') && seedResources.includes('jsonb_to_recordset') && seedMappings.includes('jsonb_to_recordset') && seedSources.includes('jsonb_to_recordset'), 'public catalogue snapshot seed files are complete'],
+  [readme.includes('separate empty Supabase project'), 'fresh-project seed rehearsal is accurately disclosed'],
   [![readme,hostingerReadme,supabaseReadme,read('START-HERE.md'),read('SECURITY.md'),read('scripts/apply-update.mjs')].some((text) => /netlify/i.test(text)), 'project documentation and updater are Hostinger-only'],
   [!html.includes('SUPABASE_SERVICE_ROLE_KEY') && !html.includes('GROQ_API_KEY') && !html.includes('PAYPAL_CLIENT_SECRET'), 'server-side secrets are absent from browser source']
 ];
