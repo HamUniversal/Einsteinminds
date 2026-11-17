@@ -46,7 +46,7 @@ Deno.serve(async(req:Request)=>{
   if(action==="preflight"){
    const clientId=Deno.env.get("PAYPAL_CLIENT_ID")||"",clientSecret=Deno.env.get("PAYPAL_CLIENT_SECRET")||"";
    const monthlyId=Deno.env.get("PAYPAL_PLAN_MONTHLY_ID")||"",yearlyId=Deno.env.get("PAYPAL_PLAN_YEARLY_ID")||"";
-   const webhookId=Deno.env.get("PAYPAL_WEBHOOK_ID")||"",supabaseUrl=(Deno.env.get("SUPABASE_URL")||"").replace(/\\/+$/,"");
+   const webhookId=Deno.env.get("PAYPAL_WEBHOOK_ID")||"",supabaseUrl=(Deno.env.get("SUPABASE_URL")||"").replace(/\/+$/,"");
    const missing:string[]=[];
    if(!clientId)missing.push("PAYPAL_CLIENT_ID");
    if(!clientSecret)missing.push("PAYPAL_CLIENT_SECRET");
@@ -72,7 +72,7 @@ Deno.serve(async(req:Request)=>{
    checkPlan(monthly,8,"MONTH","Monthly");
    checkPlan(yearly,60,"YEAR","Annual");
    const expectedWebhookUrl=supabaseUrl+"/functions/v1/paypal-webhook";
-   const actualWebhookUrl=String(webhook.url||"").replace(/\\/+$/,"");
+   const actualWebhookUrl=String(webhook.url||"").replace(/\/+$/,"");
    if(actualWebhookUrl!==expectedWebhookUrl)issues.push("PayPal webhook URL must be "+expectedWebhookUrl+".");
    const requiredEvents=["BILLING.SUBSCRIPTION.CREATED","BILLING.SUBSCRIPTION.ACTIVATED","BILLING.SUBSCRIPTION.UPDATED","BILLING.SUBSCRIPTION.CANCELLED","BILLING.SUBSCRIPTION.SUSPENDED","BILLING.SUBSCRIPTION.EXPIRED","BILLING.SUBSCRIPTION.PAYMENT.FAILED","PAYMENT.SALE.COMPLETED","PAYMENT.SALE.REFUNDED","PAYMENT.SALE.REVERSED"];
    const enabledEvents=new Set((webhook.event_types||[]).filter((item:any)=>String(item.status||"ENABLED").toUpperCase()!=="DISABLED").map((item:any)=>String(item.name||"")));
