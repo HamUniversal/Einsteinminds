@@ -26,7 +26,10 @@
     stageCoverage: null,
     items: [],
     cache: new Map(),
-    lastError: ''
+    lastError: '',
+    homeItems: [],
+    homeRequestNumber: 0,
+    homeLoading: false
   };
 
   const $ = (selector, scope) => (scope || document).querySelector(selector);
@@ -550,13 +553,44 @@
   function renderHomeRecommendations() {
     const home = $('#homeRec');
     if (!home) return;
-    const items = state.items.slice(0, 6);
+    const items = state.homeItems.length ? state.homeItems : state.items.slice(0, 6);
     if (!items.length) {
-      home.innerHTML = '<p class="bs muted">Live provider recommendations will appear after the directory loads.</p>';
+      home.innerHTML = '<p class="bs muted">Fresh provider suggestions will appear when the directory is ready.</p>';
       return;
     }
     home.innerHTML = items.map((resource) => renderCard(resource)).join('');
     bindDelegatedEvents();
+  }
+
+  async function refreshHomeRecommendations() {
+    const home = $('#homeRec');
+    if (!home) return false;
+    const requestNumber = ++state.homeRequestNumber;
+    state.homeLoading = true;
+    home.setAttribute('aria-busy', 'true');
+    home.innerHTML = '<p class="bs muted" style="grid-column:1/-1">Finding fresh provider suggestions…</p>';
+    try {
+      const result = await callFunction('resource-search', { action: 'recommendations' });
+      if (requestNumber !== state.homeRequestNumber) return false;
+      state.homeItems = Array.isArray(result.items) ? result.items.slice(0, 6) : [];
+      if (!state.homeItems.length) {
+        home.innerHTML = '<p class="bs muted" style="grid-column:1/-1">No provider suggestions are available right now. Please try again.</p>';
+        return false;
+      }
+      home.innerHTML = state.homeItems.map((resource) => renderCard(resource)).join('');
+      bindDelegatedEvents();
+      return true;
+    } catch (error) {
+      if (requestNumber !== state.homeRequestNumber) return false;
+      home.innerHTML = '<div class="empty rn-empty" style="grid-column:1/-1"><h3>Recommendations could not be refreshed</h3><p class="bs muted">The live directory did not return fresh suggestions. Your saved resources and directory data are unchanged.</p><button type="button" class="btn btn-p" id="rnHomeRetry">Try again</button></div>';
+      $('#rnHomeRetry')?.addEventListener('click', () => refreshHomeRecommendations());
+      return false;
+    } finally {
+      if (requestNumber === state.homeRequestNumber) {
+        state.homeLoading = false;
+        home.removeAttribute('aria-busy');
+      }
+    }
   }
 
   function overrideLegacyDirectory() {
@@ -669,7 +703,8 @@
     openExternal,
     state,
     getSavedIds,
-    renderHomeRecommendations
+    renderHomeRecommendations,
+    refreshHomeRecommendations
   });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
