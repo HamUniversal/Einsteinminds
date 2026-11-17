@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-const origins = new Set(["https://einsteinminds.com","https://www.einsteinminds.com","http://localhost:8888"]);
+const origins = new Set(["https://einsteinminds.com","https://www.einsteinminds.com","https://darkturquoise-magpie-142020.hostingersite.com","http://localhost:8888"]);
 const cors = (origin:string|null) => ({"Access-Control-Allow-Origin":origin&&origins.has(origin)?origin:"https://einsteinminds.com","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS","Vary":"Origin"});
 const reply=(body:unknown,status=200,origin:string|null=null)=>new Response(JSON.stringify(body),{status,headers:{...cors(origin),"Content-Type":"application/json","Cache-Control":"no-store"}});
 const apiBase=()=>Deno.env.get("PAYPAL_MODE")==="sandbox"?"https://api-m.sandbox.paypal.com":"https://api-m.paypal.com";
@@ -42,7 +42,45 @@ Deno.serve(async(req:Request)=>{
  if(origin&&!origins.has(origin))return reply({error:"Origin not allowed"},403,origin);
  if(req.method!=="POST")return reply({error:"Method not allowed"},405,origin);
  try{
-  const {user,admin}=await getUser(req),body=await req.json().catch(()=>({})),action=String(body.action||""),token=await paypalToken();
+  const {user,admin}=await getUser(req),body=await req.json().catch(()=>({})),action=String(body.action||"");
+  if(action==="preflight"){
+   const clientId=Deno.env.get("PAYPAL_CLIENT_ID")||"",clientSecret=Deno.env.get("PAYPAL_CLIENT_SECRET")||"";
+   const monthlyId=Deno.env.get("PAYPAL_PLAN_MONTHLY_ID")||"",yearlyId=Deno.env.get("PAYPAL_PLAN_YEARLY_ID")||"";
+   const webhookId=Deno.env.get("PAYPAL_WEBHOOK_ID")||"",supabaseUrl=(Deno.env.get("SUPABASE_URL")||"").replace(/\\/+$/,"");
+   const missing:string[]=[];
+   if(!clientId)missing.push("PAYPAL_CLIENT_ID");
+   if(!clientSecret)missing.push("PAYPAL_CLIENT_SECRET");
+   if(!monthlyId)missing.push("PAYPAL_PLAN_MONTHLY_ID");
+   if(!yearlyId)missing.push("PAYPAL_PLAN_YEARLY_ID");
+   if(!webhookId)missing.push("PAYPAL_WEBHOOK_ID");
+   if(!supabaseUrl)missing.push("SUPABASE_URL");
+   if(missing.length)return reply({ready:false,mode:Deno.env.get("PAYPAL_MODE")==="sandbox"?"sandbox":"live",issues:missing,message:"PayPal configuration is incomplete: "+missing.join(", ")},200,origin);
+   const token=await paypalToken();
+   const [monthly,yearly,webhook]=await Promise.all([
+    paypalRequest(token,"/v1/billing/plans/"+encodeURIComponent(monthlyId)),
+    paypalRequest(token,"/v1/billing/plans/"+encodeURIComponent(yearlyId)),
+    paypalRequest(token,"/v1/notifications/webhooks/"+encodeURIComponent(webhookId))
+   ]);
+   const issues:string[]=[];
+   const checkPlan=(plan:any,amount:number,unit:string,label:string)=>{
+    const cycle=(plan.billing_cycles||[]).find((item:any)=>item.tenure_type==="REGULAR");
+    const price=cycle?.pricing_scheme?.fixed_price,frequency=cycle?.frequency;
+    if(String(plan.status||"").toUpperCase()!=="ACTIVE")issues.push(label+" PayPal plan is not ACTIVE.");
+    if(!price||price.currency_code!=="USD"||Number(price.value)!==amount)issues.push(label+" plan must charge USD "+amount.toFixed(2)+".");
+    if(!frequency||frequency.interval_unit!==unit||Number(frequency.interval_count)!==1)issues.push(label+" plan must bill every 1 "+unit.toLowerCase()+".");
+   };
+   checkPlan(monthly,8,"MONTH","Monthly");
+   checkPlan(yearly,60,"YEAR","Annual");
+   const expectedWebhookUrl=supabaseUrl+"/functions/v1/paypal-webhook";
+   const actualWebhookUrl=String(webhook.url||"").replace(/\\/+$/,"");
+   if(actualWebhookUrl!==expectedWebhookUrl)issues.push("PayPal webhook URL must be "+expectedWebhookUrl+".");
+   const requiredEvents=["BILLING.SUBSCRIPTION.CREATED","BILLING.SUBSCRIPTION.ACTIVATED","BILLING.SUBSCRIPTION.UPDATED","BILLING.SUBSCRIPTION.CANCELLED","BILLING.SUBSCRIPTION.SUSPENDED","BILLING.SUBSCRIPTION.EXPIRED","BILLING.SUBSCRIPTION.PAYMENT.FAILED","PAYMENT.SALE.COMPLETED","PAYMENT.SALE.REFUNDED","PAYMENT.SALE.REVERSED"];
+   const enabledEvents=new Set((webhook.event_types||[]).filter((item:any)=>String(item.status||"ENABLED").toUpperCase()!=="DISABLED").map((item:any)=>String(item.name||"")));
+   const missingEvents=requiredEvents.filter(name=>!enabledEvents.has(name));
+   if(missingEvents.length)issues.push("PayPal webhook is missing events: "+missingEvents.join(", ")+".");
+   return reply({ready:issues.length===0,mode:Deno.env.get("PAYPAL_MODE")==="sandbox"?"sandbox":"live",issues,message:issues.length?issues.join(" "):"PayPal monthly and annual plans and webhook are verified."},200,origin);
+  }
+  const token=await paypalToken();
   if(action==="create"){
    const config=planConfig(String(body.plan_key||""));if(!config.planId)return reply({error:"Subscription plan is not configured yet."},503,origin);
    const {data:existing,error:existingError}=await admin.from("paypal_subscriptions").select("paypal_subscription_id,status").eq("user_id",user.id).in("status",["APPROVAL_PENDING","APPROVED","ACTIVE","SUSPENDED","PAYMENT_FAILED"]).order("updated_at",{ascending:false}).limit(1).maybeSingle();
