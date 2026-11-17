@@ -1843,7 +1843,7 @@ el.innerHTML=`<h2 class="h3">${T('loop_plan')}: ${esc(goal.n)}</h2><p class="bm 
 <div class="loop-actions" style="margin-top:var(--s3)"><button class="btn btn-p btn-sm" onclick="Learn.advance('${goal.id}')">${T('loop_next')}</button><button class="btn btn-o btn-sm" onclick="Learn.adjust('${goal.id}')">${T('l_adjust')}</button></div>`
 },
 rec(){if(S.settings.reco===0){$('#homeRec').innerHTML='<p class="bs muted">Provider listings are hidden by your settings.</p>';return}const network=window.EinsteinmindsResourceNetwork;if(network&&typeof network.renderHomeRecommendations==='function')network.renderHomeRecommendations();else $('#homeRec').innerHTML='<p class="bs muted">Loading live provider recommendations…</p>'},
-refreshRec(){S.recSeed++;persist();this.rec();Toast.show(T('t_refresh'),'ok')}};
+async refreshRec(){S.recSeed++;persist();const network=window.EinsteinmindsResourceNetwork;if(!network||typeof network.refreshHomeRecommendations!=='function'){Toast.show('The recommendation service is not ready. Please try again.','error');return}const refreshed=await network.refreshHomeRecommendations();Toast.show(refreshed?T('t_refresh'):'Recommendations could not be refreshed. Please try again. ',refreshed?'ok':'error')}};
 /* ═══ EXPLORE ═══ */
 const Explore={render(){$('#taxGrid').innerHTML=CATS.map((c,i)=>`<div class="tax" style="--tc:${c.c};--i:${i}" onclick="Lib.openCat('${c.id}')">
 <div class="tax-ic">${svg(c.ic)}</div><h3>${esc(categoryLabel(c))}</h3><p>${esc(c.d)}</p>
