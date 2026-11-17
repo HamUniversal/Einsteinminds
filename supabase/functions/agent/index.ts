@@ -214,13 +214,13 @@ Deno.serve(async(req:Request)=>{
     const history=historyOf(body?.history);
     let resources=resourcesOf(body?.resources);
     let searchStatus=text(body?.resource_search_status,40);
-    const asksForResources=/\b(recommend|recommendation|resources?|courses?|websites?|platforms?|learning tools?|providers?|where can i learn|find .* (course|resource|tool)|best .* (course|website|platform))\b/i.test(prompt);
+    const asksToInvestigateProvider=/\b(verify|check|investigate|research|tell me more about|details about|is .* (legit|reliable|trustworthy|safe))\b/i.test(prompt);
+    const asksForResources=/\b(recommend|recommendation|resources?|courses?|websites?|platforms?|learning tools?|providers?|where can i learn|find .* (course|resource|tool)|best .* (course|website|platform))\b/i.test(prompt) || asksToInvestigateProvider;
     if(!resources.length && !searchStatus && asksForResources) {
       const directory=await searchEinsteinDirectory(prompt,url,publicKey);
       resources=directory.resources;
       searchStatus=directory.status;
     }
-    const asksToInvestigateProvider=/\b(verify|check|investigate|research|tell me more about|details about|is .* (legit|reliable|trustworthy|safe))\b/i.test(prompt);
     if(resources.length && asksToInvestigateProvider) {
       resources=await enrichOfficialProviderMetadata(resources,token,url,publicKey);
     }
