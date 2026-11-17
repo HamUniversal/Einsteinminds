@@ -1,35 +1,51 @@
-# Hostinger deployment from GitHub
+# Hostinger manual ZIP deployment — Einstein Minds
 
-Einsteinminds is a static HTML/CSS/JavaScript application. Use Hostinger's native GitHub integration for the production deployment; GitHub Actions in this repository run validation only. There are no FTP passwords or Netlify secrets in GitHub Actions.
+**Production site:** https://einsteinminds.com  
+**Hosting type:** static HTML/CSS/JavaScript  
+**Upload target:** `public_html`
 
-## Connect the Hostinger website
+## Upload the release
 
-1. Back up the current `einsteinminds.com` website files from hPanel before connecting a repository. Hostinger notes that changing/connecting a deployment repository can overwrite files in the target directory.
-2. In Hostinger hPanel, open **Websites → einsteinminds.com → Manage site**.
-3. Open **Advanced → Git**.
-4. Choose **Connect with GitHub** and authorize Hostinger for the `HamUniversal/Einsteinminds` repository.
-5. Select the intended branch (`main` after the reviewed update has been merged).
-6. Set the deployment root to the repository root, which contains `index.html`, `assets/`, and `.htaccess`.
-7. Confirm the destination belongs to `einsteinminds.com`, then deploy.
-8. Keep automatic deployment paused for the first release. After GitHub validation passes and the reviewed pull request is merged, use Hostinger's **Redeploy** action and confirm the intended commit in deployment history.
-9. Enable automatic deployment only after GitHub `main` requires pull-request review and passing validation checks; otherwise Hostinger may deploy before GitHub Actions finishes.
+1. Open Hostinger hPanel → **Websites** → `einsteinminds.com` → **Manage**.
+2. Open **File Manager** and enter `public_html`.
+3. Download a backup of the current files before replacing anything.
+4. Upload the generated Einstein Minds Hostinger release ZIP.
+5. Extract it directly into `public_html`.
+6. Confirm `index.html`, `.htaccess` and the `assets/` folder are directly inside `public_html`, not inside a nested directory.
+7. Open https://einsteinminds.com and hard-refresh the browser.
 
-Hostinger's Git integration supports custom PHP/HTML websites on eligible Web and Cloud hosting plans. Node.js websites use Hostinger's separate Node.js GitHub deployment flow; Hostinger AI Builder websites do not support this integration. Check the website type shown in hPanel before choosing the flow.
+This is a static website. Do not create a Node.js Web App, set a build command, or add server-side secrets to Hostinger.
 
-## Local validation
+## Required files
 
-```bash
-node scripts/apply-update.mjs
-node --check assets/resource-network-core.js
-node --check assets/einsteinminds-resource-network.js
-node --test tests/*.test.cjs
-node scripts/validate-release.mjs
-```
+- `index.html`
+- `.htaccess`
+- `assets/resource-network-core.js`
+- `assets/einsteinminds-resource-network.js`
+- `assets/resource-network.css`
+- `assets/auth-route-guard.js`
+
+## Supabase configuration
+
+The frontend contains only the Supabase project URL and publishable key. All private secrets remain in Supabase Edge Function secrets.
+
+Auth:
+- Site URL: `https://einsteinminds.com`
+- Redirect allow-list: `https://einsteinminds.com/**`
+- Add the www or temporary Hostinger domain only if you actually use it.
+- Configure production SMTP for confirmation and password-reset emails.
+- Enable leaked-password protection.
+
+AI:
+- Set `GROQ_API_KEY` or `LLM_API_KEY` in Supabase Edge Function secrets.
+- Optionally set `LLM_BASE_URL` for an OpenAI-compatible HTTPS provider.
+- After sign-in, the AI status indicator checks the configured provider key and its `/models` endpoint.
+
+PayPal:
+- Set `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_PLAN_MONTHLY_ID`, `PAYPAL_PLAN_YEARLY_ID`, `PAYPAL_WEBHOOK_ID`, `PAYPAL_MODE` and `APP_URL` in Supabase Edge Function secrets.
+- The app checks that the monthly plan is active at USD $8/month, the annual plan is active at USD $60/year, and the webhook URL/events are correct.
+- A passing preflight is not a completed payment test. Run a sandbox purchase, verify the webhook updates Supabase, then cancel the sandbox subscription before live billing.
 
 ## Rollback
 
-Use Hostinger's Git deployment history to redeploy the last known-good deployment, or revert the GitHub commit and redeploy the selected branch. Keep the pre-upgrade file backup until the new version has passed a live smoke test.
-
-## No additional Hostinger secrets
-
-For this native Git integration, do not add FTP credentials as GitHub Actions secrets. GitHub authorization is handled through Hostinger's OAuth connection. No Supabase secret is required in Hostinger for the static frontend.
+Keep the backup until registration, email confirmation, password recovery, account sync, resource search, AI and PayPal sandbox checkout have been tested. If a release fails, restore the backed-up `public_html` files.
