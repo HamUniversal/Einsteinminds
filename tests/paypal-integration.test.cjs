@@ -45,7 +45,7 @@ test('PayPal webhook verifies signatures and deduplicates event IDs', () => {
 
 test('subscription records are private and users can only read their own row', () => {
   assert.match(migration, /enable row level security/i);
-  assert.match(migration, /auth\.uid\(\)\) = user_id/);
+  assert.ok(migration.includes('(SELECT auth.uid()) = user_id'));
   assert.match(migration, /grant select on public\.paypal_subscriptions to authenticated/i);
   assert.match(migration, /revoke all on public\.paypal_subscriptions from anon, authenticated/i);
   assert.match(migration, /paypal_webhook_events/);
