@@ -97,11 +97,34 @@ Deno.serve(async (req:Request)=>{
   const selectFields="id,canonical_url,official_domain,name,resource_type,directory_description,provider_introduction,intro_status,intro_source_url,intro_language,original_language,supported_languages,country_or_region,cost_model,pricing_url,accessibility_metadata,licensing_metadata,privacy_url,evidence_status,source_status,editorial_status,learning_stages,learning_stage_evidence_url,learning_stage_reviewed_at,last_checked_at,last_successful_link_check,resource_category_links!inner(category_id,resource_categories!inner(slug,name))";
 
   if(body?.action==="recommendations"){
-   const {data,error}=await db.from("resources").select(selectFields).eq("is_published",true).limit(500);
+   const rawCategory=typeof body.category==="string"?body.category.trim().toLowerCase():"";
+   const requestedCategory=/^[a-z0-9-]{2,64}$/.test(rawCategory)?rawCategory:"";
+   const excludedIds=Array.isArray(body.exclude_ids)
+    ?[...new Set(body.exclude_ids.filter((id:any)=>typeof id==="string"&&UUID.test(id)))].slice(0,100)
+    :[];
+   let query=db.from("resources").select(selectFields).eq("is_published",true);
+   let strategy="fresh_directory_sample";
+   let categoryApplied=false;
+   if(requestedCategory){
+    const {data:cat,error:catError}=await db.from("resource_categories").select("id").eq("slug",requestedCategory).eq("is_active",true).maybeSingle();
+    if(catError){console.error("recommendation category error",catError.message);return reply({error:"Fresh recommendations are temporarily unavailable"},503,origin,"private, no-store");}
+    if(cat){query=query.eq("resource_category_links.category_id",cat.id);categoryApplied=true;strategy="learning_goal_category";}
+   }
+   const {data,error}=await query.limit(500);
    if(error){console.error("recommendations query error",error.message);return reply({error:"Fresh recommendations are temporarily unavailable"},503,origin,"private, no-store");}
-   const items=mapRows(data||[]);
+   const allItems=mapRows(data||[]);
+   const unsavedItems=allItems.filter((item:any)=>!excludedIds.includes(item.id));
+   let items=unsavedItems.length?unsavedItems:allItems;
+   if(!items.length&&categoryApplied){
+    const {data:fallbackData,error:fallbackError}=await db.from("resources").select(selectFields).eq("is_published",true).limit(500);
+    if(fallbackError){console.error("recommendation fallback error",fallbackError.message);return reply({error:"Fresh recommendations are temporarily unavailable"},503,origin,"private, no-store");}
+    const fallbackItems=mapRows(fallbackData||[]);
+    const unsavedFallback=fallbackItems.filter((item:any)=>!excludedIds.includes(item.id));
+    items=unsavedFallback.length?unsavedFallback:fallbackItems;
+    strategy="catalogue_fallback";
+   }
    for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];}
-   return reply({items:items.slice(0,6),total:items.length,strategy:"random_catalogue_sample"},200,origin,"private, no-store");
+   return reply({items:items.slice(0,6),total:items.length,strategy,category:categoryApplied?requestedCategory:null},200,origin,"private, no-store");
   }
   async function baseQuery(searchText=q, categorySlug=category){
    let query=db.from("resources").select(selectFields,{count:"exact"}).eq("is_published",true);
