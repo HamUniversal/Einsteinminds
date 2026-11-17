@@ -28,6 +28,7 @@
     cache: new Map(),
     lastError: '',
     homeItems: [],
+    homeContextKey: '',
     homeRequestNumber: 0,
     homeLoading: false
   };
@@ -550,29 +551,49 @@
     }
   }
 
+  function recommendationPayload() {
+    const payload = { action: 'recommendations', exclude_ids: getSavedIds().slice(0, 100) };
+    try {
+      if (typeof S !== 'undefined' && Array.isArray(S.goals) && S.goals.length && typeof CATS !== 'undefined') {
+        const subject = S.goals[0]?.s;
+        const category = CATS.find((item) => item.id === subject || (Array.isArray(item.subs) && item.subs.includes(subject)));
+        if (category && /^[a-z0-9-]{2,64}$/.test(category.id)) payload.category = category.id;
+      }
+    } catch (_) {
+      // A missing local goal is a normal first-visit state; use fresh catalogue suggestions.
+    }
+    return payload;
+  }
+
   function renderHomeRecommendations() {
     const home = $('#homeRec');
     if (!home) return;
-    const items = state.homeItems.length ? state.homeItems : state.items.slice(0, 6);
-    if (!items.length) {
-      home.innerHTML = '<p class="bs muted">Fresh provider suggestions will appear when the directory is ready.</p>';
+    if (!state.homeItems.length) {
+      home.innerHTML = '<p class="bs muted" style="grid-column:1/-1">Recommendations are being prepared from the live provider directory…</p>';
       return;
     }
-    home.innerHTML = items.map((resource) => renderCard(resource)).join('');
+    home.innerHTML = state.homeItems.map((resource) => renderCard(resource)).join('');
     bindDelegatedEvents();
   }
 
-  async function refreshHomeRecommendations() {
+  async function refreshHomeRecommendations(force = false) {
     const home = $('#homeRec');
     if (!home) return false;
+    const payload = recommendationPayload();
+    const contextKey = JSON.stringify({ category: payload.category || '', exclude_ids: payload.exclude_ids });
+    if (!force && state.homeItems.length && state.homeContextKey === contextKey) {
+      renderHomeRecommendations();
+      return true;
+    }
     const requestNumber = ++state.homeRequestNumber;
     state.homeLoading = true;
     home.setAttribute('aria-busy', 'true');
-    home.innerHTML = '<p class="bs muted" style="grid-column:1/-1">Finding fresh provider suggestions…</p>';
+    home.innerHTML = '<p class="bs muted" style="grid-column:1/-1">Finding suggestions based on your learning goal and saved resources…</p>';
     try {
-      const result = await callFunction('resource-search', { action: 'recommendations' });
+      const result = await callFunction('resource-search', payload);
       if (requestNumber !== state.homeRequestNumber) return false;
       state.homeItems = Array.isArray(result.items) ? result.items.slice(0, 6) : [];
+      state.homeContextKey = contextKey;
       if (!state.homeItems.length) {
         home.innerHTML = '<p class="bs muted" style="grid-column:1/-1">No provider suggestions are available right now. Please try again.</p>';
         return false;
@@ -583,7 +604,7 @@
     } catch (error) {
       if (requestNumber !== state.homeRequestNumber) return false;
       home.innerHTML = '<div class="empty rn-empty" style="grid-column:1/-1"><h3>Recommendations could not be refreshed</h3><p class="bs muted">The live directory did not return fresh suggestions. Your saved resources and directory data are unchanged.</p><button type="button" class="btn btn-p" id="rnHomeRetry">Try again</button></div>';
-      $('#rnHomeRetry')?.addEventListener('click', () => refreshHomeRecommendations());
+      $('#rnHomeRetry')?.addEventListener('click', () => refreshHomeRecommendations(true));
       return false;
     } finally {
       if (requestNumber === state.homeRequestNumber) {
