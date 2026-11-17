@@ -651,7 +651,7 @@ html[dir=rtl] .sb.open{transform:none}
 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_pro_f5">Adult family-planning tools; child accounts remain locked</span></li>
 </ul>
 <button class="btn btn-p btn-block" onclick="Plans.choose('pro')" data-i18n="pl_up">Upgrade to Pro</button></div>
-<div class="price-card"><div class="price-tier" data-i18n="pl_edu_t">Educator · Not available yet</div><div class="price-amt">$0<span>/forever</span></div>
+<div class="price-card"><div class="price-tier" data-i18n="pl_edu_t">Educator · Not available yet</div><div class="price-amt">Not available<span>future service</span></div>
 <p class="price-desc" data-i18n="pl_edu_d">Educator verification and educator-specific services are not yet available.</p>
 <ul class="price-feats">
 <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pl_edu_f1">General AI lesson planner available to adult accounts</span></li>
@@ -736,7 +736,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="mdl-h"><h2 data-i18n="ag_title">Family Digital Wellbeing Agreement</h2><button class="mdl-x" onclick="M.close('mAgree')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
 <div class="mdl-b">
 <p class="bm muted" style="margin-bottom:20px" data-i18n="ag_desc">Co-create a positive, age-appropriate media plan with your family.</p>
-<div class="fld"><label data-i18n="ag_child">Child's Name</label><input class="inp" id="agName" placeholder="e.g. Family plan"></div>
+<div class="fld"><label data-i18n="ag_child">Household label (optional)</label><input class="inp" id="agName" placeholder="e.g. Family plan"></div>
 <div class="fld"><div class="rng-l"><span data-i18n="ag_edu">Daily Educational Screen Time</span><b id="agEduV">90 min</b></div><input type="range" class="rng" id="agEdu" min="15" max="240" step="15" value="90"></div>
 <div class="fld"><div class="rng-l"><span data-i18n="ag_rec">Daily Recreational Screen Time</span><b id="agRecV">45 min</b></div><input type="range" class="rng" id="agRec" min="0" max="180" step="15" value="45"></div>
 <div class="fld"><label data-i18n="ag_free">Screen-Free Times</label><div class="ck-row">
@@ -1177,7 +1177,7 @@ i_sub:"Institutional integrations are not active. Submit an interest request to 
 s_sub:"Appearance, language, privacy, consent and accessibility",s_appear:"Appearance",s_theme:"Theme",s_theme_d:"Light, dark, or follow your system.",s_light:"Light",s_dark:"Dark",s_auto:"Auto",s_collapse:"Compact Sidebar",s_collapse_d:"Minimize the navigation rail to icons only.",s_lang:"Language",s_lang_d:"14 languages with full interface translation.",s_subplan:"Subscription",s_plan:"Current Plan",s_manage:"Manage Plan",s_priv:"Privacy & Consent Ledger",s_pers:"AI Learning Personalization",s_pers_d:"Allow Einstein to remember your preferences and goals.",s_share:"Data Sharing with Institution",s_share_d:"Control what is shared with your school or university.",s_export:"Export My Data",s_export_d:"Download everything as JSON. Yours, always.",s_reset:"Reset Local Data",s_reset_d:"Clear synced workspace data and device-only journal, mood entries and preferences.",s_delete:"Delete My Account",s_delete_d:"Account deletion is not self-service yet. Contact support to request deletion.",s_a11y:"Accessibility",s_contrast:"High Contrast",s_contrast_d:"Stronger borders and text contrast.",s_motion:"Reduce Motion",s_motion_d:"Minimize animations and transitions.",s_size:"Text Size",s_size_d:"Adjust base type scale across the platform.",s_notif:"Notifications",s_remind:"Learning reminders (not active)",s_remind_d:"No email, push or device notifications are sent yet.",s_reco:"Show provider listings on the home page",s_reco_d:"Displays current directory results; they are not ranked or personally endorsed.",s_break:"Break reminders (not active)",s_break_d:"The timer records your own activity but does not send alerts.",s_legal:"Legal Center",
 cr_title:"Your Safety Matters",cr_desc:"Einstein Minds does not assess emergencies or provide crisis support. Contact a trusted person or local emergency/support service directly.",cr_call:"Call Crisis Helpline (988)",cr_safe:"I'm safe, return to learning",
 ag_title:"Family Digital Wellbeing Agreement",ag_desc:"Create a household screen-time agreement for your own planning. It does not control or monitor a child device.",ag_child:"Household label (optional)",ag_edu:"Daily Educational Screen Time",ag_rec:"Daily Recreational Screen Time",ag_free:"Screen-Free Times",ag_meals:"Family Meals",ag_bed:"Before Bed",ag_out:"Outdoor Time",ag_read:"Family Reading",ag_save:"Save Agreement",
-t_saved:"Saved to your collection",t_unsaved:"Removed from collection",t_lang:"Language changed",t_theme:"Theme updated",t_voice:"Voice input activated",t_classes:"Class management is not available yet.",t_goal:"Learning goal created",t_pf:"Portfolio item added",t_agree:"Family agreement saved",t_export:"Data exported",t_reset:"Local data cleared",t_limit:"Daily limit reached — time for a break",t_filter:"Filters applied",t_cleared:"Filters cleared",t_quiz:"Practice set generated",t_inst:"Access request submitted",t_lesson:"New lesson created",t_assign:"Lesson draft saved to your portfolio",t_journal:"Journal entry saved",t_mood:"Check-in recorded",t_refresh:"Recommendations refreshed",t_copy:"Copied to clipboard",t_deleted:"Account deletion request submitted",
+t_saved:"Saved to your collection",t_unsaved:"Removed from collection",t_lang:"Language changed",t_theme:"Theme updated",t_voice:"Voice input activated",t_classes:"Class management is not available yet.",t_goal:"Learning goal created",t_pf:"Portfolio item added",t_agree:"Family agreement saved",t_export:"Data exported",t_reset:"Account workspace and local data reset",t_limit:"Daily limit reached — time for a break",t_filter:"Filters applied",t_cleared:"Filters cleared",t_quiz:"Practice set generated",t_inst:"Access request submitted",t_lesson:"New lesson created",t_assign:"Lesson draft saved to your portfolio",t_journal:"Journal entry saved",t_mood:"Check-in recorded",t_refresh:"Recommendations refreshed",t_copy:"Copied to clipboard",t_deleted:"Account deletion request submitted",
 au_welcome:"Welcome to Einsteinminds",au_back:"Welcome back",au_sub:"One intelligent gateway to the world's knowledge.",au_age_t:"Create your account",au_age_s:"First, a neutral age check. This helps us apply the right protections.",au_birthm:"Birth Month",au_birthy:"Birth Year",au_continue:"Continue",au_name:"Full Name",au_email:"Email",au_pass:"Password",au_signup:"Create Account",au_signin:"Sign In",au_guest:"Continue as Guest Explorer",au_childnote:"Child account detected. AI chat and portfolio stay locked until a parent completes Verifiable Parental Consent.",au_teennote:"A parent can be invited as an Observer after sign-up.",au_created:"Account created",
 pl_title:"Choose Your Plan",pl_free_t:"Free · The Global Commons",pl_free_d:"Explore a directory of external education providers; offerings are not independently reviewed.",pl_free_f1:"Unique education-provider directory",pl_free_f2:"20 Ask Einstein prompts / day",pl_free_f3:"Explore Knowledge taxonomy",pl_free_f4:"Basic portfolio & goals",pl_pro_t:"Pro · Independent Learners",pl_pro_d:"Ask Einstein without the Free plan's daily prompt cap. AI availability depends on the configured model provider.",pl_pro_f1:"Ask Einstein without the Free daily prompt cap",pl_pro_f2:"Cloud-synced goals, saved providers and portfolio",pl_pro_f3:"Additional tools are not yet available",pl_pro_f4:"Learning-data export",pl_pro_f5:"Adult family-planning tools; child accounts remain locked",pl_edu_t:"Educator · Not available yet",pl_edu_d:"Educator verification and educator-specific services are not yet available.",pl_edu_f1:"General AI lesson planner available to adult accounts",pl_edu_f2:"Draft tools require professional review",pl_edu_f3:"Professional review required; no educator verification",pl_inst_t:"Institutional · Interest requests only",pl_inst_d:"Institutional integrations are not active. You can submit an interest request.",pl_inst_f1:"Institutional service not active",pl_inst_f2:"No SSO or LMS integration yet",pl_inst_f3:"No compliance certification is claimed",pl_inst_f4:"No district administration yet",pl_inst_unit:"future plans",pl_up:"Upgrade to Pro",pl_cur:"Current Plan",pl_verify:"Not available yet",pl_req:"Request Access",pl_month:"Monthly",pl_year:"Yearly · save 37%",pl_robin_t:"The Robin Hood Clause.",pl_robin_d:"Planned equity initiative. This program is not active and no institutional license has been sold or donated through it yet.",
 co_title:"Upgrade to Pro",co_plan:"Einsteinminds Pro",co_cycle:"Monthly billing",co_name:"Cardholder Name",co_card:"Card Number",co_exp:"Expiry",co_cvc:"CVC",co_note:"PayPal handles secure checkout. Payment details are entered on PayPal, not on Einstein Minds.",co_pay:"Continue to PayPal",
@@ -1201,7 +1201,7 @@ c_searchph:"Search education providers…",c_ress:"provider listings",c_resource
 h_badge:"unique provider listings · external sites not independently reviewed",
 r_title:"Education Provider Directory",
 e_sub:"Browse education-provider categories and select a learning domain.",
-i_sub:"Static examples for education institutions; no institutional service is connected.",
+i_sub:"Institutional integrations are not active. Submit an interest request to register your needs.",
 i_apid:"Institutional API and SSO integrations are not active yet.",
 s_lang_d:"AI-generated translations are available as drafts and have not been reviewed by fluent speakers.",
 s_remind:"Learning reminder preference (not active)",
@@ -1236,7 +1236,7 @@ pl_pro_d:"Pro provides access to Ask Einstein when the AI provider is configured
 pl_edu_d:"Educator verification and educator services are not yet available.",
 pl_inst_d:"Institutional services, integrations and district administration are not yet available.",
 pl_pro_f1:"Ask Einstein AI (requires active AI service)",pl_pro_f2:"Additional tools are not yet connected",
-pl_pro_f3:"No virtual labs are connected",pl_pro_f4:"No verified credentials are issued",
+pl_pro_f3:"No virtual labs are connected",pl_pro_f4:"Learning-data export",
 pl_edu_f1:"Educator verification not available",pl_edu_f2:"AI lesson planner available to adult accounts",
 pl_edu_f3:"No educator verification or service",pl_inst_f1:"No institutional accounts",
 pl_inst_f2:"No SSO or LMS integrations",pl_inst_f3:"No compliance coverage",
@@ -1271,12 +1271,12 @@ pl_req:"Institutional request unavailable",
 pl_pro_f5:"Adult family-planning tools; no child profiles",
 i_request:"Availability notice",
 i_demo_note:"Institutional integrations are not active. These cards explain future areas; submit an interest request to register your needs.",
-i_sub:"Static examples for education institutions; no institutional service is connected.",
-i_schd:"Example school-administration screen only; no service or data is connected.",
-i_unid:"Example university-services screen only; no service or data is connected.",
-i_disd:"Example district-management screen only; no service or data is connected.",
-i_govd:"Example government-services screen only; no service or data is connected.",
-i_ngod:"Example NGO-services screen only; no service or data is connected.",
+i_sub:"Institutional integrations are not active. Submit an interest request to register your needs.",
+i_schd:"Future school workspace and curriculum tools; not currently active.",
+i_unid:"Future academic resource and library integrations; not currently active.",
+i_disd:"District management, LMS, SSO and reporting are not currently active.",
+i_govd:"Government and ministry services are not currently active.",
+i_ngod:"NGO and foundation services are not currently active.",
 i_apid:"Institutional API and SSO integrations are not active yet.",
 ir_note:"Institutional integrations are not active yet. You can submit an interest request; it is not a service order.",
 ir_unavailable:"Request submission unavailable",
@@ -1284,7 +1284,7 @@ ed_classes:"Classes unavailable",
 ed_assign:"Assignment unavailable",
 cr_call:"Call or text 988 (U.S. only)",
 cr_desc:"Einstein Minds does not assess emergencies or provide crisis support. Please contact a trusted person or local emergency/support service directly.",
-pl_free_f2:"20 prompts/day (browser counter)",
+pl_free_f2:"20 Ask Einstein prompts per day",
 pl_pro_t:"Pro",pl_edu_t:"Educator (not available)",pl_inst_t:"Institutional (interest only)",
 pl_year:"Yearly · save 37%",pl_month:"Monthly",
 pl_robin_t:"Equity model (concept only)",
