@@ -1,4 +1,3 @@
--- PayPal subscription records and a private webhook idempotency ledger.
 create table if not exists public.paypal_subscriptions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -19,14 +18,16 @@ create index if not exists paypal_subscriptions_user_updated_idx
 create unique index if not exists paypal_subscriptions_one_pending_or_live_per_user
   on public.paypal_subscriptions(user_id)
   where status in ('APPROVAL_PENDING','APPROVED','ACTIVE','SUSPENDED','PAYMENT_FAILED');
+
 alter table public.paypal_subscriptions enable row level security;
 drop policy if exists "Users can read their own PayPal subscription" on public.paypal_subscriptions;
 create policy "Users can read their own PayPal subscription"
   on public.paypal_subscriptions for select to authenticated
-  using ((SELECT auth.uid()) = user_id);
+  using (auth.uid() = user_id);
 revoke all on public.paypal_subscriptions from anon, authenticated;
 grant select on public.paypal_subscriptions to authenticated;
 grant all on public.paypal_subscriptions to service_role;
+
 create table if not exists public.paypal_webhook_events (
   event_id text primary key,
   event_type text not null,
