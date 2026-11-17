@@ -72,7 +72,21 @@ test('all historical migrations and public catalogue restore seeds are included'
   assert.match(seedGuide, /227/);
   assert.match(seedGuide, /231/);
   assert.match(seedGuide, /not an independently reviewed/i);
-  const categoryRows = JSON.parse(categories.split('$einstein_categories
+  const seedMarker = (name) => String.fromCharCode(36) + name + String.fromCharCode(36);
+  const seedRows = (source, name) => {
+    const parts = source.split(seedMarker(name));
+    assert.equal(parts.length, 3, 'valid embedded seed payload: ' + name);
+    return JSON.parse(parts[1]);
+  };
+  const categoryRows = seedRows(categories, 'einstein_categories');
+  const resourceRows = seedRows(resources, 'einstein_resource_rows');
+  const mappingRows = seedRows(links, 'einstein_resource_links');
+  const sourceRows = seedRows(sources, 'einstein_resource_sources');
+  assert.equal(categoryRows.length, 24);
+  assert.equal(resourceRows.length, 227);
+  assert.equal(mappingRows.length, 231);
+  assert.equal(sourceRows.length, 229);
+  assert.match(read('supabase/seed/99_verify.sql'), /seed_counts_match_snapshot/);
   assert.match(read('README.md'), /separate empty Supabase project/);
 });
 
