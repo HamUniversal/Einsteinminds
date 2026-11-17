@@ -1,0 +1,72 @@
+name: Package complete repository source
+
+on:
+  push:
+    branches:
+      - upgrade/resource-network-v2
+    paths:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: einsteinminds-source-package-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the exact release commit
+        uses: actions/checkout@v4
+        with:
+          ref: upgrade/resource-network-v2
+          fetch-depth: 0
+
+      - name: Validate source before packaging
+        run: |
+          set -euo pipefail
+          node --check assets/resource-network-core.js
+          node --check assets/einsteinminds-resource-network.js
+          node --check assets/auth-route-guard.js
+          node --check scripts/apply-update.mjs
+          node --check scripts/validate-release.mjs
+          node --test tests/*.test.cjs
+          node scripts/validate-release.mjs
+
+      - name: Build complete tracked-source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          commit="$(git rev-parse HEAD)"
+          short="$(git rev-parse --short HEAD)"
+          mkdir -p source-package
+          git archive --format=tar HEAD | tar -xf - -C source-package
+          cat > source-package/SOURCE-RELEASE.json <<EOF
+          {
+            "project": "Einstein Minds",
+            "repository": "HamUniversal/Einsteinminds",
+            "branch": "upgrade/resource-network-v2",
+            "commit": "$commit",
+            "package_scope": "All tracked files from the selected Git commit, plus this manifest",
+            "migration_note": "The four original resource-network migration SQL files remain unrecovered; see docs/RELEASE-CAPABILITY-MATRIX.md."
+          }
+          EOF
+          archive="EinsteinMinds-Repository-Source-$short.zip"
+          (cd source-package && zip -qr "../$archive" .)
+          sha256sum "$archive" | tee "$archive.sha256"
+          unzip -t "$archive"
+          unzip -l "$archive"
+
+      - name: Upload complete repository source
+        uses: actions/upload-artifact@v4
+        with:
+          name: einsteinminds-repository-source
+          path: |
+            EinsteinMinds-Repository-Source-*.zip
+            EinsteinMinds-Repository-Source-*.zip.sha256
+          if-no-files-found: error
+          retention-days: 14
