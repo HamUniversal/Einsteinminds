@@ -48,11 +48,38 @@ test('Hostinger delivery has auth-route fallback, safe headers and no stale HTML
   assert.match(htaccess, /max-age=3600/);
 });
 
-test('repository documentation is Hostinger-only and discloses the migration-source gap', () => {
+test('all historical migrations and public catalogue restore seeds are included', () => {
+  const migrationPaths = [
+    '20261115022622_resource_network_v1.sql',
+    '20261115022922_resource_policy_performance_hardening.sql',
+    '20261115023213_resource_category_counts_rpc.sql',
+    '20261115025852_resource_category_admin_and_count_fix.sql',
+    '20261115180822_auth_least_privilege_grants.sql',
+    '20261115180838_grant_authenticated_evidence_review.sql',
+    '20261116153025_paypal_subscription_billing.sql',
+    '20261117053941_user_workspace_and_institutional_requests.sql'
+  ];
+  for (const file of migrationPaths) assert.ok(fs.existsSync(path.join(root,'supabase/migrations',file)), 'missing migration '+file);
+  const categories = read('supabase/seed/00_resource_categories.sql');
+  const resources = read('supabase/seed/01_resources.sql');
+  const links = read('supabase/seed/02_resource_category_links.sql');
+  const sources = read('supabase/seed/03_resource_sources.sql');
+  const seedGuide = read('supabase/seed/README.md');
+  assert.match(categories, /jsonb_to_recordset/);
+  assert.match(resources, /jsonb_to_recordset/);
+  assert.match(links, /jsonb_to_recordset/);
+  assert.match(sources, /jsonb_to_recordset/);
+  assert.match(seedGuide, /227/);
+  assert.match(seedGuide, /231/);
+  assert.match(seedGuide, /not an independently reviewed/i);
+  assert.match(read('README.md'), /separate empty Supabase project/);
+});
+
+test('repository documentation is Hostinger-only and records the remaining security follow-up', () => {
   const docs = ['README.md','README-HOSTINGER.md','START-HERE.md','SECURITY.md','supabase/README.md'].map(read).join('\n');
   assert.match(docs, /Hostinger/);
   assert.match(docs, /leaked-password protection disabled/i);
-  assert.match(docs, /original four resource-network migration SQL files/i);
+  assert.match(docs, /catalogue snapshot/i);
   assert.doesNotMatch(docs, /Netlify/i);
 });
 
