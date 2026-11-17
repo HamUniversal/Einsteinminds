@@ -52,10 +52,22 @@ The live Supabase project already contains these active Edge Functions:
 
 | Function | Version | Role |
 |---|---:|---|
-| `agent` | 10 | Authenticated learning assistant; reports a scripted fallback when no model is configured |
+| `agent` | 35 | Authenticated Groq learning assistant with Einstein Minds directory search, provider metadata, and extracted-document context |
 | `resource-search` | 3 | Public published-resource search, category counts and stage filters |
 | `resource-outbound` | 2 | Resolves a catalogue UUID, validates its stored HTTPS host, records a minimal click event and applies safe UTM tags |
 | `provider-introduction` | 1 | Retrieves and caches metadata from the provider's official page |
+
+### Ask Einstein document text analysis
+
+The current working branch adds a first real document-understanding path:
+
+- Attach PDF, DOCX, TXT, Markdown, or HTML files from the Ask Einstein interface.
+- PDF text is extracted page by page in the browser; page labels are preserved for citations. DOCX and text-based formats are extracted in the browser.
+- File size is limited to 15 MB; PDFs are limited to 40 pages; extracted context is capped at 26,000 characters.
+- Extracted text is sent with the user's question to the authenticated `agent` Edge Function and supplied to the Groq model as untrusted source material.
+- The document itself is not uploaded to Supabase Storage or saved in the user's account. The file must be attached again after a page refresh.
+- Scanned/image-only PDFs, OCR, embedded image analysis, and reliable visual/table layout extraction are not supported in this first version. If text cannot be extracted, the UI reports that instead of pretending the document was read.
+- The deployed backend is `agent` v35 (`verify_jwt=true`). The frontend upload control and extraction code are committed to `feature/ask-einstein-groq-agent`; they are not live on the production site until that branch is reviewed and deployed through Hostinger.
 
 The update calls these functions; it does not redeploy or replace them and does not require a database migration. The deployed function source and the four existing migration files still need to be exported into GitHub before GitHub can become the complete reproducible source of truth for the backend. See `supabase/README.md`.
 
