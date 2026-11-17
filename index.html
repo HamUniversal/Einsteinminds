@@ -1555,24 +1555,37 @@ choose(p){if(p==='free'){M.close('pricingModal');Toast.show(T('pl_cur'),'ok');re
 if(p==='pro'){M.close('pricingModal');this.openCheckout();return}
 if(p==='educator'){M.close('pricingModal');this.verifyEducator();return}
 if(p==='inst'){M.close('pricingModal');M.open('instReqModal');return}},
+async checkBilling(){
+ try{
+  const {data,error}=await supabaseClient.functions.invoke('paypal-subscriptions',{body:{action:'preflight'}});
+  if(error)return {ready:false,message:error.message||'PayPal configuration could not be checked.'};
+  return data||{ready:false,message:'PayPal configuration check returned no status.'};
+ }catch(error){return {ready:false,message:error?.message||'PayPal configuration could not be checked.'}}
+},
 async openCheckout(){if(!Auth.signedIn){Auth.open('in');Toast.show(T('au_signin'),'warn');return}
 $('#coAmt').textContent=this.cycle==='m'?'$8.00':'$60.00';
 $('#coCycle').textContent=this.cycle==='m'?'Monthly recurring billing':'Annual recurring billing';
-$('#coNote').textContent='Secure recurring billing is handled by PayPal. Einstein Minds never stores your PayPal password or card details.';
-$('#coManage').style.display='none';$('#coPay').style.display='';$('#coPay').disabled=false;
+$('#coNote').textContent='Checking PayPal credentials, subscription plans and webhook configuration…';
+$('#coManage').style.display='none';$('#coPay').style.display='';$('#coPay').disabled=true;$('#coPay').textContent='Checking checkout…';
 const {data:sub,error}=await supabaseClient.from('paypal_subscriptions').select('paypal_subscription_id,status,plan_key,next_billing_time,cancel_requested_at').eq('user_id',Auth.user.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
-if(error){Toast.show('Could not load subscription status. Please try again.','bad');return}
+if(error){$('#coNote').textContent='Could not load subscription status. Please try again.';Toast.show('Could not load subscription status. Please try again.','bad');M.open('checkoutModal');return}
 if(sub&&['ACTIVE','APPROVAL_PENDING','APPROVED','SUSPENDED','PAYMENT_FAILED'].includes(sub.status)){
-$('#coNote').textContent=sub.status==='ACTIVE'?'Your Pro subscription is active.'+(sub.next_billing_time?' Next billing: '+new Date(sub.next_billing_time).toLocaleDateString(): ''): 'Your subscription status is '+sub.status.replaceAll('_',' ').toLowerCase()+'.';
-$('#coManage').style.display=sub.status==='ACTIVE'?'':'none';$('#coPay').style.display='none';
+ $('#coNote').textContent=sub.status==='ACTIVE'?'Your Pro subscription is active.'+(sub.next_billing_time?' Next billing: '+new Date(sub.next_billing_time).toLocaleDateString(): ''):'Your subscription status is '+sub.status.replaceAll('_',' ').toLowerCase()+'.';
+ $('#coManage').style.display=sub.status==='ACTIVE'?'':'none';$('#coPay').style.display='none';
+}else{
+ const status=await this.checkBilling();
+ if(status.ready===true){$('#coNote').textContent='PayPal checkout is configured. You will complete payment securely on PayPal.';$('#coPay').disabled=false;$('#coPay').textContent='Continue to PayPal'}
+ else{$('#coNote').textContent='Checkout is not ready: '+(status.message||((status.issues||[]).join(' ')||'PayPal credentials, plan IDs or webhook configuration need attention.'));$('#coPay').disabled=true;$('#coPay').textContent='Checkout not ready'}
 }
 M.open('checkoutModal')},
 async pay(){if(this.busy)return;if(!Auth.signedIn){Auth.open('in');return}
 this.busy=true;$('#coPay').disabled=true;$('#coPay').textContent='Connecting to PayPal…';
-try{const {data,error}=await supabaseClient.functions.invoke('paypal-subscriptions',{body:{action:'create',plan_key:this.cycle==='m'?'monthly':'yearly'}});
-if(error)throw error;if(!data?.approval_url)throw new Error(data?.error||'PayPal approval link was not returned.');
-window.location.assign(data.approval_url)
-}catch(error){Toast.show(error?.message||'Could not start PayPal checkout. Please try again.','bad');$('#coPay').disabled=false;$('#coPay').textContent='Continue to PayPal'}
+try{
+ const status=await this.checkBilling();if(status.ready!==true)throw new Error(status.message||'PayPal checkout is not configured and verified yet.');
+ const {data,error}=await supabaseClient.functions.invoke('paypal-subscriptions',{body:{action:'create',plan_key:this.cycle==='m'?'monthly':'yearly'}});
+ if(error)throw error;if(!data?.approval_url)throw new Error(data?.error||'PayPal approval link was not returned.');
+ window.location.assign(data.approval_url)
+}catch(error){Toast.show(error?.message||'Could not start PayPal checkout. Please try again.','bad');$('#coPay').disabled=true;$('#coPay').textContent='Checkout not ready';$('#coNote').textContent=error?.message||'PayPal checkout is not ready.'}
 finally{this.busy=false}},
 async cancelSubscription(){if(!Auth.signedIn||!confirm('Cancel your Einstein Minds Pro subscription through PayPal?'))return;
 const {data:sub,error:lookupError}=await supabaseClient.from('paypal_subscriptions').select('paypal_subscription_id,status').eq('user_id',Auth.user.id).eq('status','ACTIVE').order('updated_at',{ascending:false}).limit(1).maybeSingle();
