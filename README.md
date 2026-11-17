@@ -62,7 +62,7 @@ The app now checks AI provider connectivity after sign-in. PayPal checkout runs 
 - Site URL: `https://einsteinminds.com`
 - Redirect allow-list: `https://einsteinminds.com/**`
 - Add `https://www.einsteinminds.com/**` only if the www host is used.
-- For temporary Hostinger testing, add `https://darkturquoise-magpie-142020.hostingersite.com/**`.
+- For Hostinger preview testing, add `https://*.hostingersite.com/**` (or the exact preview hostname shown in Hostinger).
 - For local testing, add the exact localhost origin used by the local server.
 
 The app sends confirmation and recovery redirects to the current site root. Configure a production SMTP provider in Supabase Auth so confirmation and recovery emails can be delivered reliably.
