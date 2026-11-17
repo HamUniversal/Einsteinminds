@@ -101,8 +101,7 @@ test('all historical migrations and public catalogue restore seeds are included'
 });
 
 test('repository documentation is Hostinger-only and records the security review follow-up', () => {
-  const docs = ['README.md', 'README-HOSTINGER.md', 'START-HERE.md', 'SECURITY.md', 'supabase/README.md'].map(read).join('
-');
+  const docs = ['README.md', 'README-HOSTINGER.md', 'START-HERE.md', 'SECURITY.md', 'supabase/README.md'].map(read).join(String.fromCharCode(10));
   assert.ok(docs.includes('Hostinger'));
   assert.ok(docs.toLowerCase().includes('leaked-password protection disabled'));
   assert.ok(docs.toLowerCase().includes('catalogue snapshot'));
