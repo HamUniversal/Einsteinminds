@@ -9,10 +9,10 @@ Last inspected: 2026-11-17
 | Function | Active version | JWT |
 |---|---:|---|
 | `agent` | 36 | Required |
-| `resource-search` | 17 | Not required; public catalogue search |
-| `resource-outbound` | 15 | Required |
-| `provider-introduction` | 14 | Required |
-| `paypal-subscriptions` | 10 | Required |
+| `resource-search` | 19 | Not required; public catalogue search |
+| `resource-outbound` | 16 | Not required; validates published resource UUID and stored official host |
+| `provider-introduction` | 15 | Required |
+| `paypal-subscriptions` | 11 | Required |
 | `paypal-webhook` | 9 | Not required; verifies PayPal webhook signatures |
 
 The AI endpoint has an authenticated `action: health` check. It verifies that an AI key exists and that the configured OpenAI-compatible model endpoint responds to `/models`.
