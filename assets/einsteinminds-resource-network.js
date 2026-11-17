@@ -35,15 +35,18 @@
 
   function getSavedIds() {
     try {
-      const saved = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]');
-      return Array.isArray(saved) ? [...new Set(saved.filter(Core.isUuid))] : [];
+      if (typeof Auth === 'undefined' || !Auth.signedIn || typeof S === 'undefined') return [];
+      return Array.isArray(S.saved) ? [...new Set(S.saved.filter(Core.isUuid))] : [];
     } catch (_) {
       return [];
     }
   }
 
   function setSavedIds(ids) {
-    localStorage.setItem(SAVED_KEY, JSON.stringify([...new Set(ids.filter(Core.isUuid))]));
+    if (typeof Auth === 'undefined' || !Auth.signedIn || typeof S === 'undefined') return false;
+    S.saved = [...new Set(ids.filter(Core.isUuid))];
+    if (typeof persist === 'function') persist();
+    return true;
   }
 
   async function callFunction(name, body) {
@@ -303,6 +306,7 @@
       note.textContent = `${state.total.toLocaleString()} directory listings · ${state.categories.length} domains · ${levelText}. Inclusion is not an endorsement.`;
       if (state.stageCoverage === state.total && state.learningLevel === 'all') note.textContent += ' No learning-level evidence has been reviewed yet.';
     }
+    renderHomeRecommendations();
     const filterBar = $('#libFilterBar');
     if (filterBar) {
       const parts = [];
@@ -473,10 +477,11 @@
   }
 
   function toggleSave(resourceId) {
+    if (typeof Gate === 'undefined' || !Gate.require()) return;
     const saved = getSavedIds();
     const index = saved.indexOf(resourceId);
     if (index >= 0) saved.splice(index, 1); else saved.push(resourceId);
-    setSavedIds(saved);
+    if (!setSavedIds(saved)) return;
     const button = $(`[data-rn-save="${resourceId}"]`);
     if (button) {
       const on = saved.includes(resourceId);
@@ -528,17 +533,30 @@
   }
 
   function bindDelegatedEvents() {
-    const grid = $('#resGrid');
-    if (!grid || grid.dataset.rnBound === '1') return;
-    grid.dataset.rnBound = '1';
-    grid.addEventListener('click', (event) => {
-      const open = event.target.closest('[data-rn-open]');
-      const details = event.target.closest('[data-rn-details]');
-      const save = event.target.closest('[data-rn-save]');
-      if (open) { event.preventDefault(); openExternal(open.dataset.rnOpen); }
-      else if (details) { event.preventDefault(); showDetails(details.dataset.rnDetails); }
-      else if (save) { event.preventDefault(); toggleSave(save.dataset.rnSave); }
-    });
+    for (const container of [$('#resGrid'), $('#homeRec')]) {
+      if (!container || container.dataset.rnBound === '1') continue;
+      container.dataset.rnBound = '1';
+      container.addEventListener('click', (event) => {
+        const open = event.target.closest('[data-rn-open]');
+        const details = event.target.closest('[data-rn-details]');
+        const save = event.target.closest('[data-rn-save]');
+        if (open) { event.preventDefault(); openExternal(open.dataset.rnOpen); }
+        else if (details) { event.preventDefault(); showDetails(details.dataset.rnDetails); }
+        else if (save) { event.preventDefault(); toggleSave(save.dataset.rnSave); }
+      });
+    }
+  }
+
+  function renderHomeRecommendations() {
+    const home = $('#homeRec');
+    if (!home) return;
+    const items = state.items.slice(0, 6);
+    if (!items.length) {
+      home.innerHTML = '<p class="bs muted">Live provider recommendations will appear after the directory loads.</p>';
+      return;
+    }
+    home.innerHTML = items.map((resource) => renderCard(resource)).join('');
+    bindDelegatedEvents();
   }
 
   function overrideLegacyDirectory() {
@@ -650,7 +668,8 @@
     loadMore,
     openExternal,
     state,
-    getSavedIds
+    getSavedIds,
+    renderHomeRecommendations
   });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
