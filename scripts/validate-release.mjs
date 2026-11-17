@@ -55,7 +55,7 @@ const checks = [
   [html.includes('Child accounts are disabled') && !html.includes('const CHILDREN='), 'child account access is explicitly disabled without fake child records'],
   [html.includes('This timer records only sessions you start inside Einstein Minds'), 'screen-time limits are accurately described as in-app only'],
   [html.includes('Journal entries, mood check-ins') && html.includes('this browser'), 'journal and mood storage is disclosed as device-local'],
-  [html.includes('PayPal') && html.includes('action:'preflight''), 'checkout calls PayPal configuration preflight'],
+  [html.includes('PayPal') && html.includes("action:'preflight'"), 'checkout calls PayPal configuration preflight'],
   [paypal.includes('action==="preflight"'), 'PayPal preflight endpoint is implemented'],
   [paypal.includes('checkPlan(monthly,8,"MONTH","Monthly")') && paypal.includes('checkPlan(yearly,60,"YEAR","Annual")'), 'PayPal plans are checked against USD 8 monthly and USD 60 annual'],
   [paypal.includes('PAYPAL_WEBHOOK_ID') && paypal.includes('v1/notifications/webhooks/'), 'PayPal webhook endpoint is checked'],
