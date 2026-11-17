@@ -1749,29 +1749,13 @@ async respond(q,history=[]){
 try{
 const {data:{session}}=await supabaseClient.auth.getSession();
 if(!session)return {success:false,error:'Your session has expired. Please sign in again.'};
-let resources=[],resourceSearchUsed=false;
 const wantsResources=this.mode==='research'||this.tools.has('tl_web')||/\b(find|search|recommend|resources?|courses?|websites?|sources?|providers?|where can i learn)\b/i.test(q);
-if(wantsResources){
-try{
-const searchController=new AbortController();const searchTimeout=setTimeout(()=>searchController.abort(),9000);
-let searchResponse;try{searchResponse=await fetch(`${SUPABASE_URL}/functions/v1/resource-search`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY,Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({query:q,page:1,page_size:6,sort:'name_asc'}),signal:searchController.signal});}finally{clearTimeout(searchTimeout);}
-const searchData=await searchResponse.json().catch(()=>({}));
-if(searchResponse.ok&&Array.isArray(searchData.items)){
-resources=searchData.items.map(r=>({title:r.name,url:r.canonical_url,description:r.directory_description||r.provider_introduction||'',id:r.id})).filter(r=>r.title&&r.url);
-resourceSearchUsed=true;
-}
-}catch(searchError){console.warn('Curated resource search unavailable',String(searchError).slice(0,120));}
-}
-if(!resources.length){
-const liveItems=window.EinsteinmindsResourceNetwork?.state?.items||[];
-resources=liveItems.slice(0,6).map(r=>({title:r.name||r.title,url:r.canonical_url||r.url,description:r.directory_description||''})).filter(r=>r.title&&r.url);
-}
 const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),45000);
-let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resources}),signal:controller.signal});}finally{clearTimeout(timeout);}
+let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resource_search_requested:wantsResources}),signal:controller.signal});}finally{clearTimeout(timeout);}
 const out=await res.json().catch(()=>({}));
 if(!res.ok||!out?.reply){return {success:false,error:out?.error||`AI service returned HTTP ${res.status}.`};}
 if(out.demo===true||out.provider!=='groq'){return {success:false,error:'The AI provider did not confirm a genuine model response. Please try again later.'};}
-return {success:true,reply:out.reply,model:out.model||'Groq',resources:resourceSearchUsed?resources:[],resourceSearchUsed};
+return {success:true,reply:out.reply,model:out.model||'Groq',resources:Array.isArray(out.resources)?out.resources:[],resourceSearchStatus:out.resource_search_status||null};
 }catch(error){return {success:false,error:error?.name==='AbortError'?'Einstein is taking longer than expected. Please try again.':(error?.message||'The AI service could not be reached.')};}
 }};
 /* ═══ EDUCATOR ═══ */
