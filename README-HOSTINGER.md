@@ -46,13 +46,13 @@ The interface supports:
 
 The Supabase `learning_stages` field currently has no reviewed mappings. Therefore, specific stage filters correctly return no results until provider-specific evidence is reviewed and stored. The interface does not infer learner age suitability from a provider name, topic, or marketing claim. "All learning levels" and "Not yet classified" remain available.
 
-## Ask Einstein agent upgrade (17 November 2026)\n\nThe authenticated `agent` Edge Function is deployed as version 30. In addition to the adaptive teaching prompt and source-integrity rules, Ask Einstein now has a controlled directory-search tool: when a user asks for learning resources and the request does not already include resource results, the agent calls the existing `resource-search` Edge Function, retrieves up to six matching listings, and supplies their exact names, canonical URLs and directory descriptions to the model. It distinguishes keyword matches, related-subject matches, no matches and unavailable search results. This is an Einstein Minds catalogue search, not open-web browsing or provider verification. The model response budget remains 1,800 tokens at temperature 0.35. The exact deployed source is tracked at `supabase/functions/agent/index.ts` on `feature/ask-einstein-groq-agent`.\n\n## Existing Supabase functions
+## Ask Einstein agent upgrade (17 November 2026)\n\nThe authenticated `agent` Edge Function is deployed as version 31. In addition to adaptive teaching and controlled directory search, Ask Einstein can call the existing `provider-introduction` Edge Function when a user asks to investigate a listed provider. It uses the authenticated user's session, retrieves up to three providers' cached or freshly extracted official-site page metadata, and includes the source URL. That metadata is clearly distinguished from independent verification or endorsement. The provider service validates stored official hosts and restricts redirects. The agent still does not have general open-web browsing. The model response budget remains 1,800 tokens at temperature 0.35. The exact deployed source is tracked at `supabase/functions/agent/index.ts` on `feature/ask-einstein-groq-agent`.\n\n## Existing Supabase functions
 
 The live Supabase project already contains these active Edge Functions:
 
 | Function | Version | Role |
 |---|---:|---|
-| `agent` | 30 | Authenticated Groq-backed Einstein learning agent; adaptive teaching, conversation context and autonomous Einstein Minds directory search with source-integrity controls |
+| `agent` | 31 | Authenticated Groq-backed Einstein learning agent; adaptive teaching, autonomous directory search and controlled official-provider metadata retrieval |
 | `resource-search` | 3 | Public published-resource search, category counts and stage filters |
 | `resource-outbound` | 2 | Resolves a catalogue UUID, validates its stored HTTPS host, records a minimal click event and applies safe UTM tags |
 | `provider-introduction` | 1 | Retrieves and caches metadata from the provider's official page |
