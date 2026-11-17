@@ -6,11 +6,11 @@ This directory records the Einstein Minds Edge Function source deployed to Supab
 
 | Function | Active version | JWT verification | Required configuration |
 |---|---:|---|---|
-| \`agent\` | 27 | Enabled | Supabase runtime keys and \`GROQ_API_KEY\` or \`LLM_API_KEY\`; optional \`LLM_BASE_URL\` |
-| \`resource-search\` | 18 | Disabled | Supabase runtime URL and public key; public read-only catalogue search |
-| \`resource-outbound\` | 15 | Enabled | Supabase runtime URL and public key; resolves only published resource IDs |
-| \`provider-introduction\` | 14 | Enabled | Supabase runtime keys and server-side service-role key |
-| \`paypal-subscriptions\` | 10 | Enabled | PayPal client ID/secret, monthly/yearly plan IDs, webhook ID, mode and app URL |
+| \`agent\` | 36 | Enabled | Supabase runtime keys and \`GROQ_API_KEY\` or \`LLM_API_KEY\`; optional \`LLM_BASE_URL\` |
+| \`resource-search\` | 19 | Disabled | Supabase runtime URL and public key; public read-only catalogue search |
+| \`resource-outbound\` | 16 | Disabled | Supabase runtime URL and public key; resolves only published resource IDs |
+| \`provider-introduction\` | 15 | Enabled | Supabase runtime keys and server-side service-role key |
+| \`paypal-subscriptions\` | 11 | Enabled | PayPal client ID/secret, monthly/yearly plan IDs, webhook ID, mode and app URL |
 | \`paypal-webhook\` | 9 | Disabled | PayPal client ID/secret and webhook ID; verifies PayPal signatures before processing |
 
 Supabase supplies \`SUPABASE_URL\`, \`SUPABASE_ANON_KEY\` and \`SUPABASE_SERVICE_ROLE_KEY\` to the Edge Function runtime. Do not put the service-role key in the browser, GitHub, or Hostinger static files.
@@ -35,7 +35,8 @@ A passing preflight verifies configuration only. A real sandbox checkout, approv
 
 ## Security
 
-- Keep JWT verification enabled for \`agent\`, \`resource-outbound\`, \`provider-introduction\` and \`paypal-subscriptions\`.
+- Keep JWT verification enabled for \`agent\`, \`provider-introduction\` and \`paypal-subscriptions\`.
+- \`resource-outbound\` has JWT verification disabled at the edge; it accepts only a catalogue UUID, resolves a published record, enforces the stored official host, rejects arbitrary destinations, and applies CORS origin controls.
 - \`resource-search\` is public but read-only and validates published-resource queries.
 - \`paypal-webhook\` is public at the transport layer but independently verifies the PayPal webhook signature and deduplicates event IDs.
 - Never add client access policies to \`paypal_webhook_events\`; it is intentionally private to the service role.
