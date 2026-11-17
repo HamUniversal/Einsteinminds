@@ -39,13 +39,13 @@ The six active deployed function files were compared byte-for-byte with the GitH
 | Function | Deployed version | JWT verification |
 |---|---:|---|
 | `agent` | 36 | Required |
-| `resource-search` | 20 | Not required; read-only published catalogue |
+| `resource-search` | 21 | Not required; read-only published catalogue |
 | `resource-outbound` | 16 | Not required; validates catalogue IDs and stored official hosts |
 | `provider-introduction` | 15 | Required |
 | `paypal-subscriptions` | 11 | Required |
 | `paypal-webhook` | 9 | Not required at transport layer; PayPal signature verification is required |
 
-The current source branch now contains an additional goal-category recommendation improvement. That newer `resource-search` source must pass CI and then be deployed to Supabase before the new personalized request parameters are live.
+The updated goal-category recommendation source passed the release validation suite and is deployed to Supabase as `resource-search` v21. The active function version and the new category/exclusion code paths were verified after deployment; a signed-in browser journey with real saved-resource and goal data remains to be tested.
 
 ### Database row counts
 
