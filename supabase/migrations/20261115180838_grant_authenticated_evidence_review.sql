@@ -1,0 +1,1 @@
+GRANT SELECT ON TABLE public.resource_verification_evidence TO authenticated;

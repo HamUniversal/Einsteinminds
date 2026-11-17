@@ -26,7 +26,11 @@
     stageCoverage: null,
     items: [],
     cache: new Map(),
-    lastError: ''
+    lastError: '',
+    homeItems: [],
+    homeContextKey: '',
+    homeRequestNumber: 0,
+    homeLoading: false
   };
 
   const $ = (selector, scope) => (scope || document).querySelector(selector);
@@ -35,15 +39,18 @@
 
   function getSavedIds() {
     try {
-      const saved = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]');
-      return Array.isArray(saved) ? [...new Set(saved.filter(Core.isUuid))] : [];
+      if (typeof Auth === 'undefined' || !Auth.signedIn || typeof S === 'undefined') return [];
+      return Array.isArray(S.saved) ? [...new Set(S.saved.filter(Core.isUuid))] : [];
     } catch (_) {
       return [];
     }
   }
 
   function setSavedIds(ids) {
-    localStorage.setItem(SAVED_KEY, JSON.stringify([...new Set(ids.filter(Core.isUuid))]));
+    if (typeof Auth === 'undefined' || !Auth.signedIn || typeof S === 'undefined') return false;
+    S.saved = [...new Set(ids.filter(Core.isUuid))];
+    if (typeof persist === 'function') persist();
+    return true;
   }
 
   async function callFunction(name, body) {
@@ -303,6 +310,7 @@
       note.textContent = `${state.total.toLocaleString()} directory listings · ${state.categories.length} domains · ${levelText}. Inclusion is not an endorsement.`;
       if (state.stageCoverage === state.total && state.learningLevel === 'all') note.textContent += ' No learning-level evidence has been reviewed yet.';
     }
+    renderHomeRecommendations();
     const filterBar = $('#libFilterBar');
     if (filterBar) {
       const parts = [];
@@ -473,10 +481,11 @@
   }
 
   function toggleSave(resourceId) {
+    if (typeof Gate === 'undefined' || !Gate.require()) return;
     const saved = getSavedIds();
     const index = saved.indexOf(resourceId);
     if (index >= 0) saved.splice(index, 1); else saved.push(resourceId);
-    setSavedIds(saved);
+    if (!setSavedIds(saved)) return;
     const button = $(`[data-rn-save="${resourceId}"]`);
     if (button) {
       const on = saved.includes(resourceId);
@@ -528,17 +537,81 @@
   }
 
   function bindDelegatedEvents() {
-    const grid = $('#resGrid');
-    if (!grid || grid.dataset.rnBound === '1') return;
-    grid.dataset.rnBound = '1';
-    grid.addEventListener('click', (event) => {
-      const open = event.target.closest('[data-rn-open]');
-      const details = event.target.closest('[data-rn-details]');
-      const save = event.target.closest('[data-rn-save]');
-      if (open) { event.preventDefault(); openExternal(open.dataset.rnOpen); }
-      else if (details) { event.preventDefault(); showDetails(details.dataset.rnDetails); }
-      else if (save) { event.preventDefault(); toggleSave(save.dataset.rnSave); }
-    });
+    for (const container of [$('#resGrid'), $('#homeRec')]) {
+      if (!container || container.dataset.rnBound === '1') continue;
+      container.dataset.rnBound = '1';
+      container.addEventListener('click', (event) => {
+        const open = event.target.closest('[data-rn-open]');
+        const details = event.target.closest('[data-rn-details]');
+        const save = event.target.closest('[data-rn-save]');
+        if (open) { event.preventDefault(); openExternal(open.dataset.rnOpen); }
+        else if (details) { event.preventDefault(); showDetails(details.dataset.rnDetails); }
+        else if (save) { event.preventDefault(); toggleSave(save.dataset.rnSave); }
+      });
+    }
+  }
+
+  function recommendationPayload() {
+    const payload = { action: 'recommendations', exclude_ids: getSavedIds().slice(0, 100) };
+    try {
+      if (typeof S !== 'undefined' && Array.isArray(S.goals) && S.goals.length && typeof CATS !== 'undefined') {
+        const subject = S.goals[0]?.s;
+        const category = CATS.find((item) => item.id === subject || (Array.isArray(item.subs) && item.subs.includes(subject)));
+        if (category && /^[a-z0-9-]{2,64}$/.test(category.id)) payload.category = category.id;
+      }
+    } catch (_) {
+      // A missing local goal is a normal first-visit state; use fresh catalogue suggestions.
+    }
+    return payload;
+  }
+
+  function renderHomeRecommendations() {
+    const home = $('#homeRec');
+    if (!home) return;
+    if (!state.homeItems.length) {
+      home.innerHTML = '<p class="bs muted" style="grid-column:1/-1">Recommendations are being prepared from the live provider directory…</p>';
+      return;
+    }
+    home.innerHTML = state.homeItems.map((resource) => renderCard(resource)).join('');
+    bindDelegatedEvents();
+  }
+
+  async function refreshHomeRecommendations(force = false) {
+    const home = $('#homeRec');
+    if (!home) return false;
+    const payload = recommendationPayload();
+    const contextKey = JSON.stringify({ category: payload.category || '', exclude_ids: payload.exclude_ids });
+    if (!force && state.homeItems.length && state.homeContextKey === contextKey) {
+      renderHomeRecommendations();
+      return true;
+    }
+    const requestNumber = ++state.homeRequestNumber;
+    state.homeLoading = true;
+    home.setAttribute('aria-busy', 'true');
+    home.innerHTML = '<p class="bs muted" style="grid-column:1/-1">Finding suggestions based on your learning goal and saved resources…</p>';
+    try {
+      const result = await callFunction('resource-search', payload);
+      if (requestNumber !== state.homeRequestNumber) return false;
+      state.homeItems = Array.isArray(result.items) ? result.items.slice(0, 6) : [];
+      state.homeContextKey = contextKey;
+      if (!state.homeItems.length) {
+        home.innerHTML = '<p class="bs muted" style="grid-column:1/-1">No provider suggestions are available right now. Please try again.</p>';
+        return false;
+      }
+      home.innerHTML = state.homeItems.map((resource) => renderCard(resource)).join('');
+      bindDelegatedEvents();
+      return true;
+    } catch (error) {
+      if (requestNumber !== state.homeRequestNumber) return false;
+      home.innerHTML = '<div class="empty rn-empty" style="grid-column:1/-1"><h3>Recommendations could not be refreshed</h3><p class="bs muted">The live directory did not return fresh suggestions. Your saved resources and directory data are unchanged.</p><button type="button" class="btn btn-p" id="rnHomeRetry">Try again</button></div>';
+      $('#rnHomeRetry')?.addEventListener('click', () => refreshHomeRecommendations(true));
+      return false;
+    } finally {
+      if (requestNumber === state.homeRequestNumber) {
+        state.homeLoading = false;
+        home.removeAttribute('aria-busy');
+      }
+    }
   }
 
   function overrideLegacyDirectory() {
@@ -650,7 +723,9 @@
     loadMore,
     openExternal,
     state,
-    getSavedIds
+    getSavedIds,
+    renderHomeRecommendations,
+    refreshHomeRecommendations
   });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });

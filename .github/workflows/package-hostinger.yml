@@ -1,0 +1,60 @@
+name: Package Hostinger upload
+on:
+  push:
+    branches:
+      - upgrade/resource-network-v2
+    paths:
+      - 'index.html'
+      - 'assets/**'
+      - '.htaccess'
+      - '.github/workflows/package-hostinger.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout reviewed branch
+        uses: actions/checkout@v4
+        with:
+          ref: upgrade/resource-network-v2
+      - name: Build clean Hostinger static-site package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p package
+          cp index.html package/
+          cp .htaccess package/
+          if [ -d assets ]; then cp -R assets package/assets; fi
+          # Preserve any root-level static files referenced by the app.
+          for f in favicon.ico favicon.png favicon.svg robots.txt manifest.json site.webmanifest; do
+            [ ! -f "$f" ] || cp "$f" package/
+          done
+          test -s package/index.html
+          test -s package/.htaccess
+          test -d package/assets
+          # Fail if the application references a local asset that was not packaged.
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('package/index.html').read_text(encoding='utf-8')
+          refs = set(re.findall(r'''(?:src|href)=["'](/?assets/[^"'?#]+)''', html))
+          missing = [r for r in sorted(refs) if not (Path('package') / r.lstrip('/')).is_file()]
+          if missing:
+              raise SystemExit('Missing referenced assets: ' + ', '.join(missing))
+          print(f'Validated {len(refs)} local asset references.')
+          PY
+          cd package
+          zip -qr ../einsteinminds-hostinger-upload.zip .
+          cd ..
+          sha256sum einsteinminds-hostinger-upload.zip
+          unzip -l einsteinminds-hostinger-upload.zip
+      - name: Upload Hostinger package
+        uses: actions/upload-artifact@v4
+        with:
+          name: einsteinminds-hostinger-upload
+          path: einsteinminds-hostinger-upload.zip
+          if-no-files-found: error
+          retention-days: 14

@@ -1,30 +1,31 @@
-# Resource Network Update — v1.0
+# Einstein Minds — Hostinger release update
 
-## Replaces
+## Live application changes
 
-- Legacy v9.0/v9.2 appended browser patches.
-- Synthetic 2.4-million resource generator and fabricated learner ratings/reviews.
-- In-app iframe browser used for external websites.
-- Outdated Netlify setup documentation and deployment files.
-- FTP-secret Hostinger GitHub Actions deploy workflow.
+- Removed the synthetic resource generator and fake catalogue counts; the interface now waits for live Supabase category counts and provider records.
+- Connected home recommendations and saved-provider actions to the live resource directory.
+- Scoped saved providers to the signed-in account rather than a browser-global storage key.
+- Added account-owned Supabase workspace sync for saved providers, goals, portfolio, assessment history, screen-time totals, preferences and activity events.
+- Kept journal and mood entries device-local; child data is not synced.
+- Connected the adult Educator Studio to Ask Einstein for AI-generated lesson drafts and portfolio saving.
+- Replaced fictional child dashboards with adult family-planning tools and an explicit child-account lock.
+- Added an authenticated institutional interest-request form stored in Supabase.
+- Added AI provider readiness status and PayPal checkout preflight verification.
+- Updated Terms, Privacy and child-safety notices to reflect currently available features.
+- Added Hostinger SPA fallback, no-cache HTML delivery and security headers.
 
-## Adds
+## Backend updates
 
-- Supabase-backed resource directory via existing `resource-search` function.
-- Live counts for the existing 24 knowledge domains.
-- Pre-K, Kindergarten, Primary, Middle, Secondary, Vocational, Undergraduate, Graduate, Doctoral, Professional, Entrepreneur and Lifelong learning filters, plus Unclassified.
-- Provider details using current official-page metadata from the existing `provider-introduction` function.
-- External-site confirmation and safe new-tab handoff through `resource-outbound`.
-- Device-local saved-provider list.
-- Hostinger-native GitHub deployment documentation.
-- GitHub Actions validation-only workflow and Node tests.
+- Added `user_workspaces` with owner-only RLS.
+- Added `institutional_access_requests` with owner-only insert/read policies and explicit contact consent.
+- Optimized the PayPal subscription read policy using a scalar `auth.uid()` call.
+- Deployed the AI provider health check to `agent` and PayPal plan/webhook preflight to `paypal-subscriptions`.
+- Added the temporary Hostinger origin to the resource and billing function CORS allow-lists.
 
-## Not changed
+## Current limits
 
-- Supabase schema, migrations, resources or RLS policies.
-- Supabase Auth settings, deployed Edge Functions or function secrets.
-- Hostinger website files, domain settings or DNS.
-
-## Live-data caveat
-
-At the 15 November 2026 audit, Supabase had 227 published resource records, 231 category mappings, 229 source records, no evidence-review rows and no learning-stage assignments. The interface reflects those facts and does not invent missing review or age data.
+- Child accounts and parental-consent verification remain disabled.
+- Educator verification and institutional integrations are not active.
+- Institutional interest requests are stored but do not trigger automatic email notifications.
+- PayPal preflight validates configuration; a real sandbox purchase and webhook confirmation are still required.
+- No independently reviewed resource-evidence rows are currently recorded.
