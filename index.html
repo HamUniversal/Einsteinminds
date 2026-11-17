@@ -865,7 +865,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="ask-wrap">
 <input class="ask-in" id="homeAsk" data-i18n-ph="h_ph" placeholder="Ask Einstein anything…">
 <div class="ask-act">
-<button class="btn btn-s btn-ic tip" onclick="Toast.show(T('t_voice'),'warn')" data-i18n-aria="a_voice" aria-label="Voice output unavailable"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+<button class="btn btn-s btn-ic tip" disabled aria-disabled="true" data-i18n-aria="a_voice" aria-label="Voice output unavailable"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
 <button class="btn btn-p btn-ic" onclick="Agent.fromHome()" data-i18n-aria="a_submit" aria-label="Submit"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div>
 <div class="qa-row" id="qaRow"></div></div>
 <div class="sec-h"><div class="sec-h-l"><h2 class="h3" data-i18n="h_cont">Continue Learning</h2><span class="bs muted" data-i18n="h_contsub">Pick up where you left off</span></div>
@@ -986,7 +986,7 @@ html[dir=rtl] .sb.open{transform:none}
 <section class="view" id="v-educator">
 <div class="sec-h"><div class="sec-h-l"><h1 class="h1" data-i18n="n_edu">Educator Studio</h1><span class="bm muted" data-i18n="ed_sub">Plan, differentiate and assess with an AI co-pilot</span></div>
 <div style="display:flex;gap:8px;flex-wrap:wrap">
-<button class="btn btn-s" onclick="Toast.show('Class management is not enabled yet.','warn')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span data-i18n="ed_classes">Class management not enabled</span></button>
+<button class="btn btn-s" disabled aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span data-i18n="ed_classes">Class management not enabled</span></button>
 <button class="btn btn-p" onclick="Edu.newLesson()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span data-i18n="ed_new">New Lesson</span></button></div></div>
 <div class="card" id="eduHandoffs" style="display:none;margin-bottom:var(--s5)"></div>
 <div class="studio">
