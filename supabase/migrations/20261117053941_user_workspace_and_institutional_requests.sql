@@ -1,5 +1,3 @@
--- Account-scoped cloud workspace and institutional interest requests.
--- Child profiles and private journal/mood entries are deliberately not stored here.
 
 CREATE TABLE IF NOT EXISTS public.user_workspaces (
   user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -66,7 +64,6 @@ CREATE POLICY "Users can read their own institutional requests"
   ON public.institutional_access_requests FOR SELECT TO authenticated
   USING ((SELECT auth.uid()) = user_id);
 
--- Avoid re-evaluating auth.uid() for every row in the subscription read policy.
 DROP POLICY IF EXISTS "Users can read their own PayPal subscription" ON public.paypal_subscriptions;
 CREATE POLICY "Users can read their own PayPal subscription"
   ON public.paypal_subscriptions FOR SELECT TO authenticated
