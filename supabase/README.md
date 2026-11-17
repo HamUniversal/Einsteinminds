@@ -2,18 +2,20 @@
 
 Project ref: `fxxjainrhtdezyzbqynn`  
 Region: `us-west-2`  
-Last inspected: 2026-11-17
+Last inspected: 2026-11-18
 
 ## Deployed Edge Functions
 
 | Function | Active version | JWT |
 |---|---:|---|
 | `agent` | 36 | Required |
-| `resource-search` | 19 | Not required; public catalogue search |
+| `resource-search` | 20 | Not required; public catalogue search and goal-category recommendations |
 | `resource-outbound` | 16 | Not required; validates published resource UUID and stored official host |
 | `provider-introduction` | 15 | Required |
 | `paypal-subscriptions` | 11 | Required |
 | `paypal-webhook` | 9 | Not required; verifies PayPal webhook signatures |
+
+Home recommendations use the first explicit learning goal when it maps to an active directory category and exclude saved resource IDs when alternatives exist. Without a matching goal category, the endpoint returns a fresh sample of published directory records. This is category relevance only; it does not establish quality, age suitability or independent verification.
 
 The AI endpoint has an authenticated `action: health` check. It verifies that an AI key exists and that the configured OpenAI-compatible model endpoint responds to `/models`.
 
@@ -34,7 +36,7 @@ All public tables below have RLS enabled.
 | `resource_outbound_events` | 2 | Minimal provider-link event records |
 | `paypal_subscriptions` | 0 | No subscription has been recorded |
 | `paypal_webhook_events` | 0 | No PayPal webhook event has been recorded |
-| `user_workspaces` | 0 | Account cloud-sync rows are created on first sync |
+| `user_workspaces` | 1 | One account workspace currently exists |
 | `institutional_access_requests` | 0 | Private adult-account interest requests |
 
 Workspace RLS permits each authenticated user to read, insert, update and delete only their own row. Institutional requests permit authenticated users to insert and read only their own submissions; contact consent is mandatory. Project administrators can review requests through the server-side service role.
@@ -92,7 +94,7 @@ The repository contains the Auth, PayPal and workspace/request migration files. 
 - Extracted text is included only in the authenticated request to the `agent` Edge Function. The original file is not uploaded to Supabase Storage, and document text is not added to saved chat history or account workspace data.
 - Scanned/image-only PDFs, OCR, embedded image analysis, and visual table/layout extraction are not supported. An empty extraction is reported rather than represented as a successful document read.
 - Document content is treated as untrusted source material by the agent; embedded instructions are not to be followed.
-- The frontend change is under review on `feature/ask-einstein-document-analysis`. It is not yet in the production Hostinger site.
+- The document-analysis frontend is included in `upgrade/resource-network-v2` after PR #4. It is not live on the production Hostinger site until the release is approved and the Hostinger front end is deployed.
 
 ## Product availability boundaries
 
