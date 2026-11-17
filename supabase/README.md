@@ -1,33 +1,99 @@
-# Supabase — Einsteinminds
+# Einstein Minds
 
-Project ref: `fxxjainrhtdezyzbqynn` (`Einsteinminds`, `us-west-2`).
+Einstein Minds is deployed as a **static web application on Hostinger**. GitHub is the application source of truth; Supabase provides authentication, the resource catalogue, private account workspaces, AI Edge Functions and PayPal subscription handling.
 
-The connected project already contains the resource-network schema, RLS policies, 24 active knowledge domains, 227 published provider records, 231 resource/category mappings and 229 provenance/source records. Verification evidence and reviewed learning-stage assignments are empty at the time of audit.
+- Production URL: https://einsteinminds.com
+- Supabase project: `fxxjainrhtdezyzbqynn`
+- Frontend deployment: Hostinger `public_html`
+- No Node.js runtime, build command or Hostinger environment variables are required for the static frontend.
 
-## Existing tables
+## Deploy the Hostinger package
 
-`profiles`, `resource_categories`, `resources`, `resource_category_links`, `resource_sources`, `resource_verification_evidence`, `resource_outbound_events`.
+1. Back up the current contents of Hostinger `public_html`.
+2. Upload the release ZIP.
+3. Extract it directly into `public_html`.
+4. Confirm that `index.html`, `.htaccess` and `assets/` are directly inside `public_html`.
+5. Open https://einsteinminds.com and hard-refresh the page.
 
-RLS is enabled for all seven public tables. Anonymous users can read the public catalogue and insert only minimal outbound events; they cannot read profiles or write catalogue tables. Authenticated users can read their own profile and manage only that row. Catalogue writes are limited by RLS to JWT `app_metadata.role` values `admin` or `catalogue_editor`; user-editable `user_metadata` is not used for authorization. Outbound event insertion is constrained to a published resource and its stored official domain. These rules were exercised in rollback-only SQL role simulations.
+The `.htaccess` file provides SPA fallback for the Supabase auth callback path, disables directory listings, prevents stale HTML caching and applies security headers. Static assets are cached for one hour.
 
-## Active Edge Functions
+## Supabase services
 
-- `agent` v10 — authenticated AI learning assistant; honest scripted fallback if no model provider is configured.
-- `resource-search` v4 — catalogue search, category statistics, and learning-stage filtering.
-- `resource-outbound` v3 — UUID-to-stored-URL resolution, official-host check, minimal event logging, and safe UTM tags.
-- `provider-introduction` v2 — original official-page metadata retrieval and caching.
+Active Edge Functions (verified 2026-11-17):
 
-The frontend uses these existing deployed functions; this authentication hardening did not redeploy or modify any Edge Function.
+| Function | Version | JWT |
+|---|---:|---|
+| `agent` | 27 | Required |
+| `resource-search` | 17 | Not required; public catalogue search only |
+| `resource-outbound` | 14 | Required |
+| `provider-introduction` | 13 | Required |
+| `paypal-subscriptions` | 9 | Required |
+| `paypal-webhook` | 9 | Not required; PayPal signature verification is required |
 
-## GitHub source-of-truth work still required
+The project contains 24 active resource categories, 227 published provider records, 231 category mappings and 229 source records. The verification-evidence table currently contains **zero records**; directory entries are not independently reviewed or endorsed.
 
-The Supabase project has these six migration entries:
+The database includes adult account profiles, private PayPal subscription records, a private webhook idempotency ledger, the account-owned `user_workspaces` table and the account-owned `institutional_access_requests` table. Row-level security is enabled on all public tables. Workspace and institutional request policies use `auth.uid()` and restrict records to the signed-in owner.
 
-- `20261115022622_resource_network_v1`
-- `20261115022922_resource_policy_performance_hardening`
-- `20261115023213_resource_category_counts_rpc`
-- `20261115025852_resource_category_admin_and_count_fix`\n- `20261115180822_auth_least_privilege_grants`\n- `20261115180838_grant_authenticated_evidence_review`
+The `paypal_webhook_events` table intentionally has RLS enabled with no client policies and no client grants; only the server-side service role can write/read the webhook ledger.
 
-The two authentication hardening migrations are included in this repository. The original four migration SQL files and exact deployed source for all four Edge Functions still need to be exported into GitHub before it can be the complete reproducible source of truth for the backend. Do not deploy reconstructed Edge Functions over the live versions.
+## Supabase secrets (server-side only)
 
-Supabase Auth currently has one confirmed user and one profile. No `admin` or `catalogue_editor` app-metadata roles are assigned, so catalogue administration remains intentionally unavailable until a trusted administrator explicitly provisions a role. The security advisor reports leaked-password protection disabled; enable it in Supabase Authentication password settings (Pro plan or above).\n\nNever place `SUPABASE_SERVICE_ROLE_KEY` or any Supabase secret key in client code. The browser uses only the project URL and publishable key; Edge Functions keep server-side keys in Supabase-managed secrets.
+Configure these under Supabase Edge Function secrets. **Never paste them into this repository, the browser, or Hostinger.**
+
+AI:
+- `GROQ_API_KEY` (or `LLM_API_KEY`)
+- Optional `LLM_BASE_URL` for an OpenAI-compatible HTTPS endpoint
+
+PayPal:
+- `PAYPAL_CLIENT_ID`
+- `PAYPAL_CLIENT_SECRET`
+- `PAYPAL_PLAN_MONTHLY_ID`
+- `PAYPAL_PLAN_YEARLY_ID`
+- `PAYPAL_WEBHOOK_ID`
+- `PAYPAL_MODE` = `live` or `sandbox`
+- `APP_URL` = `https://einsteinminds.com`
+
+Supabase provides `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` to Edge Functions. Do not place the service-role key in the frontend.
+
+The app now checks AI provider connectivity after sign-in. PayPal checkout runs a server-side preflight that checks credentials, the active $8/month and $60/year plans, and the webhook URL/event subscriptions before enabling checkout. This validates configuration; it does not replace a real PayPal sandbox/live purchase test.
+
+## Supabase Auth settings
+
+- Site URL: `https://einsteinminds.com`
+- Redirect allow-list: `https://einsteinminds.com/**`
+- Add `https://www.einsteinminds.com/**` only if the www host is used.
+- For temporary Hostinger testing, add `https://darkturquoise-magpie-142020.hostingersite.com/**`.
+- For local testing, add the exact localhost origin used by the local server.
+
+The app sends confirmation and recovery redirects to the current site root. Configure a production SMTP provider in Supabase Auth so confirmation and recovery emails can be delivered reliably.
+
+## Live features and current limits
+
+Live:
+- Supabase adult-account signup, sign-in, password recovery and protected routes.
+- Resource directory search against the Supabase catalogue.
+- Safe outbound provider links through the outbound Edge Function.
+- AI Ask Einstein and AI lesson drafting, subject to the AI provider health check.
+- Account workspace sync for saved providers, goals, portfolio, assessment history, screen-time totals, preferences and learning events when cloud sync is enabled.
+- PayPal subscription create/cancel/return synchronization when preflight passes.
+- Institutional interest requests stored privately in Supabase.
+
+Not currently offered:
+- Child accounts, child AI access or parental-consent verification.
+- Educator identity verification or educator-only subscription benefits.
+- Institutional accounts, SSO, LMS integrations, district administration or a signed DPA.
+- Voice, image generation, document tools, code execution and virtual laboratories.
+- Email notifications for institutional interest requests.
+- Self-service account deletion.
+
+Journal and mood entries remain in this browser and are not included in cloud workspace sync. The screen-time tracker records only activity within Einstein Minds; it does not monitor the device or other apps.
+
+## Security follow-up before public launch
+
+The Supabase security advisor currently reports **leaked-password protection disabled**. Enable it in Supabase Authentication password settings. The project also has one INFO finding for the intentionally private `paypal_webhook_events` table and unused-index INFO findings; do not add client policies to the webhook ledger merely to silence the advisor.
+
+There is currently one Auth user/profile, zero workspace rows, zero institutional requests, zero PayPal subscription rows and zero webhook events. No successful payment has yet been recorded in this project.
+
+## Migration-source note
+
+The remote project has eight applied migration entries. The repository contains the Auth, PayPal and workspace/request migration files. The original four resource-network migration SQL files are not currently present in this branch, so this repository is not yet a fully reproducible bootstrap for a brand-new Supabase project. Do not run it against a blank project expecting it to recreate the existing resource catalogue schema until those original migration files are recovered.
