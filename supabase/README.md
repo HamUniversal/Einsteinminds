@@ -8,7 +8,7 @@ Last inspected: 2026-11-17
 
 | Function | Active version | JWT |
 |---|---:|---|
-| `agent` | 27 | Required |
+| `agent` | 36 | Required |
 | `resource-search` | 17 | Not required; public catalogue search |
 | `resource-outbound` | 15 | Required |
 | `provider-introduction` | 14 | Required |
@@ -82,6 +82,17 @@ Eight migrations are applied remotely:
 8. `20261117053941_user_workspace_and_institutional_requests`
 
 The repository contains the Auth, PayPal and workspace/request migration files. The original four resource-network migration SQL files have not yet been recovered into this branch. This repository is therefore not yet a fully reproducible bootstrap for a brand-new Supabase project. Do not run the migrations against a blank project and assume they recreate the current resource catalogue until those original SQL files are restored.
+
+### Ask Einstein document attachments
+
+- Supported input: PDF, DOCX, TXT, Markdown and HTML.
+- Extraction runs in the browser. PDF.js 6.5.438 extracts PDF text page by page; Mammoth 1.13.0 extracts DOCX text; text and HTML are read locally.
+- Limits: 15 MB per file, 40 PDF pages, and 26,000 extracted characters per request.
+- PDF page labels are preserved for source references. Other formats use available headings or quoted passages.
+- Extracted text is included only in the authenticated request to the `agent` Edge Function. The original file is not uploaded to Supabase Storage, and document text is not added to saved chat history or account workspace data.
+- Scanned/image-only PDFs, OCR, embedded image analysis, and visual table/layout extraction are not supported. An empty extraction is reported rather than represented as a successful document read.
+- Document content is treated as untrusted source material by the agent; embedded instructions are not to be followed.
+- The frontend change is under review on `feature/ask-einstein-document-analysis`. It is not yet in the production Hostinger site.
 
 ## Product availability boundaries
 
