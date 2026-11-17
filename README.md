@@ -19,12 +19,12 @@ The `.htaccess` file provides SPA fallback for the Supabase auth callback path, 
 
 ## Supabase services
 
-Active Edge Functions (verified 2026-11-17):
+Active Edge Functions (verified 2026-11-18):
 
 | Function | Version | JWT |
 |---|---:|---|
 | `agent` | 36 | Required |
-| `resource-search` | 19 | Not required; public catalogue search only |
+| `resource-search` | 20 | Not required; public read-only catalogue search and goal-category recommendations |
 | `resource-outbound` | 16 | Not required; validates published resource UUID and stored official host |
 | `provider-introduction` | 15 | Required |
 | `paypal-subscriptions` | 11 | Required |
@@ -72,6 +72,7 @@ The app sends confirmation and recovery redirects to the current site root. Conf
 Live:
 - Supabase adult-account signup, sign-in, password recovery and protected routes.
 - Resource directory search against the Supabase catalogue.
+- Home recommendations use the first explicit learning goal's matching directory category and exclude saved providers when alternatives are available; without a matching goal they use a fresh directory sample. This is relevance matching, not provider quality or age-suitability verification.
 - Safe outbound provider links through the outbound Edge Function.
 - AI Ask Einstein and AI lesson drafting, subject to the AI provider health check.
 - Ask Einstein can read extracted text from PDF, DOCX, TXT, Markdown and HTML attachments. Text extraction occurs in the browser; the extracted text is sent to the authenticated Groq-backed agent for that request and is not saved to the account or conversation history.
@@ -93,7 +94,7 @@ Journal and mood entries remain in this browser and are not included in cloud wo
 
 The Supabase security advisor currently reports **leaked-password protection disabled**. Enable it in Supabase Authentication password settings. The project also has one INFO finding for the intentionally private `paypal_webhook_events` table and unused-index INFO findings; do not add client policies to the webhook ledger merely to silence the advisor.
 
-There is currently one Auth user/profile, zero workspace rows, zero institutional requests, zero PayPal subscription rows and zero webhook events. No successful payment has yet been recorded in this project.
+Current database counts: one profile, one account workspace, zero institutional requests, zero PayPal subscription rows and zero webhook events. The live Auth user count must be checked separately from the public-table inventory. No successful payment has yet been recorded in this project.
 
 ### Ask Einstein document attachments
 
@@ -104,7 +105,7 @@ There is currently one Auth user/profile, zero workspace rows, zero institutiona
 - Extracted text is included only in the authenticated request to the `agent` Edge Function. The original file is not uploaded to Supabase Storage, and document text is not added to saved chat history or account workspace data.
 - Scanned/image-only PDFs, OCR, embedded image analysis, and visual table/layout extraction are not supported. An empty extraction is reported rather than represented as a successful document read.
 - Document content is treated as untrusted source material by the agent; embedded instructions are not to be followed.
-- The frontend change is under review on `feature/ask-einstein-document-analysis`. It is not yet in the production Hostinger site.
+- The document-analysis frontend is included in `upgrade/resource-network-v2` after PR #4. It is not live on the production Hostinger site until the release is approved and the Hostinger front end is deployed.
 
 ## Migration-source note
 
