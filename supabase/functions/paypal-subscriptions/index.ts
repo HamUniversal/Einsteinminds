@@ -45,8 +45,8 @@ async function persistSubscription(admin:any,userId:string,sub:any,forcedStatus?
 }
 Deno.serve(async(req:Request)=>{
  const origin=req.headers.get("Origin");
- if(!isAllowedOrigin(origin))return
- if(req.method==="OPTIONS")return new Response("ok",{headers:cors(origin)}); reply({error:"Origin not allowed"},403,origin);
+ if(!isAllowedOrigin(origin)) return reply({error:"Origin not allowed"},403,origin);
+ if(req.method==="OPTIONS") return new Response("ok",{headers:cors(origin)});
  if(req.method!=="POST")return reply({error:"Method not allowed"},405,origin);
  try{
   const {user,admin}=await getUser(req),body=await req.json().catch(()=>({})),action=String(body.action||"");
