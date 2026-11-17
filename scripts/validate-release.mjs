@@ -1,63 +1,85 @@
-#!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const required = [
-  'index.html',
-  'assets/resource-network-core.js',
-  'assets/einsteinminds-resource-network.js',
-  'assets/resource-network.css',
-  'assets/auth-route-guard.js',
-  '.htaccess',
-  '.github/workflows/validate.yml',
-  'README.md'
-];
-const errors = [];
-for (const file of required) if (!fs.existsSync(path.join(root, file))) errors.push(`Missing ${file}`);
-if (errors.length) {
-  console.error(errors.join('\n'));
-  process.exit(1);
-}
-const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const app = fs.readFileSync(path.join(root, 'assets/einsteinminds-resource-network.js'), 'utf8');
-const core = fs.readFileSync(path.join(root, 'assets/resource-network-core.js'), 'utf8');
+const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8');
+const html = read('index.html');
+const app = read('assets/einsteinminds-resource-network.js');
+const core = read('assets/resource-network-core.js');
+const guard = read('assets/auth-route-guard.js');
+const workspaceMigration = read('supabase/migrations/20261117053941_user_workspace_and_institutional_requests.sql');
+const paypal = read('supabase/functions/paypal-subscriptions/index.ts');
+const agent = read('supabase/functions/agent/index.ts');
+const hostingerWorkflow = read('.github/workflows/package-hostinger.yml');
+const validateWorkflow = read('.github/workflows/validate.yml');
+const readme = read('README.md');
+const hostingerReadme = read('README-HOSTINGER.md');
+const supabaseReadme = read('supabase/README.md');
+const htaccess = read('.htaccess');
+
+const catsStart = html.indexOf('const CATS=[');
+const catsEnd = html.indexOf('const categoryLabel', catsStart);
+const catsBlock = catsStart >= 0 && catsEnd > catsStart ? html.slice(catsStart, catsEnd) : '';
+
 const checks = [
-  [html.includes('/assets/resource-network-core.js'), 'index.html loads the resource core'],
-  [html.includes('/assets/einsteinminds-resource-network.js'), 'index.html loads the resource network UI'],
-  [html.includes('/assets/resource-network.css'), 'index.html loads the resource network stylesheet'],
-  [html.includes('/assets/auth-route-guard.js'), 'index.html loads the protected-route guard'],
-  [fs.readFileSync(path.join(root, 'assets/auth-route-guard.js'), 'utf8').includes('privateRoutes'), 'protected-route guard defines private routes'],
-  [!html.includes('MASTER UPGRADE PATCH v9.0'), 'legacy synthetic 2.4M patch removed'],
-  [!html.includes('MASTER PATCH v9.2'), 'legacy v9.2 fake catalogue patch removed'],
-  [!html.includes('id="iabFrame"'), 'legacy in-app iframe removed'],
-  [app.includes("'resource-search'"), 'UI calls the existing Supabase resource-search function'],
-  [app.includes('renderKnowledgeDomains') && app.includes('actual_listings'), 'All 24 domain tiles use live Supabase counts'],
-  [app.includes("'resource-outbound'"), 'UI uses the controlled outbound gateway'],
-  [app.includes("'provider-introduction'"), 'UI can retrieve original provider page metadata'],
-  [core.includes("'entrepreneur'"), 'Entrepreneur stage is supported'],
-  [core.includes("'pre_k'"), 'Pre-K stage is supported'],
-  [!app.includes('2,400,000'), 'UI contains no fabricated 2.4M count'],
-  [!app.includes('VirtualDB'), 'UI contains no synthetic resource generator'],
-  [fs.existsSync(path.join(root, '.github/workflows/validate.yml')), 'GitHub Actions validation workflow exists'],
-  [!fs.existsSync(path.join(root, '.github/workflows/deploy-hostinger.yml')), 'No FTP-based deployment workflow is configured'],
-  [!fs.readFileSync(path.join(root, '.github/workflows/validate.yml'), 'utf8').includes('FTP-Deploy-Action'), 'GitHub Actions does validation only'],
-  [!fs.readFileSync(path.join(root, '.htaccess'), 'utf8').includes('immutable'), 'Unversioned app assets are not cached as immutable'],
-  [/GitHub \+ Supabase \+ Hostinger/.test(fs.readFileSync(path.join(root, 'README.md'), 'utf8')), 'README documents the intended stack'],
-  [!html.includes('Create staging account'), 'live Supabase signup is not labelled as staging'],
-  [!html.includes('Staging sign in'), 'live Supabase sign-in is not labelled as staging'],
-  [!html.includes('Checkout is unavailable in this prototype'), 'PayPal checkout is not falsely labelled unavailable'],
-  [!html.includes('Prototype profile only: profile data stays in this browser'), 'authenticated profile is not falsely labelled local-only'],
-  [!html.includes('educational platform prototype with sample data and local-only profiles'), 'page metadata describes the connected application accurately'],
-  [html.includes('PayPal checkout requires configured billing credentials and subscription plans.'), 'service dependencies are disclosed honestly'],
-  [html.includes('supabaseClient.auth.signUp') && html.includes('supabaseClient.auth.signInWithPassword'), 'signup and password sign-in use Supabase Auth'],
-  [html.includes("functions.invoke('paypal-subscriptions'") && html.includes("plan_key:this.cycle==='m'?'monthly':'yearly'"), 'monthly and annual checkout use the PayPal subscription function'],
-  [html.includes('id="coPay" onclick="Plans.pay()"'), 'PayPal checkout action is enabled in the interface']
+  [html.includes('/assets/resource-network-core.js'), 'index loads the resource-network core'],
+  [html.includes('/assets/einsteinminds-resource-network.js'), 'index loads the live resource-network UI'],
+  [html.includes('/assets/resource-network.css'), 'index loads the resource-network stylesheet'],
+  [html.includes('/assets/auth-route-guard.js'), 'index loads the protected-route guard'],
+  [guard.includes('privateRoutes'), 'auth route guard defines private routes'],
+  [!html.includes('MASTER UPGRADE PATCH v9.0'), 'legacy synthetic v9 patch is absent'],
+  [!html.includes('MASTER PATCH v9.2'), 'legacy synthetic v9.2 patch is absent'],
+  [!html.includes('id="iabFrame"') && !html.includes('id="inAppBrowser"'), 'legacy iframe browser is absent'],
+  [!app.includes('VirtualDB'), 'resource UI contains no synthetic resource generator'],
+  [!html.includes('2,400,000'), 'application contains no fabricated 2.4M catalogue count'],
+  [html.includes('const RESOURCE_INDEX=[];'), 'legacy provider seed index is empty'],
+  [catsBlock.length > 0 && !/\bp\s*:\s*\[/.test(catsBlock), 'category metadata contains no sample provider arrays'],
+  [html.includes('window.EinsteinmindsResourceNetwork?.state?.total'), 'navigation count uses the live directory total'],
+  [html.includes('renderHomeRecommendations'), 'home recommendations use live provider results'],
+  [app.includes("'resource-search'"), 'resource UI calls the Supabase resource-search function'],
+  [app.includes("'resource-outbound'"), 'provider links use the controlled outbound function'],
+  [app.includes("'provider-introduction'"), 'provider details use the introduction function'],
+  [app.includes('Auth.signedIn') && app.includes('S.saved') && app.includes('persist()'), 'saved providers are account-scoped and persisted'],
+  [!app.includes('localStorage.getItem(SAVED_KEY)'), 'saved providers are not browser-global'],
+  [html.includes('supabaseClient.auth.signUp') && html.includes('supabaseClient.auth.signInWithPassword'), 'signup and sign-in use Supabase Auth'],
+  [html.includes('password.length<12') && html.includes('adultConfirm'), 'adult account and password safeguards are present'],
+  [html.includes('CloudState.load(authUser.id)') && html.includes("from('user_workspaces')"), 'account workspace sync is wired to Supabase'],
+  [!/CLOUD_STATE_KEYS=\[[^\]]*(journal|moods|child)/.test(html), 'private journal, mood and child data are excluded from cloud sync'],
+  [html.includes('S.settings.cloudSync===0') && html.includes('workspace_dirty'), 'cloud sync opt-out and offline dirty-state recovery are implemented'],
+  [workspaceMigration.includes('CREATE TABLE IF NOT EXISTS public.user_workspaces'), 'private account workspace table migration exists'],
+  [workspaceMigration.includes('CREATE TABLE IF NOT EXISTS public.institutional_access_requests'), 'institutional interest-request table migration exists'],
+  [workspaceMigration.includes('ENABLE ROW LEVEL SECURITY') && workspaceMigration.includes('(SELECT auth.uid()) = user_id'), 'workspace and request tables have owner-only RLS'],
+  [html.includes('Agent.respond(prompt,[])') && html.includes('async checkProvider()'), 'Ask Einstein and educator drafting use the AI function and health check'],
+  [agent.includes('action==="health"') && agent.includes('base+"/models"'), 'AI health endpoint checks the configured model provider'],
+  [html.includes('Inst.submitRequest') && html.includes("from('institutional_access_requests')"), 'institutional interest form saves to Supabase'],
+  [html.includes('Child accounts are disabled') && !html.includes('const CHILDREN='), 'child account access is explicitly disabled without fake child records'],
+  [html.includes('This timer records only sessions you start inside Einstein Minds'), 'screen-time limits are accurately described as in-app only'],
+  [html.includes('Journal entries, mood check-ins') && html.includes('this browser'), 'journal and mood storage is disclosed as device-local'],
+  [html.includes('PayPal') && html.includes('action:'preflight''), 'checkout calls PayPal configuration preflight'],
+  [paypal.includes('action==="preflight"'), 'PayPal preflight endpoint is implemented'],
+  [paypal.includes('checkPlan(monthly,8,"MONTH","Monthly")') && paypal.includes('checkPlan(yearly,60,"YEAR","Annual")'), 'PayPal plans are checked against USD 8 monthly and USD 60 annual'],
+  [paypal.includes('PAYPAL_WEBHOOK_ID') && paypal.includes('v1/notifications/webhooks/'), 'PayPal webhook endpoint is checked'],
+  [paypal.includes('BILLING.SUBSCRIPTION.ACTIVATED') && paypal.includes('PAYMENT.SALE.COMPLETED'), 'required PayPal webhook events are checked'],
+  [!html.includes('Stripe') && !html.includes('Simulated checkout') && !html.includes('COPPA 2026'), 'obsolete Stripe and child-consent prototype copy is absent'],
+  [!html.includes('verified educational sources'), 'AI does not claim all sources are independently verified'],
+  [htaccess.includes('RewriteRule ^ index.html [L]'), 'Hostinger supports auth-route fallback'],
+  [htaccess.includes('no-store, no-cache, must-revalidate'), 'Hostinger HTML is not cached stale'],
+  [htaccess.includes('X-Content-Type-Options') && htaccess.includes('X-Frame-Options'), 'Hostinger security headers are present'],
+  [hostingerWorkflow.includes('einsteinminds-hostinger-upload.zip') && hostingerWorkflow.includes('upload-artifact@v4'), 'Hostinger ZIP packaging workflow exists'],
+  [validateWorkflow.includes('node --test tests/*.test.cjs'), 'CI runs the full automated test suite'],
+  [readme.includes('Hostinger') && hostingerReadme.includes('public_html') && supabaseReadme.includes('Supabase backend'), 'deployment and backend documentation exist'],
+  [readme.includes('original four resource-network migration SQL files'), 'remaining migration-source gap is disclosed'],
+  [![readme,hostingerReadme,supabaseReadme,read('START-HERE.md'),read('SECURITY.md'),read('scripts/apply-update.mjs')].some((text) => /netlify/i.test(text)), 'project documentation and updater are Hostinger-only'],
+  [!html.includes('SUPABASE_SERVICE_ROLE_KEY') && !html.includes('GROQ_API_KEY') && !html.includes('PAYPAL_CLIENT_SECRET'), 'server-side secrets are absent from browser source']
 ];
+
 let failed = 0;
 for (const [passed, label] of checks) {
-  console.log(`${passed ? 'PASS' : 'FAIL'} ${label}`);
-  if (!passed) failed++;
+  if (passed) console.log('PASS ' + label);
+  else { console.error('FAIL ' + label); failed++; }
 }
-if (failed) process.exit(1);
+if (failed) {
+  console.error(`Release validation failed: ${failed} of ${checks.length} checks.`);
+  process.exit(1);
+}
 console.log(`Release validation passed: ${checks.length} checks.`);
