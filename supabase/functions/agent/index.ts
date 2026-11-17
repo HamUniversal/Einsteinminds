@@ -77,6 +77,20 @@ Deno.serve(async(req:Request)=>{
     if(raw.length>48000) return json({error:"This message is too large. Please shorten it.",code:"PAYLOAD_TOO_LARGE"},413,requestId);
     let body:any;
     try { body=JSON.parse(raw); } catch { return json({error:"The request could not be read. Please try again.",code:"INVALID_JSON"},400,requestId); }
+    const action=text(body?.action,40).toLowerCase();
+    const key=Deno.env.get("GROQ_API_KEY")||Deno.env.get("LLM_API_KEY");
+    if(action==="health"){
+      if(!key)return json({ready:false,provider:"Groq",message:"The AI provider key is not configured."},200,requestId);
+      const base=(Deno.env.get("LLM_BASE_URL")||"https://api.groq.com/openai/v1").replace(/\\/+$/,"");
+      if(!/^https:\\/\\//i.test(base))return json({ready:false,provider:"AI",message:"The AI provider URL is invalid."},200,requestId);
+      try{
+        const response=await fetch(base+"/models",{headers:{Authorization:"Bearer "+key}});
+        if(!response.ok)return json({ready:false,provider:new URL(base).hostname,message:response.status===401||response.status===403?"The AI provider rejected its configured key.":"The AI provider is temporarily unavailable (HTTP "+response.status+")."},200,requestId);
+        return json({ready:true,provider:new URL(base).hostname,message:"AI provider connection verified."},200,requestId);
+      }catch(error){
+        return json({ready:false,provider:new URL(base).hostname,message:"Could not reach the AI provider: "+String(error?.message||error).slice(0,160)},200,requestId);
+      }
+    }
     const prompt=text(body?.prompt,6000);
     const modeRaw=text(body?.mode,40).toLowerCase();
     const intentRaw=text(body?.intent,40).toLowerCase();
@@ -84,7 +98,6 @@ Deno.serve(async(req:Request)=>{
     const intent=intents.has(intentRaw)?intentRaw:"hint";
     if(!prompt) return json({error:"Please enter a question or task.",code:"EMPTY_PROMPT"},400,requestId);
 
-    const key=Deno.env.get("GROQ_API_KEY")||Deno.env.get("LLM_API_KEY");
     if(!key){
       console.error("Groq API key missing",{requestId});
       return json({error:"Ask Einstein is not connected to its AI provider. Please contact the site administrator.",code:"AI_PROVIDER_NOT_CONFIGURED",demo:false},503,requestId);
