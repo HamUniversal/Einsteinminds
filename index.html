@@ -881,7 +881,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="ag-av">E</div>
 <div style="flex:1"><h2 class="h3" data-i18n="n_ask">Ask Einstein</h2>
 <p class="bs muted" data-i18n="ag_desc">Advanced AI — deep reasoning, global knowledge, code, research synthesis and creative work.</p>
-<div class="ag-st"><span class="ag-st-d"></span><span data-i18n="ag_online">AI learning partner · live model</span></div></div>
+<div class="ag-st"><span class="ag-st-d"></span><span data-i18n="ag_online">AI learning partner · model availability depends on server configuration</span><span class="cap muted" id="aiProviderStatus" role="status">Sign in to check AI provider</span></div></div>
 <button class="btn btn-o btn-sm" onclick="Agent.clear()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg><span data-i18n="c_clear">Clear</span></button></div>
 <div class="ag-caps" id="agCaps"></div>
 <div class="ag-msgs" id="agMsgs"></div>
@@ -1420,6 +1420,7 @@ Usage.load();mergeGuestArtifacts()}
 catch(error){this.user=null;LS.activateUser(null);resetGuestState();this.renderUserArea();Toast.show(`Could not load this account's local learning data: ${error.message}`,'bad');return}
 }
 this.renderUserArea();Nav.render();Home.render();Settings.syncPlan();
+if(previousId!==authUser.id)void Agent.checkProvider();
 // Auth can resolve after the initial Agent view render. Re-run restoration after the
 // authenticated profile is ready so a first-load anonymous restore cannot win the race.
 if(previousId!==authUser.id||Agent.restoredFor!==authUser.id){await Agent.restore();if(Agent.restoredFor!==authUser.id)await Agent.restore()}
@@ -1828,7 +1829,16 @@ if(!$('#agMsgs').children.length)this.welcome();this.restore()},
 welcome(){$('#agMsgs').innerHTML=`<div class="msg"><div class="msg-av">E</div><div class="msg-b"><p>Welcome. I'm Einstein, your AI learning partner.</p><p>Ask me to explain an idea, work through a problem, explore a topic, create something, or challenge your reasoning. I'll remember the conversation while we work.</p><p class="bs muted">The live Einstein Minds directory can be searched. Open-web search, image generation, code execution, document tools and voice are not available yet. Recent conversation history is saved in this browser tab.</p></div></div>`},
 onAuthSession(userId){
 if(this.activeUserId!==userId){this.history=[];this.storageKey=null;this.restoredFor=null;if($('#agMsgs'))$('#agMsgs').innerHTML='';}
-this.activeUserId=userId||null;
+this.activeUserId=userId||null;this.providerReady=false;
+const status=$('#aiProviderStatus');if(status)status.textContent=userId?'Checking AI provider…':'Sign in to check AI provider';
+const eduStatus=$('#eduAiStatus');if(eduStatus)eduStatus.textContent=userId?'Checking…':'Sign in required';
+},
+async checkProvider(){
+const status=$('#aiProviderStatus'),eduStatus=$('#eduAiStatus');
+if(!Auth.signedIn){this.providerReady=false;if(status)status.textContent='Sign in to check AI provider';if(eduStatus)eduStatus.textContent='Sign in required';return {ready:false}}
+if(status)status.textContent='Checking AI provider…';if(eduStatus)eduStatus.textContent='Checking…';
+try{const {data,error}=await supabaseClient.functions.invoke('agent',{body:{action:'health'}});if(error)throw error;this.providerReady=data?.ready===true;const message=this.providerReady?'AI connected · '+(data.provider||'provider'):('AI not ready · '+(data?.message||'provider configuration required'));if(status)status.textContent=message;if(eduStatus)eduStatus.textContent=message;return data||{ready:false}}
+catch(error){this.providerReady=false;const message='AI status unavailable · '+(error?.message||'check connection');if(status)status.textContent=message;if(eduStatus)eduStatus.textContent=message;return {ready:false,message}}
 },
 async restore(){
 if(this.restorePromise)return this.restorePromise;
@@ -1971,7 +1981,7 @@ const TA_CHIPS=[['ta_ell','ell'],['ta_scaf','scaf'],['ta_adv','adv'],['ta_vis','
 const Edu={busy:false,currentOutput:'',render(){
 $('#eduCanvas').innerHTML=`<div class="canvas-h"><div style="flex:1;min-width:220px"><input class="canvas-t" id="eduTitle" maxlength="140" value="New lesson draft"><div class="std">AI-generated draft · adult account required · review before use</div></div><button class="btn btn-p btn-sm" onclick="Edu.newLesson()">Generate lesson</button></div>
 <div class="lsec" id="eduDraft"><div class="lsec-t">Lesson workspace</div><div class="lsec-b"><p class="bm muted">Create a lesson draft with Einstein. You can request objectives, a timed sequence, differentiation, formative checks, materials, homework and source suggestions. Review factual claims and curriculum references before using the draft.</p></div></div>
-<p class="cap muted" style="margin-top:12px">The AI lesson planner is available to signed-in adult accounts. It does not verify educator status, certify curriculum alignment or replace professional review.</p>`;
+<p class="cap muted" style="margin-top:12px">AI connection: <span id="eduAiStatus">Sign in required</span>. The lesson planner is available to signed-in adult accounts; it does not verify educator status, certify curriculum alignment or replace professional review.</p>`;
 $('#taChips').innerHTML=TA_CHIPS.map(([k,a])=>`<button class="dchip" onclick="Edu.act('${a}','${k}')">${T(k)}</button>`).join('');
 renderHandoffs('#eduHandoffs');
 if(!$('#taMsgs').children.length)this.say('<p>Ask Einstein to create or adapt a lesson, rubric, assessment, activity, family letter or presentation outline. Outputs are drafts and should be reviewed before use.</p>')},
