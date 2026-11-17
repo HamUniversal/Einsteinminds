@@ -7,7 +7,7 @@ This directory records the Einstein Minds Edge Function source deployed to Supab
 | Function | Active version | JWT verification | Required configuration |
 |---|---:|---|---|
 | \`agent\` | 36 | Enabled | Supabase runtime keys and \`GROQ_API_KEY\` or \`LLM_API_KEY\`; optional \`LLM_BASE_URL\` |
-| \`resource-search\` | 20 | Disabled | Supabase runtime URL and public key; public read-only catalogue search |
+| \`resource-search\` | 21 | Disabled | Supabase runtime URL and public key; public catalogue search and goal-category recommendations |
 | \`resource-outbound\` | 16 | Disabled | Supabase runtime URL and public key; resolves only published resource IDs |
 | \`provider-introduction\` | 15 | Enabled | Supabase runtime keys and server-side service-role key |
 | \`paypal-subscriptions\` | 11 | Enabled | PayPal client ID/secret, monthly/yearly plan IDs, webhook ID, mode and app URL |
