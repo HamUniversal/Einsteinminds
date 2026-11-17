@@ -13,8 +13,18 @@ const seedCategories = read('supabase/seed/00_resource_categories.sql');
 const seedResources = read('supabase/seed/01_resources.sql');
 const seedMappings = read('supabase/seed/02_resource_category_links.sql');
 const seedSources = read('supabase/seed/03_resource_sources.sql');
+const seedMarker = (name) => String.fromCharCode(36) + name + String.fromCharCode(36);
+const seedRows = (source, name) => {
+  const parts = source.split(seedMarker(name));
+  if (parts.length !== 3) throw new Error('Invalid embedded seed payload: ' + name);
+  return JSON.parse(parts[1]);
+};
 const seedCounts = {
-  categories: JSON.parse(seedCategories.split('$einstein_categories
+  categories: seedRows(seedCategories, 'einstein_categories').length,
+  resources: seedRows(seedResources, 'einstein_resource_rows').length,
+  mappings: seedRows(seedMappings, 'einstein_resource_links').length,
+  sources: seedRows(seedSources, 'einstein_resource_sources').length
+};
 const paypal = read('supabase/functions/paypal-subscriptions/index.ts');
 const agent = read('supabase/functions/agent/index.ts');
 const hostingerWorkflow = read('.github/workflows/package-hostinger.yml');
