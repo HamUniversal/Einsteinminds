@@ -10,9 +10,9 @@ Last inspected: 2026-11-17
 |---|---:|---|
 | `agent` | 27 | Required |
 | `resource-search` | 17 | Not required; public catalogue search |
-| `resource-outbound` | 14 | Required |
-| `provider-introduction` | 13 | Required |
-| `paypal-subscriptions` | 9 | Required |
+| `resource-outbound` | 15 | Required |
+| `provider-introduction` | 14 | Required |
+| `paypal-subscriptions` | 10 | Required |
 | `paypal-webhook` | 9 | Not required; verifies PayPal webhook signatures |
 
 The AI endpoint has an authenticated `action: health` check. It verifies that an AI key exists and that the configured OpenAI-compatible model endpoint responds to `/models`.
