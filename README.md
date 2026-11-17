@@ -62,7 +62,7 @@ The live Supabase project already contains these active Edge Functions:
 The current working branch adds a first real document-understanding path:
 
 - Attach PDF, DOCX, TXT, Markdown, or HTML files from the Ask Einstein interface.
-- PDF text is extracted page by page in the browser; page labels are preserved for citations. DOCX and text-based formats are extracted in the browser.
+- PDF text is extracted page by page in the browser with PDF.js 6.5.438; page labels are preserved for citations. DOCX text is extracted in the browser with Mammoth 1.13.0. TXT, Markdown, and HTML are read locally.
 - File size is limited to 15 MB; PDFs are limited to 40 pages; extracted context is capped at 26,000 characters.
 - Extracted text is sent with the user's question to the authenticated `agent` Edge Function and supplied to the Groq model as untrusted source material.
 - The document itself is not uploaded to Supabase Storage or saved in the user's account. The file must be attached again after a page refresh.
