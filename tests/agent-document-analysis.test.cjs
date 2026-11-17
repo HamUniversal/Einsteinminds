@@ -27,6 +27,7 @@ test('supported document formats are extracted in the browser, not uploaded as f
   assert.match(html, /mammoth\.extractRawText/);
   assert.match(html, /new DOMParser\(\)/);
   assert.match(html, /document_context:documentContext/);
+  assert.match(html, /this\\.documentContext=null/);
   const start = html.indexOf('async attachFile(input)');
   const end = html.indexOf('fromHome()', start);
   assert.ok(start >= 0 && end > start);
