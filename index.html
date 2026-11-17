@@ -1430,7 +1430,7 @@ close(){$('#authGate').classList.remove('on')},
 renderAuth(tab){
 const b=$('#authBody'),signup=tab==='up';
 $('#authTitle').textContent=signup?T('au_signup'):T('au_signin');
-$('#authSub').textContent='Create an adult account to use Einstein Minds. Parents and guardians manage any learner access.';
+$('#authSub').textContent='Create an adult account to use Einstein Minds. Child accounts and child AI access are currently disabled.';
 if(!supabaseClient){b.innerHTML='<p class="bm" role="alert">Account services are temporarily unavailable. Please reload and try again.</p>';return}
 if(!this.backendReady){b.innerHTML='<p class="bm" role="alert">Account services are still connecting. Please wait a moment and try again.</p>';return}
 b.innerHTML=`<div class="auth-tabs"><button class="auth-tab ${signup?'':'on'}" onclick="Auth.tab('in',this)">${T('au_signin')}</button><button class="auth-tab ${signup?'on':''}" onclick="Auth.tab('up',this)">${T('au_signup')}</button></div>
@@ -1946,7 +1946,7 @@ resourceSearchUsed=true;resourceSearchStatus=resources.length?(searchData.match_
 }catch(searchError){console.warn('Curated resource search unavailable',String(searchError).slice(0,120));}
 }
 const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),45000);
-let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:q,intent:this.intent,mode:this.mode,history,resources,resource_search_status:resourceSearchStatus}),signal:controller.signal});}finally{clearTimeout(timeout);}
+let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({prompt:(S.settings.pers!==0&&S.goals.length?'Learner goals (user-approved personalization): '+S.goals.slice(0,3).map(g=>String(g.n||'').slice(0,100)).filter(Boolean).join('; ')+'. User request: '+q:q),intent:this.intent,mode:this.mode,history,resources,resource_search_status:resourceSearchStatus}),signal:controller.signal});}finally{clearTimeout(timeout);}
 const out=await res.json().catch(()=>({}));
 if(!res.ok||!out?.reply){return {success:false,error:out?.error||`AI service returned HTTP ${res.status}.`};}
 if(out.demo===true||out.provider!=='groq'){return {success:false,error:'The AI provider did not confirm a genuine model response. Please try again later.'};}
