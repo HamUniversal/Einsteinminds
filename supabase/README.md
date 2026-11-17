@@ -83,7 +83,9 @@ Eight migrations are applied remotely:
 7. `20261116153025_paypal_subscription_billing`
 8. `20261117053941_user_workspace_and_institutional_requests`
 
-The repository contains the Auth, PayPal and workspace/request migration files. The original four resource-network migration SQL files have not yet been recovered into this branch. This repository is therefore not yet a fully reproducible bootstrap for a brand-new Supabase project. Do not run the migrations against a blank project and assume they recreate the current resource catalogue until those original SQL files are restored.
+All eight historical SQL migration files are now present under `supabase/migrations/`. The four original resource-network migration files were restored verbatim from the live Supabase `schema_migrations.statements` records. A matching public catalogue snapshot and ordered seed scripts are included under `supabase/seed/` (24 categories, 227 resources, 231 mappings, 229 provenance rows).
+
+For a new project, apply the eight migrations in chronological filename order and then follow `supabase/seed/README.md`. Finish with `99_verify.sql` and confirm the four expected counts. Source restoration is complete; an end-to-end restore against a separate empty Supabase project has not yet been run. The seed is an 18 November 2026 snapshot and is not intended as a routine production update.
 
 ### Ask Einstein document attachments
 
