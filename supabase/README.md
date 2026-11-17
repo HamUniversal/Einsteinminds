@@ -1,48 +1,53 @@
-# Einstein Minds
+# Supabase backend — Einstein Minds
 
-Einstein Minds is deployed as a **static web application on Hostinger**. GitHub is the application source of truth; Supabase provides authentication, the resource catalogue, private account workspaces, AI Edge Functions and PayPal subscription handling.
+Project ref: `fxxjainrhtdezyzbqynn`  
+Region: `us-west-2`  
+Last inspected: 2026-11-17
 
-- Production URL: https://einsteinminds.com
-- Supabase project: `fxxjainrhtdezyzbqynn`
-- Frontend deployment: Hostinger `public_html`
-- No Node.js runtime, build command or Hostinger environment variables are required for the static frontend.
+## Deployed Edge Functions
 
-## Deploy the Hostinger package
-
-1. Back up the current contents of Hostinger `public_html`.
-2. Upload the release ZIP.
-3. Extract it directly into `public_html`.
-4. Confirm that `index.html`, `.htaccess` and `assets/` are directly inside `public_html`.
-5. Open https://einsteinminds.com and hard-refresh the page.
-
-The `.htaccess` file provides SPA fallback for the Supabase auth callback path, disables directory listings, prevents stale HTML caching and applies security headers. Static assets are cached for one hour.
-
-## Supabase services
-
-Active Edge Functions (verified 2026-11-17):
-
-| Function | Version | JWT |
+| Function | Active version | JWT |
 |---|---:|---|
 | `agent` | 27 | Required |
-| `resource-search` | 17 | Not required; public catalogue search only |
+| `resource-search` | 17 | Not required; public catalogue search |
 | `resource-outbound` | 14 | Required |
 | `provider-introduction` | 13 | Required |
 | `paypal-subscriptions` | 9 | Required |
-| `paypal-webhook` | 9 | Not required; PayPal signature verification is required |
+| `paypal-webhook` | 9 | Not required; verifies PayPal webhook signatures |
 
-The project contains 24 active resource categories, 227 published provider records, 231 category mappings and 229 source records. The verification-evidence table currently contains **zero records**; directory entries are not independently reviewed or endorsed.
+The AI endpoint has an authenticated `action: health` check. It verifies that an AI key exists and that the configured OpenAI-compatible model endpoint responds to `/models`.
 
-The database includes adult account profiles, private PayPal subscription records, a private webhook idempotency ledger, the account-owned `user_workspaces` table and the account-owned `institutional_access_requests` table. Row-level security is enabled on all public tables. Workspace and institutional request policies use `auth.uid()` and restrict records to the signed-in owner.
+The PayPal subscription endpoint has an authenticated `action: preflight` check. It verifies server-side credentials, the active USD $8 monthly plan, the active USD $60 annual plan, the webhook endpoint URL and required webhook event subscriptions. It does not perform a payment.
 
-The `paypal_webhook_events` table intentionally has RLS enabled with no client policies and no client grants; only the server-side service role can write/read the webhook ledger.
+## Current public schema inventory
 
-## Supabase secrets (server-side only)
+All public tables below have RLS enabled.
 
-Configure these under Supabase Edge Function secrets. **Never paste them into this repository, the browser, or Hostinger.**
+| Table | Rows | Notes |
+|---|---:|---|
+| `profiles` | 1 | One row per adult Auth user |
+| `resource_categories` | 24 | Active knowledge categories |
+| `resources` | 227 | Published external-provider catalogue records |
+| `resource_category_links` | 231 | Resource/category mappings |
+| `resource_sources` | 229 | Provenance/source records |
+| `resource_verification_evidence` | 0 | No independent review evidence yet |
+| `resource_outbound_events` | 2 | Minimal provider-link event records |
+| `paypal_subscriptions` | 0 | No subscription has been recorded |
+| `paypal_webhook_events` | 0 | No PayPal webhook event has been recorded |
+| `user_workspaces` | 0 | Account cloud-sync rows are created on first sync |
+| `institutional_access_requests` | 0 | Private adult-account interest requests |
+
+Workspace RLS permits each authenticated user to read, insert, update and delete only their own row. Institutional requests permit authenticated users to insert and read only their own submissions; contact consent is mandatory. Project administrators can review requests through the server-side service role.
+
+The PayPal webhook ledger intentionally has RLS enabled with no client policies and no client grants. It is accessible only to server-side code using the service role.
+
+## Server-side secrets
+
+Never place these in browser code or Hostinger files.
 
 AI:
-- `GROQ_API_KEY` (or `LLM_API_KEY`)
-- Optional `LLM_BASE_URL` for an OpenAI-compatible HTTPS endpoint
+- `GROQ_API_KEY` or `LLM_API_KEY`
+- Optional `LLM_BASE_URL`
 
 PayPal:
 - `PAYPAL_CLIENT_ID`
@@ -50,50 +55,38 @@ PayPal:
 - `PAYPAL_PLAN_MONTHLY_ID`
 - `PAYPAL_PLAN_YEARLY_ID`
 - `PAYPAL_WEBHOOK_ID`
-- `PAYPAL_MODE` = `live` or `sandbox`
-- `APP_URL` = `https://einsteinminds.com`
+- `PAYPAL_MODE`
+- `APP_URL`
 
-Supabase provides `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` to Edge Functions. Do not place the service-role key in the frontend.
+Supabase supplies `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` to Edge Functions. The service-role key must never be sent to the browser.
 
-The app now checks AI provider connectivity after sign-in. PayPal checkout runs a server-side preflight that checks credentials, the active $8/month and $60/year plans, and the webhook URL/event subscriptions before enabling checkout. This validates configuration; it does not replace a real PayPal sandbox/live purchase test.
+## Security advisor
 
-## Supabase Auth settings
+- `auth_leaked_password_protection`: WARN — disabled. Enable in Supabase Authentication password settings before public launch.
+- `rls_enabled_no_policy` on `paypal_webhook_events`: INFO — intentional; the table is service-role only.
+- Several unused-index INFO findings remain. Do not remove indexes without workload evidence.
 
-- Site URL: `https://einsteinminds.com`
-- Redirect allow-list: `https://einsteinminds.com/**`
-- Add `https://www.einsteinminds.com/**` only if the www host is used.
-- For temporary Hostinger testing, add `https://darkturquoise-magpie-142020.hostingersite.com/**`.
-- For local testing, add the exact localhost origin used by the local server.
+No trusted `admin` or `catalogue_editor` app-metadata role is currently assigned. Catalogue editing and evidence review are therefore unavailable to normal users. The 227 provider entries must not be described as independently verified.
 
-The app sends confirmation and recovery redirects to the current site root. Configure a production SMTP provider in Supabase Auth so confirmation and recovery emails can be delivered reliably.
+## Migration history and reproducibility
 
-## Live features and current limits
+Eight migrations are applied remotely:
 
-Live:
-- Supabase adult-account signup, sign-in, password recovery and protected routes.
-- Resource directory search against the Supabase catalogue.
-- Safe outbound provider links through the outbound Edge Function.
-- AI Ask Einstein and AI lesson drafting, subject to the AI provider health check.
-- Account workspace sync for saved providers, goals, portfolio, assessment history, screen-time totals, preferences and learning events when cloud sync is enabled.
-- PayPal subscription create/cancel/return synchronization when preflight passes.
-- Institutional interest requests stored privately in Supabase.
+1. `20261115022622_resource_network_v1`
+2. `20261115022922_resource_policy_performance_hardening`
+3. `20261115023213_resource_category_counts_rpc`
+4. `20261115025852_resource_category_admin_and_count_fix`
+5. `20261115180822_auth_least_privilege_grants`
+6. `20261115180838_grant_authenticated_evidence_review`
+7. `20261116153025_paypal_subscription_billing`
+8. `20261117053941_user_workspace_and_institutional_requests`
 
-Not currently offered:
-- Child accounts, child AI access or parental-consent verification.
-- Educator identity verification or educator-only subscription benefits.
-- Institutional accounts, SSO, LMS integrations, district administration or a signed DPA.
-- Voice, image generation, document tools, code execution and virtual laboratories.
-- Email notifications for institutional interest requests.
-- Self-service account deletion.
+The repository contains the Auth, PayPal and workspace/request migration files. The original four resource-network migration SQL files have not yet been recovered into this branch. This repository is therefore not yet a fully reproducible bootstrap for a brand-new Supabase project. Do not run the migrations against a blank project and assume they recreate the current resource catalogue until those original SQL files are restored.
 
-Journal and mood entries remain in this browser and are not included in cloud workspace sync. The screen-time tracker records only activity within Einstein Minds; it does not monitor the device or other apps.
+## Product availability boundaries
 
-## Security follow-up before public launch
-
-The Supabase security advisor currently reports **leaked-password protection disabled**. Enable it in Supabase Authentication password settings. The project also has one INFO finding for the intentionally private `paypal_webhook_events` table and unused-index INFO findings; do not add client policies to the webhook ledger merely to silence the advisor.
-
-There is currently one Auth user/profile, zero workspace rows, zero institutional requests, zero PayPal subscription rows and zero webhook events. No successful payment has yet been recorded in this project.
-
-## Migration-source note
-
-The remote project has eight applied migration entries. The repository contains the Auth, PayPal and workspace/request migration files. The original four resource-network migration SQL files are not currently present in this branch, so this repository is not yet a fully reproducible bootstrap for a brand-new Supabase project. Do not run it against a blank project expecting it to recreate the existing resource catalogue schema until those original migration files are recovered.
+- Adult accounts only; child accounts and parental-consent workflows are disabled.
+- Educator identity verification and educator-only subscription benefits are not active.
+- Institutional products, SSO, LMS integrations, district administration and signed DPA are not active. The interest form stores requests but does not send email.
+- Journal and mood entries remain device-local and are excluded from workspace sync.
+- AI and PayPal availability depend on server-side secrets and provider status.
