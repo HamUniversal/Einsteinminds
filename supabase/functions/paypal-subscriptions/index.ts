@@ -7,7 +7,7 @@ const isAllowedOrigin = (origin:string|null) => {
     return url.protocol === "https:" && !url.port && url.hostname.endsWith(".hostingersite.com");
   } catch { return false; }
 };
-const cors = (origin:string|null) => ({"Access-Control-Allow-Origin":origin&&origins.has(origin)?origin:"https://einsteinminds.com","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS","Vary":"Origin"});
+const cors = (origin:string|null) => ({"Access-Control-Allow-Origin":origin&&isAllowedOrigin(origin)?origin:"https://einsteinminds.com","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS","Vary":"Origin"});
 const reply=(body:unknown,status=200,origin:string|null=null)=>new Response(JSON.stringify(body),{status,headers:{...cors(origin),"Content-Type":"application/json","Cache-Control":"no-store"}});
 const apiBase=()=>Deno.env.get("PAYPAL_MODE")==="sandbox"?"https://api-m.sandbox.paypal.com":"https://api-m.paypal.com";
 async function paypalToken(){
@@ -45,8 +45,8 @@ async function persistSubscription(admin:any,userId:string,sub:any,forcedStatus?
 }
 Deno.serve(async(req:Request)=>{
  const origin=req.headers.get("Origin");
- if(req.method==="OPTIONS")return new Response("ok",{headers:cors(origin)});
- if(!isAllowedOrigin(origin))return reply({error:"Origin not allowed"},403,origin);
+ if(!isAllowedOrigin(origin))return
+ if(req.method==="OPTIONS")return new Response("ok",{headers:cors(origin)}); reply({error:"Origin not allowed"},403,origin);
  if(req.method!=="POST")return reply({error:"Method not allowed"},405,origin);
  try{
   const {user,admin}=await getUser(req),body=await req.json().catch(()=>({})),action=String(body.action||"");
