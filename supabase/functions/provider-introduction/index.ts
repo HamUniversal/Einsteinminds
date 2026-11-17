@@ -103,8 +103,8 @@ async function fetchProviderDescription(raw: string, host: string) {
 
 Deno.serve(async (req:Request)=>{
   const origin=req.headers.get("Origin");
-  if(!isAllowedOrigin(origin))return
- if(req.method==="OPTIONS")return new Response("ok",{headers:cors(origin)}); json({error:"Origin not allowed"},403,origin);
+  if(!isAllowedOrigin(origin)) return json({error:"Origin not allowed"},403,origin);
+ if(req.method==="OPTIONS") return new Response("ok",{headers:cors(origin)});
   if(req.method!=="POST")return json({error:"Method not allowed"},405,origin);
   try {
     const body=await req.json();const id=String(body?.resource_id||"");
