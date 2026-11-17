@@ -94,7 +94,7 @@ Never put these secrets into the front end, source package or Hostinger files. T
 
 ## 7. Known reproducibility and launch blockers
 
-- Four original resource-network migration SQL files are recorded in remote migration history but are absent from the repository. The current source repository is not yet a one-command blank-project bootstrap.
+- All eight historical migration files and the four-part public catalogue seed are now present in the repository. A separate empty-project restore has not yet been executed, so bootstrap reproducibility is source-complete but not yet independently exercised.
 - Supabase leaked-password protection is disabled according to the current security advisor.
 - Production SMTP delivery is not yet confirmed.
 - No PayPal subscription/webhook events have been recorded; the real sandbox lifecycle remains untested.
