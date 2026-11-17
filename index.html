@@ -940,6 +940,7 @@ html[dir=rtl] .sb.open{transform:none}
 <!-- WELLBEING -->
 <section class="view" id="v-wellbeing">
 <div class="sec-h"><div class="sec-h-l"><h1 class="h1" data-i18n="n_well">Wellbeing</h1><span class="bm muted" data-i18n="w_sub">Optional, non-judgmental support for your whole-person development.</span></div></div>
+<div class="card" role="note" style="margin-bottom:var(--s5)">Mood check-ins and journal entries are saved only in this browser and are not included in account cloud sync. Einstein Minds is not a clinical, therapy or emergency service.</div>
 <div class="grid g-3 stagger" id="wbGrid"></div>
 <div class="card" style="margin-top:32px;background:var(--bg-2)">
 <h3 class="h3" style="margin-bottom:8px" data-i18n="w_help">Need help now?</h3>
@@ -950,6 +951,7 @@ html[dir=rtl] .sb.open{transform:none}
 <section class="view" id="v-screentime">
 <div class="sec-h"><div class="sec-h-l"><h1 class="h1" data-i18n="n_screen">Screen Time &amp; Digital Balance</h1><span class="bm muted" data-i18n="st_sub">Technology should serve you, not capture your attention.</span></div>
 <button class="btn btn-s" onclick="M.open('mAgree')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span data-i18n="st_agree">Family Agreement</span></button></div>
+<div class="card" role="note" style="margin-bottom:var(--s5)">This timer records only sessions you start inside Einstein Minds. It does not monitor other apps, devices or children. Daily limits are planning targets, not device controls.</div>
 <div class="stats" id="stStats"></div>
 <div class="grid g-2" style="margin-bottom:32px">
 <div class="card">
@@ -1009,7 +1011,7 @@ html[dir=rtl] .sb.open{transform:none}
 <!-- INSTITUTIONS -->
 <section class="view" id="v-institutions">
 <div class="sec-h"><div class="sec-h-l"><h1 class="h1" data-i18n="n_inst">Institutional Dashboard</h1><span class="bm muted" data-i18n="i_sub">Enterprise-grade tools for schools, universities, districts and ministries.</span></div>
-<button class="btn btn-p" onclick="M.open('instReqModal')"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span data-i18n="i_request">Request Access</span></button></div>
+<button class="btn btn-p" onclick="Inst.open()"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span data-i18n="i_request">Request Access</span></button></div>
 <div class="card" role="note" style="margin-bottom:var(--s5);border:1px solid var(--warn)" data-i18n="i_demo_note">Institutional integrations are not active. These cards explain future areas; submit an interest request to register your needs.</div>
 <div class="grid g-res stagger" id="instGrid"></div>
 </section>
