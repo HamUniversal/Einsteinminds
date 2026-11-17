@@ -52,7 +52,7 @@ jobs:
             "branch": "upgrade/resource-network-v2",
             "commit": "$commit",
             "package_scope": "All tracked files from the selected Git commit, plus this manifest",
-            "migration_note": "The four original resource-network migration SQL files remain unrecovered; see docs/RELEASE-CAPABILITY-MATRIX.md."
+            "migration_note": "All eight historical migration SQL files and the four-file public resource catalogue seed are included. A separate empty-project restore rehearsal remains outstanding; see supabase/seed/README.md."
           }
           EOF
           archive="EinsteinMinds-Repository-Source-$short.zip"
