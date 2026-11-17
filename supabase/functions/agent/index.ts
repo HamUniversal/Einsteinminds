@@ -82,11 +82,11 @@ const preferredModels = ["openai/gpt-oss-120b","openai/gpt-oss-20b"];
 let modelCache: { id: string; at: number } | null = null;
 
 const text = (v: unknown, n: number) => typeof v === "string" ? v.replace(/\u0000/g, "").slice(0,n).trim() : "";
-function historyOf(v: unknown) {
+function historyOf(v: unknown, maxMessages = 14, maxChars = 2500) {
   if (!Array.isArray(v)) return [];
-  return v.slice(-14).flatMap((m: any) => {
+  return v.slice(-maxMessages).flatMap((m: any) => {
     if (!m || !["user","assistant"].includes(m.role)) return [];
-    const content = text(m.content, 2500);
+    const content = text(m.content, maxChars);
     return content ? [{ role:m.role, content }] : [];
   });
 }
@@ -230,7 +230,7 @@ Deno.serve(async(req:Request)=>{
     const base=(Deno.env.get("LLM_BASE_URL")||"https://api.groq.com/openai/v1").replace(/\/+$/,"");
     if(!/^https:\/\//i.test(base)) return respond({error:"The AI provider configuration is invalid.",code:"AI_PROVIDER_CONFIG"},503,requestId);
     const model=await chooseModel(base,key,"");
-    const history=historyOf(body?.history);
+    const history=historyOf(body?.history, documentContext ? 4 : 14, documentContext ? 1200 : 2500);
     let resources=resourcesOf(body?.resources);
     let searchStatus=text(body?.resource_search_status,40);
     const asksToInvestigateProvider=/\b(verify|check|investigate|research|tell me more about|details about|is .* (legit|reliable|trustworthy|safe))\b/i.test(prompt);
