@@ -33,7 +33,7 @@ test('AI provider health check verifies the server-side model endpoint without e
   assert.ok(source.includes('GROQ_API_KEY'));
   assert.ok(source.includes('base+"/models"'));
   assert.ok(source.includes('AI provider connection verified'));
-  assert.ok(!/GROQ_API_KEY\\s*[:=]\\s*["'][^"']+["']/.test(source));
+  assert.ok(!source.includes('GROQ_API_KEY="') && !source.includes("GROQ_API_KEY='"));
 });
 
 test('PayPal preflight checks monthly, annual and webhook configuration', () => {
