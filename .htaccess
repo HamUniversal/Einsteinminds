@@ -15,13 +15,13 @@ Options -Indexes
   Header always set Cross-Origin-Opener-Policy "same-origin-allow-popups"
   Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS
 
-  <FilesMatch "^(index\\.html)$">
+  <FilesMatch "^(index\.html)$">
     Header always set Cache-Control "no-store, no-cache, must-revalidate"
     Header always set Pragma "no-cache"
     Header always set Expires "0"
   </FilesMatch>
 
-  <FilesMatch "\\.(css|js|svg|png|jpg|jpeg|webp|woff2)$">
+  <FilesMatch "\.(css|js|svg|png|jpg|jpeg|webp|woff2)$">
     Header always set Cache-Control "public, max-age=3600, must-revalidate"
   </FilesMatch>
 </IfModule>
