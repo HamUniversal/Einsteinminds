@@ -26,6 +26,6 @@ After signing in, the AI status indicator checks the model provider. Opening Pro
 
 ## Important release limits
 
-The directory, Supabase adult-account authentication, account workspace sync, AI lesson drafting and institutional interest-request storage are connected. Actual AI availability depends on the server-side model key. PayPal checkout is enabled only when the server-side preflight succeeds and still requires a real sandbox purchase test.
+The directory, Supabase adult-account authentication, account workspace sync, Ask Einstein text analysis, AI lesson drafting and institutional interest-request storage are connected. Recommended For You uses a learning-goal category match when one is available; it is not an independently verified ranking. Actual AI availability depends on the server-side model key. PayPal checkout is enabled only when the server-side preflight succeeds and still requires a real sandbox purchase test.
 
-Child accounts, educator verification, institutional integrations, voice, image generation, code execution, document tools and virtual laboratories are not currently offered. Journal and mood entries remain on the current device.
+Child accounts and parental-consent workflows, educator verification and class management, institutional integrations/SSO/LMS, voice, image analysis, code execution, data visualization and virtual laboratories are not currently offered. Ask Einstein document text analysis is available for PDF, DOCX, TXT, Markdown and HTML (15 MB, 40 PDF pages and 26,000 extracted characters per request); scanned-PDF OCR and embedded-image/layout analysis are not supported. Journal and mood entries remain on the current device.
