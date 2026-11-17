@@ -1069,7 +1069,7 @@ html[dir=rtl] .sb.open{transform:none}
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- Optional translations bundle is not present in this release; English remains the complete default locale. -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.13.0/mammoth.browser.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.13.0/mammoth.browser.min.js" integrity="sha512-5hAL8cCOeSztnaZ+3xjLAflXeSwJpGrdrH6McLq2Dtl0vfvCQw+jO9q652eMASTNAU8anRvrXnlW9QqzlfN2HA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 'use strict';
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -2001,7 +2001,7 @@ let res;try{res=await fetch(`${SUPABASE_URL}/functions/v1/agent`,{method:'POST',
 const out=await res.json().catch(()=>({}));
 if(!res.ok||!out?.reply){return {success:false,error:out?.error||`AI service returned HTTP ${res.status}.`};}
 if(out.demo===true||out.provider!=='groq'){return {success:false,error:'The AI provider did not confirm a genuine model response. Please try again later.'};}
-const resourceSearchStatus=String(out.resource_search_status||'not_requested');const resourceSearchUsed=wantsResources&&resourceSearchStatus!=='not_requested'&&resourceSearchStatus!=='unavailable';const resources=Array.isArray(out.resources)?out.resources.map(r=>({title:String(r.title||''),url:String(r.url||''),description:String(r.description||''),match_note:''})).filter(r=>r.title&&/^https:\/\//i.test(r.url)):[];return {success:true,reply:out.reply,model:out.model||'Groq',resources,resourceSearchUsed,resourceSearchStatus};
+const resourceSearchStatus=String(out.resource_search_status||'not_requested');const resourceSearchUsed=resourceSearchStatus!=='not_requested'&&resourceSearchStatus!=='unavailable';const resources=Array.isArray(out.resources)?out.resources.map(r=>({title:String(r.title||''),url:String(r.url||''),description:String(r.description||''),match_note:''})).filter(r=>r.title&&/^https:\/\//i.test(r.url)):[];return {success:true,reply:out.reply,model:out.model||'Groq',resources,resourceSearchUsed,resourceSearchStatus};
 }catch(error){return {success:false,error:error?.name==='AbortError'?'Einstein is taking longer than expected. Please try again.':(error?.message||'The AI service could not be reached.')};}
 }};
 /* ═══ EDUCATOR ═══ */
