@@ -694,7 +694,7 @@ html[dir=rtl] .sb.open{transform:none}
 <div class="fld"><label for="irOrg">Institution name</label><input class="inp" id="irOrg" maxlength="160" required autocomplete="organization"></div>
 <div class="fld"><label for="irEmail">Work email</label><input class="inp" id="irEmail" type="email" maxlength="254" required autocomplete="email"></div>
 <div class="fld"><label for="irRole">Your role</label><input class="inp" id="irRole" maxlength="120" required placeholder="e.g. Principal, IT Director, Program Lead"></div>
-<div class="fld"><label for="irSeats">Approximate number of learners / users</label><select class="inp" id="irSeats"><option value="">Not sure yet</option><option value="25">1–25</option><option value="100">26–100</option><option value="500">101–500</option><option value="1000">501–1,000</option><option value="5000">1,001–5,000</option><option value="10000">5,001–10,000</option><option value="100000">10,001+</option></select></div>
+<div class="fld"><label for="irSeats">Estimated number of learners / users (optional)</label><input class="inp" id="irSeats" type="number" min="1" max="1000000" placeholder="e.g. 250"></div>
 <div class="fld"><label for="irMessage">What are you looking for?</label><textarea class="inp" id="irMessage" rows="4" maxlength="2000" placeholder="Tell us about your institution and the capabilities you need. Do not include student or other sensitive personal information."></textarea></div>
 <label class="ck-l" style="margin-bottom:var(--s3)"><input id="irConsent" type="checkbox"><span>I agree that Einstein Minds may store this request and contact me about institutional availability.</span></label>
 <p class="cap muted">The request is saved to your signed-in account. Automated email notifications are not configured yet.</p>
@@ -1555,7 +1555,7 @@ $('#proPrice').textContent=c==='m'?'$8':'$60';$('#proPer').textContent=c==='m'?'
 choose(p){if(p==='free'){M.close('pricingModal');Toast.show(T('pl_cur'),'ok');return}
 if(p==='pro'){M.close('pricingModal');this.openCheckout();return}
 if(p==='educator'){M.close('pricingModal');this.verifyEducator();return}
-if(p==='inst'){M.close('pricingModal');M.open('instReqModal');return}},
+if(p==='inst'){M.close('pricingModal');Inst.open();return}},
 async checkBilling(){
  try{
   const {data,error}=await supabaseClient.functions.invoke('paypal-subscriptions',{body:{action:'preflight'}});
@@ -1607,7 +1607,7 @@ else Toast.show('PayPal approval received. Subscription status: '+String(data?.s
 else if(state==='cancel')Toast.show('PayPal checkout was cancelled. No subscription was activated.','warn');
 history.replaceState({},'',window.location.pathname+window.location.hash)},
 verifyEducator(){Toast.show('Educator verification is not available yet. The AI lesson planner is available to adult accounts.','warn')},
-instRequest(){if(!Auth.signedIn){Auth.open('in');return}M.open('instReqModal')}};
+instRequest(){this.open()}};
 const Legal={docs:{
 tos:{t:'Terms of Service',b:'<h3>Service</h3><p>Einstein Minds provides an adult learning workspace, an external education-provider directory and AI-assisted learning drafts. Provider listings are not endorsements, accreditation or safety reviews.</p><h3>AI limitations</h3><p>AI outputs may be incomplete or incorrect. Verify important claims, links, standards and recommendations with original sources and qualified people. AI outputs are drafts, not professional advice or decisions about a learner.</p><h3>Accounts and age</h3><p>Accounts are for adults aged 18 or older. Child accounts and child AI access are disabled. Do not submit sensitive learner or child information.</p><h3>Subscriptions</h3><p>Pro is offered at $8 per month or $60 per year when PayPal checkout is configured. Subscriptions renew according to the selected PayPal plan. Manage or cancel an active subscription through the account billing controls. An interest request for institutional services is not a contract or an active license.</p><h3>Availability</h3><p>AI and payment services depend on external provider configuration and availability. Educator verification, institutional integrations, voice, code execution and virtual laboratories are not currently offered.</p>'},
 privacy:{t:'Privacy Policy',b:'<h3>Who can use the service</h3><p>Einstein Minds currently supports adult account holders only. Child profiles and child accounts are disabled. Do not enter children\'s names, contact details, school records or other sensitive learner information.</p><h3>Account and workspace data</h3><p>Supabase stores your account profile, subscription status and, when cloud sync is enabled, saved providers, learning goals, portfolio items, assessment progress, screen-time totals, preferences and learning activity events. Row-level security restricts workspace rows to the owning account.</p><h3>Device-only data</h3><p>Journal entries, mood check-ins and some interface preferences remain in this browser\'s local storage. They are not included in the cloud workspace sync. Clearing browser data may remove them.</p><h3>AI and external providers</h3><p>When you use Ask Einstein or the lesson planner, your prompt and relevant conversation context are sent to the configured AI provider through a Supabase Edge Function. Resource searches query the Einstein Minds directory. External provider websites have their own privacy practices.</p><h3>Payments</h3><p>PayPal handles checkout and payment details. Einstein Minds does not store your card number or PayPal password. Supabase stores subscription identifiers, plan, status and billing metadata needed to manage access.</p><h3>Institutional requests</h3><p>If you submit an institutional interest request, the organization name, work email, role, estimated user count and message are stored in Supabase and visible to your account and authorized project administrators. Automated confirmation emails are not currently configured.</p><h3>Your controls</h3><p>You can export account data, disable cloud sync, reset your workspace data and contact support to request account deletion. Account deletion is not yet self-service. This notice should be reviewed by qualified privacy counsel before public launch.</p>'},
@@ -2298,7 +2298,7 @@ const Inst={
  render(){
   $('#instGrid').innerHTML=INST.map(([k,d,ic],i)=>`<div class="inst" style="--i:${i}" onclick="Inst.open(${i})"><div class="inst-ic">${svg(ic)}</div><h3>${T(k)}</h3><p>${T(d)}</p><div class="inst-s"><div><div class="inst-sv">Interest form</div><div class="inst-sl">Available</div></div><div><div class="inst-sv">Integration</div><div class="inst-sl">Not active yet</div></div></div></div>`).join('')
  },
- open(i){if(!Gate.require())return;M.open('instReqModal')},
+ open(i){if(!Gate.require())return;$('#irEmail').value=Auth.user.email||'';$('#irResult').textContent='';M.open('instReqModal')},
  async submitRequest(){
   if(!Gate.require())return;
   const org=$('#irOrg')?.value.trim()||'',email=$('#irEmail')?.value.trim()||'',role=$('#irRole')?.value.trim()||'',seats=$('#irSeats')?.value||'',message=$('#irMessage')?.value.trim()||'';
