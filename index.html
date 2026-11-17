@@ -1736,7 +1736,7 @@ timer:null,busy:false,pending:false,loadedFor:null,lastError:'',
 reset(){clearTimeout(this.timer);this.timer=null;this.loadedFor=null;this.pending=false},
 snapshot(){const state={};for(const key of CLOUD_STATE_KEYS)state[key]=S[key];state.usage=Usage.data;return state},
 mergeArray(remote,local,limit=250){const map=new Map();for(const item of [...(Array.isArray(remote)?remote:[]),...(Array.isArray(local)?local:[])]){const key=typeof item==='string'?item:(item?.id||item?.uid||item?.created_at||JSON.stringify(item));map.set(key,item)}return [...map.values()].slice(-limit)},
-mergeUsage(remote,local){if(!remote||typeof remote!=='object')return local;if(!local||typeof local!=='object')return remote;if(remote.date===local.date)return {date:local.date,count:Math.max(Number(remote.count)||0,Number(local.count)||0)};return String(local.date||'')>String(remote.date||'')?local:remote},
+mergeUsage(remote,local){if(!remote||typeof remote!=='object')return local;if(!local||typeof local!=='object')return remote;if(remote.date===local.date)return {date:local.date,count:Math.max(Number(remote.count)||0,Number(local.count)||0)};return (Date.parse(local.date||'')||0)>(Date.parse(remote.date||'')||0)?local:remote},
 schedule(){if(!Auth.signedIn||this.loadedFor!==Auth.user.id||S.settings.cloudSync===0)return;LS.set('workspace_dirty',true);clearTimeout(this.timer);this.timer=setTimeout(()=>this.flush(Auth.user.id),650)},
 async load(userId){
  if(!supabaseClient||!userId)return;
