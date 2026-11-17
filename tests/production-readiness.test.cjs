@@ -72,6 +72,91 @@ test('all historical migrations and public catalogue restore seeds are included'
   assert.match(seedGuide, /227/);
   assert.match(seedGuide, /231/);
   assert.match(seedGuide, /not an independently reviewed/i);
+  const categoryRows = JSON.parse(categories.split('$einstein_categories
+  assert.match(read('README.md'), /separate empty Supabase project/);
+});
+
+test('repository documentation is Hostinger-only and records the remaining security follow-up', () => {
+  const docs = ['README.md','README-HOSTINGER.md','START-HERE.md','SECURITY.md','supabase/README.md'].map(read).join('\n');
+  assert.match(docs, /Hostinger/);
+  assert.match(docs, /leaked-password protection disabled/i);
+  assert.match(docs, /catalogue snapshot/i);
+  assert.doesNotMatch(docs, /Netlify/i);
+});
+
+test('production app contains no legacy fake catalogue, Stripe checkout or child verification workflow', () => {
+  assert.match(html, /const RESOURCE_INDEX=\[\]/);
+  assert.doesNotMatch(html, /MASTER UPGRADE PATCH v9\.0|MASTER PATCH v9\.2|VirtualDB|iabFrame/);
+  assert.doesNotMatch(html, /Stripe|Simulated checkout|COPPA 2026|Verifiable Parental Consent/i);
+  assert.match(html, /Child accounts are disabled/);
+  assert.match(html, /Institutional interest request/);
+});
+)[1]);
+  const resourceRows = JSON.parse(resources.split('$einstein_resource_rows
+  assert.match(read('README.md'), /separate empty Supabase project/);
+});
+
+test('repository documentation is Hostinger-only and records the remaining security follow-up', () => {
+  const docs = ['README.md','README-HOSTINGER.md','START-HERE.md','SECURITY.md','supabase/README.md'].map(read).join('\n');
+  assert.match(docs, /Hostinger/);
+  assert.match(docs, /leaked-password protection disabled/i);
+  assert.match(docs, /catalogue snapshot/i);
+  assert.doesNotMatch(docs, /Netlify/i);
+});
+
+test('production app contains no legacy fake catalogue, Stripe checkout or child verification workflow', () => {
+  assert.match(html, /const RESOURCE_INDEX=\[\]/);
+  assert.doesNotMatch(html, /MASTER UPGRADE PATCH v9\.0|MASTER PATCH v9\.2|VirtualDB|iabFrame/);
+  assert.doesNotMatch(html, /Stripe|Simulated checkout|COPPA 2026|Verifiable Parental Consent/i);
+  assert.match(html, /Child accounts are disabled/);
+  assert.match(html, /Institutional interest request/);
+});
+)[1]);
+  const mappingRows = JSON.parse(links.split('$einstein_resource_links
+  assert.match(read('README.md'), /separate empty Supabase project/);
+});
+
+test('repository documentation is Hostinger-only and records the remaining security follow-up', () => {
+  const docs = ['README.md','README-HOSTINGER.md','START-HERE.md','SECURITY.md','supabase/README.md'].map(read).join('\n');
+  assert.match(docs, /Hostinger/);
+  assert.match(docs, /leaked-password protection disabled/i);
+  assert.match(docs, /catalogue snapshot/i);
+  assert.doesNotMatch(docs, /Netlify/i);
+});
+
+test('production app contains no legacy fake catalogue, Stripe checkout or child verification workflow', () => {
+  assert.match(html, /const RESOURCE_INDEX=\[\]/);
+  assert.doesNotMatch(html, /MASTER UPGRADE PATCH v9\.0|MASTER PATCH v9\.2|VirtualDB|iabFrame/);
+  assert.doesNotMatch(html, /Stripe|Simulated checkout|COPPA 2026|Verifiable Parental Consent/i);
+  assert.match(html, /Child accounts are disabled/);
+  assert.match(html, /Institutional interest request/);
+});
+)[1]);
+  const sourceRows = JSON.parse(sources.split('$einstein_resource_sources
+  assert.match(read('README.md'), /separate empty Supabase project/);
+});
+
+test('repository documentation is Hostinger-only and records the remaining security follow-up', () => {
+  const docs = ['README.md','README-HOSTINGER.md','START-HERE.md','SECURITY.md','supabase/README.md'].map(read).join('\n');
+  assert.match(docs, /Hostinger/);
+  assert.match(docs, /leaked-password protection disabled/i);
+  assert.match(docs, /catalogue snapshot/i);
+  assert.doesNotMatch(docs, /Netlify/i);
+});
+
+test('production app contains no legacy fake catalogue, Stripe checkout or child verification workflow', () => {
+  assert.match(html, /const RESOURCE_INDEX=\[\]/);
+  assert.doesNotMatch(html, /MASTER UPGRADE PATCH v9\.0|MASTER PATCH v9\.2|VirtualDB|iabFrame/);
+  assert.doesNotMatch(html, /Stripe|Simulated checkout|COPPA 2026|Verifiable Parental Consent/i);
+  assert.match(html, /Child accounts are disabled/);
+  assert.match(html, /Institutional interest request/);
+});
+)[1]);
+  assert.equal(categoryRows.length, 24);
+  assert.equal(resourceRows.length, 227);
+  assert.equal(mappingRows.length, 231);
+  assert.equal(sourceRows.length, 229);
+  assert.match(read('supabase/seed/99_verify.sql'), /seed_counts_match_snapshot/);
   assert.match(read('README.md'), /separate empty Supabase project/);
 });
 
