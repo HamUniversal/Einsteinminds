@@ -35,7 +35,7 @@ const checks = [
   [html.includes('const RESOURCE_INDEX=[];'), 'legacy provider seed index is empty'],
   [catsBlock.length > 0 && !/\bp\s*:\s*\[/.test(catsBlock), 'category metadata contains no sample provider arrays'],
   [html.includes('window.EinsteinmindsResourceNetwork?.state?.total'), 'navigation count uses the live directory total'],
-  [html.includes('renderHomeRecommendations'), 'home recommendations use live provider results'],
+  [html.includes('refreshHomeRecommendations(false)') && app.includes('function recommendationPayload()'), 'home recommendations use goal-aware live provider results'],
   [app.includes("'resource-search'"), 'resource UI calls the Supabase resource-search function'],
   [app.includes("'resource-outbound'"), 'provider links use the controlled outbound function'],
   [app.includes("'provider-introduction'"), 'provider details use the introduction function'],
