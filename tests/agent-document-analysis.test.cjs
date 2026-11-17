@@ -30,7 +30,7 @@ test('supported document formats are extracted in the browser, not uploaded as f
   const start = html.indexOf('async attachFile(input)');
   const end = html.indexOf('fromHome()', start);
   assert.ok(start >= 0 && end > start);
-  assert.doesNotMatch(html.slice(start, end), /\\.upload\\(/);
+  assert.doesNotMatch(html.slice(start, end), /\.upload\(/);
 });
 
 test('document text is not persisted in conversation history', () => {
