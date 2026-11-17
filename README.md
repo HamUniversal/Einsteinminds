@@ -24,7 +24,7 @@ Active Edge Functions (verified 2026-11-18):
 | Function | Version | JWT |
 |---|---:|---|
 | `agent` | 36 | Required |
-| `resource-search` | 20 | Not required; public read-only catalogue search and goal-category recommendations |
+| `resource-search` | 21 | Not required; public read-only catalogue search and goal-category recommendations |
 | `resource-outbound` | 16 | Not required; validates published resource UUID and stored official host |
 | `provider-introduction` | 15 | Required |
 | `paypal-subscriptions` | 11 | Required |
