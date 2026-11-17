@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const allowedOrigins = new Set(["https://einsteinminds.com","https://www.einsteinminds.com","http://localhost:8888"]);
+const allowedOrigins = new Set(["https://einsteinminds.com","https://www.einsteinminds.com","https://darkturquoise-magpie-142020.hostingersite.com","http://localhost:8888"]);
 const cors = (origin: string | null) => ({
   "Access-Control-Allow-Origin": origin && allowedOrigins.has(origin) ? origin : "https://einsteinminds.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
