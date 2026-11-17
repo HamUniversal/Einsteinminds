@@ -18,7 +18,7 @@ test('document extraction is bounded and preserves PDF page labels', () => {
   assert.match(html, /15\*1024\*1024/);
   assert.match(html, /pdf\.numPages>40/);
   assert.match(html, /extracted\.length>26000/);
-  assert.match(html, /\[Page '\+n\+\]/);
+  assert.match(html, /\[Page '\+n\+'\]/);
   assert.match(html, /No readable text was extracted/);
 });
 
