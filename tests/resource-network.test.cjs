@@ -67,3 +67,17 @@ test('unclassified resources are not assigned a learning level by default', () =
   assert.equal(Core.stageLabel(null), 'Learning level not yet classified');
   assert.equal(Core.editorialLabel({ editorial_status: 'candidate' }), 'Directory listing · not independently reviewed');
 });
+
+
+test('homepage recommendation refresh is wired to a fresh backend request', () => {
+  const fs = require('node:fs');
+  const frontend = fs.readFileSync(require.resolve('../assets/einsteinminds-resource-network.js'), 'utf8');
+  const app = fs.readFileSync(require.resolve('../index.html'), 'utf8');
+  const edge = fs.readFileSync(require.resolve('../supabase/functions/resource-search/index.ts'), 'utf8');
+  assert.match(frontend, /async function refreshHomeRecommendations\(\)/);
+  assert.match(frontend, /action: 'recommendations'/);
+  assert.match(frontend, /refreshHomeRecommendations\s*$/m);
+  assert.match(app, /async refreshRec\(\)[\s\S]{0,500}refreshHomeRecommendations/);
+  assert.match(edge, /body\?\.action===["']recommendations["']/);
+  assert.match(edge, /private, no-store/);
+});
