@@ -2,7 +2,7 @@ name: Validate Einsteinminds
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, upgrade/resource-network-v2]
   push:
     branches: [main, upgrade/resource-network-v1, upgrade/resource-network-v2]
   workflow_dispatch:
