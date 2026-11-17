@@ -12,12 +12,21 @@ RLS is enabled for all seven public tables. Anonymous users can read the public 
 
 ## Active Edge Functions
 
-- `agent` v10 — authenticated AI learning assistant; honest scripted fallback if no model provider is configured.
-- `resource-search` v4 — catalogue search, category statistics, and learning-stage filtering.
-- `resource-outbound` v3 — UUID-to-stored-URL resolution, official-host check, minimal event logging, and safe UTM tags.
-- `provider-introduction` v2 — original official-page metadata retrieval and caching.
+- `agent` v36 — authenticated Groq learning assistant with Einstein Minds directory search, provider metadata, and extracted-document context.
+- `resource-search` v19 — catalogue search, category statistics, and learning-stage filtering.
+- `resource-outbound` v16 — UUID-to-stored-URL resolution, official-host check, minimal event logging, and safe UTM tags.
+- `provider-introduction` v15 — controlled official-page metadata retrieval and caching.
 
-The frontend uses these existing deployed functions; this authentication hardening did not redeploy or modify any Edge Function.
+## Ask Einstein document text analysis
+
+- The frontend supports PDF, DOCX, TXT, Markdown, and HTML attachments.
+- PDF.js 6.5.438 extracts text by page; Mammoth 1.13.0 extracts DOCX text. Plain-text and HTML files are read in the browser.
+- Limits: 15 MB per file, 40 PDF pages, and 26,000 extracted characters per request.
+- Extracted text is sent to the authenticated `agent` function as untrusted document context. The backend caps document context at 28,000 characters and reduces recent chat history for document requests to stay within the request-size limit.
+- File bytes and extracted text are not stored in Supabase Storage or a document table. Saved chat history stores the user's prompt and answer, not the document contents.
+- OCR for scanned PDFs, embedded-image understanding, and reliable visual/table-layout analysis are not included in this first implementation.
+
+The live Supabase project also has `paypal-subscriptions` v11 and `paypal-webhook` v9 active. The `agent` Edge Function is deployed as v36 with `verify_jwt=true`; its deployed source is synchronized to `supabase/functions/agent/index.ts` in this branch. The frontend document-attachment implementation is committed to `feature/ask-einstein-groq-agent` and is not live on the production website until the frontend branch is reviewed and deployed through Hostinger.
 
 ## GitHub source-of-truth work still required
 
