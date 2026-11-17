@@ -46,13 +46,13 @@ The interface supports:
 
 The Supabase `learning_stages` field currently has no reviewed mappings. Therefore, specific stage filters correctly return no results until provider-specific evidence is reviewed and stored. The interface does not infer learner age suitability from a provider name, topic, or marketing claim. "All learning levels" and "Not yet classified" remain available.
 
-## Existing Supabase functions
+## Ask Einstein prompt upgrade (17 November 2026)\n\nThe authenticated `agent` Edge Function is deployed as version 29. Its system prompt now defines Einstein's mission, adaptive teaching and reasoning standards, resource citation and directory-result rules, tool/capability honesty, learner/educator/parent adaptation, privacy, safety, and response-quality expectations. The model response budget is 1,800 tokens with a lower 0.35 temperature for more consistent, careful answers. The exact deployed source is tracked at `supabase/functions/agent/index.ts` on `feature/ask-einstein-groq-agent`.\n\n## Existing Supabase functions
 
 The live Supabase project already contains these active Edge Functions:
 
 | Function | Version | Role |
 |---|---:|---|
-| `agent` | 10 | Authenticated learning assistant; reports a scripted fallback when no model is configured |
+| `agent` | 29 | Authenticated Groq-backed Einstein learning agent; adaptive teaching prompt, conversation context, directory-aware source integrity, honest capability boundaries |
 | `resource-search` | 3 | Public published-resource search, category counts and stage filters |
 | `resource-outbound` | 2 | Resolves a catalogue UUID, validates its stored HTTPS host, records a minimal click event and applies safe UTM tags |
 | `provider-introduction` | 1 | Retrieves and caches metadata from the provider's official page |
