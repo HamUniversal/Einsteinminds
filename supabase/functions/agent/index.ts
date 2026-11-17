@@ -227,7 +227,7 @@ Deno.serve(async(req:Request)=>{
     let resources=resourcesOf(body?.resources);
     let searchStatus=text(body?.resource_search_status,40);
     const asksToInvestigateProvider=/\b(verify|check|investigate|research|tell me more about|details about|is .* (legit|reliable|trustworthy|safe))\b/i.test(prompt);
-    const asksForResources=/\b(recommend|recommendation|resources?|courses?|websites?|platforms?|learning tools?|providers?|where can i learn|find .* (course|resource|tool)|best .* (course|website|platform))\b/i.test(prompt) || asksToInvestigateProvider;
+    const asksForResources=body?.resource_search_requested===true || /\b(recommend|recommendation|resources?|courses?|websites?|platforms?|learning tools?|providers?|where can i learn|find .* (course|resource|tool)|best .* (course|website|platform))\b/i.test(prompt) || asksToInvestigateProvider;
     if(!resources.length && !searchStatus && asksForResources) {
       const directory=await searchEinsteinDirectory(prompt,url,publicKey);
       resources=directory.resources;
@@ -289,7 +289,7 @@ Deno.serve(async(req:Request)=>{
     const payload=await response.json();
     const reply=text(payload?.choices?.[0]?.message?.content,16000);
     if(!reply) return respond({error:"The AI provider returned an empty answer. Please try again.",code:"EMPTY_COMPLETION",demo:false},502,requestId);
-    return respond({demo:false,provider:"groq",model,reply,usage:payload?.usage?{
+    return respond({demo:false,provider:"groq",model,reply,resources,resource_search_status:searchStatus||undefined,usage:payload?.usage?{
       prompt_tokens:payload.usage.prompt_tokens,completion_tokens:payload.usage.completion_tokens,total_tokens:payload.usage.total_tokens
     }:undefined},200,requestId);
   } catch(error) {
