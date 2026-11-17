@@ -34,7 +34,7 @@ The current front end contains 13 principal views: Home, Ask Einstein, Explore K
 
 ### Edge Functions
 
-The six active deployed function files were compared byte-for-byte with the GitHub release-branch source before the current recommendation improvement was committed.
+The six active deployed Edge Functions were inspected on 18 November 2026. The `resource-search` v21 deployment was verified active after the personalized recommendation change.
 
 | Function | Deployed version | JWT verification |
 |---|---:|---|
@@ -67,15 +67,15 @@ All 227 resources are published, but zero are independently reviewed, zero have 
 
 ## Outstanding release blockers
 
-1. Recover or replace the four missing original resource-network migration SQL files with a reviewed, reproducible baseline before claiming that a blank Supabase project can be bootstrapped from this repository.
+1. Run the full eight-migration plus four-file catalogue-seed procedure against a separate empty Supabase project and verify the expected table counts.
 2. Enable Supabase leaked-password protection. The current security advisor reports it disabled.
 3. Confirm production SMTP delivery for signup confirmation and password recovery.
 4. Complete signed-in browser testing for Ask Einstein, chat history, document extraction, account switching and workspace sync.
 5. Complete a PayPal sandbox purchase, approval, webhook delivery, database state check and cancellation.
-6. Verify the new personalized recommendation request against the live v20 endpoint after deployment, and verify the rendered result from the deployed front end.
+6. Complete a signed-in front-end test of goal-category recommendations, saved-resource exclusion and the Refresh action against the deployed `resource-search` v21 endpoint.
 7. Run responsive desktop/mobile and keyboard/screen-reader checks across all 13 views.
 8. Review the directory records, provenance and learning-stage evidence before making claims about safety, accuracy, quality or suitability.
 
 ## Release decision
 
-**Not yet a fully launch-approved release.** The source contains meaningful connected functionality, but the blockers above remain. No production Hostinger deployment is implied by a passing GitHub build. The website ZIP is only the static front end; the repository source ZIP is a snapshot of all tracked repository files. The four absent historical resource-network migrations remain a documented reproducibility gap.
+**Not yet a fully launch-approved release.** The source contains meaningful connected functionality, but the blockers above remain. No production Hostinger deployment is implied by a passing GitHub build. The website ZIP is only the static front end; the repository source ZIP is a snapshot of all tracked repository files. The historical migrations and a dated public catalogue seed are included; the remaining reproducibility check is a fresh-project restore rehearsal.
