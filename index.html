@@ -1414,7 +1414,9 @@ if(billingError)Toast.show('Subscription status could not be refreshed. Paid acc
 this.user={id:authUser.id,name:profile.display_name||authUser.email?.split('@')[0]||'Learner',
 email:authUser.email||'',role:'Adult account',plan:billing?'pro':'free',ageBand:'adult',vpc:'pending',subscription:billing||null};
 if(previousId!==authUser.id){
-try{LS.activateUser(authUser.id);LS.del('child');loadAccountState();await CloudState.load(authUser.id);Usage.load();mergeGuestArtifacts()}
+try{LS.activateUser(authUser.id);LS.del('child');loadAccountState();
+try{await CloudState.load(authUser.id)}catch(syncError){CloudState.reset();Toast.show('Cloud sync could not be loaded. Your account is still available; learning changes will remain on this device until sync is restored.','warn')}
+Usage.load();mergeGuestArtifacts()}
 catch(error){this.user=null;LS.activateUser(null);resetGuestState();this.renderUserArea();Toast.show(`Could not load this account's local learning data: ${error.message}`,'bad');return}
 }
 this.renderUserArea();Nav.render();Home.render();Settings.syncPlan();
@@ -1698,6 +1700,7 @@ const normalisePortfolio=()=>S.portfolio.forEach(item=>{if(item.v==='Educator Ve
 const loadAccountState=()=>{
 const defaults=emptyState();
 for(const key of USER_STATE_KEYS)if(Object.prototype.hasOwnProperty.call(defaults,key))S[key]=LS.get(key,defaults[key]);
+S.settings=Object.assign({},defaults.settings,S.settings||{});
 S.goals=S.goals.map(g=>Object.assign({skill:{},weeklyMinutes:60,targetWeeks:g.w||1},g,{skill:g.skill||{},p:g.skill&&Object.keys(g.skill).length?g.p:0}));
 S.portfolio=S.portfolio.map(item=>Object.assign({desc:'',status:'submitted'},item));
 normalisePortfolio()
@@ -1724,6 +1727,7 @@ async load(userId){
  this.loadedFor=userId;
  if(data&&data.state&&typeof data.state==='object'){
   for(const key of CLOUD_STATE_KEYS){if(Object.prototype.hasOwnProperty.call(data.state,key)){S[key]=data.state[key];LS.set(key,S[key])}}
+  S.settings=Object.assign({},emptyState().settings,S.settings||{});LS.set('settings',S.settings);
   if(data.state.usage&&typeof data.state.usage==='object'){Usage.data=data.state.usage;LS.set('usage',Usage.data)}
   normalisePortfolio()
  }else if(S.settings.cloudSync!==0){await this.flush(userId)}
