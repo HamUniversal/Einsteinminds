@@ -1,8 +1,15 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const allowedOrigins = new Set(["https://einsteinminds.com","https://www.einsteinminds.com","https://darkturquoise-magpie-142020.hostingersite.com","http://localhost:8888"]);
+const allowedOrigins = new Set(["https://einsteinminds.com","https://www.einsteinminds.com","https://darkturquoise-magpie-142020.hostingersite.com","https://honeydew-giraffe-234540.hostingersite.com","http://localhost:8888"]);
+const isAllowedOrigin = (origin:string|null) => {
+  if (!origin || allowedOrigins.has(origin)) return true;
+  try {
+    const url = new URL(origin);
+    return url.protocol === "https:" && !url.port && url.hostname.endsWith(".hostingersite.com");
+  } catch { return false; }
+};
 const cors = (origin: string | null) => ({
-  "Access-Control-Allow-Origin": origin && allowedOrigins.has(origin) ? origin : "https://einsteinminds.com",
+  "Access-Control-Allow-Origin": origin && isAllowedOrigin(origin) ? origin : "https://einsteinminds.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Vary": "Origin"
@@ -54,7 +61,7 @@ const mapRows = (rows:any[]) => rows.map((row:any) => ({
 Deno.serve(async (req:Request)=>{
  const origin=req.headers.get("Origin");
  if(req.method==="OPTIONS")return new Response("ok",{headers:cors(origin)});
- if(origin&&!allowedOrigins.has(origin))return reply({error:"Origin not allowed"},403,origin);
+ if(!isAllowedOrigin(origin))return reply({error:"Origin not allowed"},403,origin);
  if(req.method!=="POST")return reply({error:"Method not allowed"},405,origin);
  try{
   const body=await req.json();
