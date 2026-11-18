@@ -114,3 +114,21 @@ All eight historical migrations are now present under `supabase/migrations/`. Th
 For a new project, apply the eight migrations in chronological filename order, then run `supabase/seed/README.md` in order to restore 24 categories, 227 published resources, 231 category mappings and 229 provenance records. Run `99_verify.sql` to check the snapshot counts. The seed restores public directory data only; it does not copy Auth identities, private workspaces, payment records, webhook events, telemetry or secrets.
 
 This restores source-level reproducibility, but a complete restore has not yet been exercised against a separate empty Supabase project. Do not run the dated snapshot on a live catalogue as a casual update: the scripts are upserts and may restore the 18 November 2026 values for matching IDs.
+
+
+## Administrator diagnostics
+
+The read-only diagnostics page is available at `/admin-diagnostics.html` after deployment. It checks the authenticated Supabase session and private profile database access, validates the Groq API key against Groq's models endpoint, and verifies PayPal OAuth credentials, the active USD $8/month and $60/year plans, the webhook URL and required webhook event subscriptions. It does not create subscriptions, charge customers, change configuration or send test webhooks.
+
+### Enable administrator access
+
+1. In Supabase Dashboard, open **Edge Functions → Secrets** for project `fxxjainrhtdezyzbqynn`.
+2. Add `ADMIN_EMAILS` with the comma-separated email address(es) of verified Einstein Minds administrator accounts. This value is server-side only. Alternatively, an administrator can be authorized by a trusted `app_metadata.role = "admin"` or `app_metadata.roles` claim set by a project administrator. User-editable `user_metadata` is never used for authorization.
+3. Deploy the function with JWT verification enabled (the Supabase CLI default):
+   `supabase functions deploy admin-diagnostics --project-ref fxxjainrhtdezyzbqynn`
+4. Upload `admin-diagnostics.html` to the Hostinger `public_html` root. The existing frontend Supabase publishable key is used only to restore the signed-in browser session; all privileged checks and secrets stay server-side.
+5. Sign in at https://einsteinminds.com, then open https://einsteinminds.com/admin-diagnostics.html and select **Run diagnostics**.
+
+The Edge Function independently validates the bearer token with Supabase Auth and checks the administrator allowlist or trusted app metadata on every request. A hidden page or frontend flag is not treated as authorization. The function returns only safe pass/fail details and never returns secret values, access tokens, payer data or profile records. The endpoint is read-only. Keep `ADMIN_EMAILS` limited to trusted, verified administrators and remove addresses when access is no longer required.
+
+A passing PayPal preflight is only a configuration check. A real sandbox purchase, subscription lifecycle and PayPal webhook delivery still require a separate controlled end-to-end test.
