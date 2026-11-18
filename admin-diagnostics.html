@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex,nofollow">
+<title>Administrator Diagnostics · Einstein Minds</title>
+<style>
+:root{color-scheme:light dark;--bg:#f5f5f7;--surface:#fff;--ink:#1d1d1f;--muted:#6e6e73;--line:#e5e5ea;--accent:#111;--ok:#16843b;--bad:#c62828;--warn:#a85d00;--shadow:0 12px 36px rgba(0,0,0,.07);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Segoe UI",sans-serif}
+@media(prefers-color-scheme:dark){:root{--bg:#09090b;--surface:#151518;--ink:#f5f5f7;--muted:#a1a1a6;--line:#303035;--accent:#f5f5f7;--ok:#55d982;--bad:#ff7770;--warn:#ffc46b;--shadow:0 12px 36px rgba(0,0,0,.3)}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.55}
+main{width:min(900px,calc(100% - 36px));margin:0 auto;padding:48px 0 72px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:38px}
+.brand{font-weight:760;letter-spacing:-.03em}.back{color:var(--muted);text-decoration:none;font-size:14px}.back:hover{color:var(--ink)}
+h1{font-size:clamp(30px,5vw,46px);letter-spacing:-.045em;line-height:1.08;margin:0 0 14px}
+.lead{color:var(--muted);max-width:680px;margin:0 0 28px}
+.notice{border:1px solid var(--line);border-radius:18px;padding:16px 18px;background:var(--surface);color:var(--muted);font-size:13px;margin:22px 0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+button{border:0;border-radius:999px;padding:12px 20px;background:var(--accent);color:var(--bg);font:inherit;font-weight:650;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}.status{font-size:13px;color:var(--muted)}
+.results{display:grid;gap:12px;margin-top:20px}
+.result{display:flex;gap:14px;align-items:flex-start;padding:16px;border:1px solid var(--line);border-radius:16px}
+.dot{width:10px;height:10px;border-radius:50%;margin-top:7px;flex:0 0 auto;background:var(--muted)}
+.result.pass .dot{background:var(--ok)}.result.fail .dot{background:var(--bad)}.result.warn .dot{background:var(--warn)}
+.result h3{font-size:15px;margin:0 0 4px}.result p{font-size:13px;color:var(--muted);margin:0}
+.tag{margin-left:auto;flex:0 0 auto;font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.result.pass .tag{color:var(--ok)}.result.fail .tag{color:var(--bad)}.result.warn .tag{color:var(--warn)}
+.hidden{display:none!important}.foot{font-size:12px;color:var(--muted);margin-top:24px}
+@media(max-width:560px){main{padding-top:28px}.top{margin-bottom:28px}.panel{padding:16px}.tag{font-size:10px}}
+</style>
+</head>
+<body>
+<main>
+<header class="top"><div class="brand">Einstein Minds</div><a class="back" href="/">← Back to app</a></header>
+<h1>Administrator diagnostics</h1>
+<p class="lead">Run safe, read-only checks for the live Supabase, Groq and PayPal configuration. Credentials and tokens remain on the server and are never displayed.</p>
+<div class="notice" id="authNotice">Checking your Einstein Minds sign-in session…</div>
+<section class="panel">
+  <div class="actions">
+    <button id="run" disabled>Run diagnostics</button>
+    <span class="status" id="status" role="status" aria-live="polite">Waiting for authentication</span>
+  </div>
+  <div class="results" id="results" aria-live="polite"></div>
+</section>
+<p class="foot">These checks do not create subscriptions, charge a payment method, change settings, or send test webhooks. A passing PayPal configuration check is not proof of a completed purchase or delivered webhook.</p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+'use strict';
+const SUPABASE_URL='https://fxxjainrhtdezyzbqynn.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_FHZJ_i63UsIX4Eqf0FlYkg_3YAmynUa';
+const $=s=>document.querySelector(s);
+const client=window.supabase?.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})||null;
+const run=$('#run'),status=$('#status'),notice=$('#authNotice'),results=$('#results');
+const safeText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function renderChecks(items){results.innerHTML=items.map(item=>'<article class="result '+safeText(item.status)+'"><span class="dot"></span><div><h3>'+safeText(item.label)+'</h3><p>'+safeText(item.detail)+'</p></div><span class="tag">'+safeText(item.status)+'</span></article>').join('')}
+async function refreshSession(){
+ if(!client){notice.textContent='Supabase could not initialize. Check your connection and return to the main app.';return}
+ const {data,error}=await client.auth.getSession();
+ if(error||!data.session){notice.textContent='You are not signed in. Sign in to Einstein Minds first, then return to this page.';status.textContent='Authentication required';return}
+ const {data:userData,error:userError}=await client.auth.getUser();
+ if(userError||!userData.user){notice.textContent='Your session has expired. Sign in again and reload this page.';status.textContent='Authentication required';return}
+ notice.textContent='Signed in. Administrator permission is checked securely by the server when you run diagnostics.';
+ run.disabled=false;status.textContent='Ready';
+}
+run.addEventListener('click',async()=>{
+ run.disabled=true;status.textContent='Running read-only checks…';results.innerHTML='';
+ try{
+  const {data,error}=await client.functions.invoke('admin-diagnostics',{body:{action:'run'}});
+  if(error){const message=String(error.message||'').toLowerCase();if(message.includes('403')){notice.textContent='Administrator access denied. Configure the verified account email in the server-side ADMIN_EMAILS secret, or assign a trusted app_metadata admin role.';status.textContent='Not authorized'}else if(message.includes('401')){notice.textContent='Your sign-in session is invalid or expired. Sign in again.';status.textContent='Authentication required'}else{notice.textContent='The diagnostics service could not be reached. Confirm the Edge Function has been deployed.';status.textContent='Service unavailable'}return}
+  if(!data||!Array.isArray(data.checks)){status.textContent='Unexpected diagnostics response';notice.textContent='No diagnostic results were returned.';return}
+  notice.textContent='Administrator authorization verified. Results are read-only and contain no credential values.';
+  renderChecks(data.checks);
+  status.textContent=(data.ok?'All configuration checks passed':'Some configuration checks need attention')+' · '+new Date(data.checked_at).toLocaleString();
+ }catch(e){status.textContent='Could not complete checks';notice.textContent='Please reload the page and try again.'}
+ finally{run.disabled=false}
+});
+refreshSession();
+</script>
+</body>
+</html>
